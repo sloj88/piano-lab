@@ -1,6 +1,6 @@
-# Learn Piano in a Year — Curriculum Architecture v0.1
+# Learn Piano in a Year — Curriculum Architecture v0.2
 
-Status: proposal for critical human review
+Status: revised proposal for second critical human review
 Scope: 365 sequential sessions, not calendar days
 Session target: 10–15 minutes of core activity, plus an optional **Keep Playing** extension
 
@@ -8,18 +8,32 @@ Session target: 10–15 minutes of core activity, plus an optional **Keep Playin
 
 Learn Piano in a Year is a self-paced path for an adult who is starting with no musical training and has access to a physical piano or keyboard. “Year” names the 365-session journey; it does not impose daily practice, streaks, deadlines, or catch-up work.
 
+## Primary educational philosophy
+
+Piano Lab follows a **traditional, notation-first pathway** similar in purpose to structured beginner piano lessons. Standard notation, healthy technique, increasingly independent reading, and complete repertoire form the curriculum’s main line. Chords, ear training, improvisation, creativity, and accompaniment are essential complementary musicianship: they deepen what the learner reads and plays, but they do not displace reading fluency.
+
+As an illustrative emphasis, approximately 70% of the journey’s attention should support reading, technique, and notated repertoire, with approximately 30% supporting listening, creativity, chords, accompaniment, and broader musicianship. This is not a session quota. A Play session may integrate both, and chapter needs should override arithmetic.
+
+Notation-first does **not** mean symbol-only. A written note must connect to keyboard geography, sound, pulse, movement, and musical intention. Ear and creative work should reinforce written understanding—for example, hearing a pattern before finding it, then seeing how it is notated.
+
 The intended graduate is a capable, confident beginner who can:
 
 - read and play short pieces on the grand staff rather than relying on falling-note graphics or finger numbers;
 - maintain a steady pulse in common simple and compound meters;
 - play easy solo music with both hands, basic coordination, healthy movement, and intentional expression;
-- use common scales, five-finger patterns, intervals, and primary chords to understand and learn music;
+- use common scales, five-finger patterns, intervals, and primary chords to understand notated music and support simple accompaniment;
 - learn a suitable short piece with decreasing guidance, sight-read easier material, reproduce short heard patterns, and make simple musical choices;
 - diagnose a small problem, choose a practice strategy, and judge improvement without automated scoring.
 
-This is not a claim of professional proficiency or a guaranteed examination grade. A reasonable external comparison is the broad skill territory around late preparatory to early graded study, with individual strengths varying. The final benchmark requires actual playing, not completion of 365 screens.
+This is not a claim of professional proficiency, a guaranteed examination grade, or a guarantee of proficiency within exactly one calendar year. A reasonable external comparison is the broad skill territory around late preparatory to early graded study, with individual strengths varying. The final benchmark requires actual playing, not completion of 365 screens.
 
-## What v0.1 already establishes
+## Progress means musical ability, not speed
+
+**Progress is not a race through 365 sessions. Progress is developing the ability to make music. Learners may stay, repeat, revisit, and move forward at their own pace.**
+
+A numbered session is a structured learning experience, not a daily assignment or mastery certificate. Completing it means the learner engaged with its core work and reflected honestly; coordination, reading fluency, and repertoire may need repeated sessions or additional playing. There are no streaks, deadlines, mandatory catch-up sessions, punitive resets, or automatic performance gates.
+
+## What the published Lesson 01 already establishes
 
 The existing **Your First Five Notes** lesson becomes Session 001, not a separate prerequisite. It already provides a useful instructional grammar for the larger journey.
 
@@ -51,15 +65,18 @@ The following claims have a defensible external basis:
 6. **Easy-feeling repetition can exaggerate confidence.** A piano study found that fixed-order practice felt effective during acquisition while random-order practice produced better delayed performance. Review sessions therefore mix familiar tasks after initial success rather than repeating one item indefinitely.
 7. **Autonomy and competence support motivation.** Research with advanced music students associates autonomy-supportive teaching with more autonomous motivation and higher practice quantity and quality. This population differs from adult beginners, but the finding supports optional repertoire choices, non-punitive reflection, and no streaks.
 
-### Proposed Piano Lab design choices
+### Approved direction and proposed implementation choices
 
-These are reasoned proposals, not universally established rules:
+The notation-first, real-instrument-first, self-paced direction is approved. The exact sequence below remains a reasoned proposal rather than a universally established rule:
 
-- Begin pulse in Session 003, directional staff reading in Session 007, and specific grand-staff landmarks within Chapter 01.
+- Begin pulse in Session 003, directional staff reading in Session 007, and specific grand-staff landmarks within Chapter 01; notation then remains the main route into repertoire.
 - Introduce the left hand separately in Session 011 and simple two-hand alternation in Session 015, before sustained hands-together textures.
 - Use landmark-and-interval reading, with limited note-name checks, rather than memorizing every line and space through mnemonics.
+- Add small listening, echo, same/different, and constrained creative tasks from Chapter 01 onward to reinforce the written concepts.
+- Introduce comfortable changes between familiar five-finger positions in Chapters 03–04, while reserving sustained scale crossings and wider technical movement for Chapter 07.
 - Revisit a new skill within roughly 2–4 sessions, 7–12 sessions, and 20–35 sessions, adjusted by demonstrated need.
 - Allocate 10–15 core minutes to one main objective; extensions provide additional playing rather than additional required content.
+- Aim provisionally for about 35–40% Practice and Review sessions across the journey, with chapter-specific variation and Play sessions counted separately.
 - End most chapters with a short complete piece or small performance task, not a knowledge quiz.
 - Target broad late-preparatory/early-graded competence after 365 sessions, not a fixed examination level.
 
@@ -91,19 +108,19 @@ Allocations follow learning demands rather than equal months or weeks.
 
 **Purpose:** Turn an unfamiliar keyboard into a navigable musical space and connect first notes to pulse, elementary notation, both hands, and a complete piece.
 **Prerequisites:** A physical piano or keyboard and the ability to use the browser; no music knowledge.
-**Musical concepts:** Black-key groups, C and middle C, C–G, higher/lower, steady pulse, quarter and half notes, quarter rest, five-line staff, treble G and bass F landmarks, steps/repeats, loud/soft, phrase.
+**Musical concepts:** Black-key groups, C and middle C, C–G, higher/lower, steady pulse, quarter and half notes, quarter rest, five-line staff, treble G and bass F landmarks, steps/repeats, same/different patterns, loud/soft, question/answer phrase.
 **Physical skills:** Balanced seating, relaxed shoulders, level flexible wrist, curved resting hand, RH 1–5, LH 5–1, single-hand control, alternating hands in a common pulse.
-**Practice and reinforcement:** Immediate retrieval of Session 001, clap/tap before playing, tiny echo patterns, no-hint landmark checks, repeated posture resets, one original notated chapter piece.
-**Milestone:** Find middle C independently; maintain a pulse while playing a five-note pattern; read a very short stepwise phrase in each clef hands separately; perform one short two-hand piece using alternating or shared notes with an intentional dynamic contrast.
+**Practice and reinforcement:** Immediate retrieval of Session 001, clap/tap before playing, tiny rhythm and pitch echoes, constrained question-and-answer invention, no-hint landmark checks, repeated posture resets, and one original notated chapter piece.
+**Milestone:** Find middle C independently; maintain a pulse while playing a five-note pattern; read a very short stepwise phrase in each clef hands separately; reproduce a tiny heard pattern; and perform one short two-hand piece from notation using alternating or shared notes with an intentional dynamic contrast.
 **Allocation:** 24 sessions. See [Chapter 01 outline](chapter-01-outline.md).
 
 ### Chapter 02 — Read and Feel the Beat
 
-**Purpose:** Make notation and rhythm practical tools rather than labels to memorize.
+**Purpose:** Establish standard notation and rhythm as the learner’s primary tools for finding and organizing new music.
 **Prerequisites:** Chapter 01 milestone, especially keyboard landmarks and an approximately steady pulse.
 **Musical concepts:** Grand staff, middle-C relationship, notes in the C3–C5 region, seconds and repeated notes, 2/4, 3/4, and 4/4, whole/half/quarter/eighth-note pairs, rests, barlines, measures, ties.
 **Physical skills:** Single-hand five-finger playing in both hands, controlled repeated notes, silent preparation before the first note, eyes moving between score and keyboard.
-**Practice and reinforcement:** Daily micro sight-reading, rhythm speak–tap–play sequence, landmark-plus-direction reading, interleaved RH/LH examples, two contrasting short pieces.
+**Practice and reinforcement:** Daily micro sight-reading, rhythm speak–tap–play sequence, landmark-plus-direction reading, interleaved RH/LH examples, same/different listening tied back to the score, and two contrasting short notated pieces.
 **Milestone:** Sight-play an unseen four-measure stepwise melody hands separately in either clef after a short preview; clap a short notated rhythm with a steady beat; perform two complete single-hand pieces from notation.
 **Allocation:** 28 sessions.
 
@@ -112,9 +129,9 @@ Allocations follow learning demands rather than equal months or weeks.
 **Purpose:** Develop early coordination without making both hands cognitively or physically busy at once.
 **Prerequisites:** Reliable single-hand five-finger reading and basic note values/rests.
 **Musical concepts:** Simultaneous versus alternating events, harmonic intervals, tied/shared notes, simple ostinato, contrary and parallel motion, phrase repetition.
-**Physical skills:** Coordinated attacks and releases, one hand holding while the other moves, simple hands-together five-finger patterns, maintaining pulse through hand changes.
-**Practice and reinforcement:** “One hand, other hand, together” preparation; blocked coordination; reduced-tempo loops; frequent return to single-hand accuracy; several miniature duets with the learner playing both roles separately before combining.
-**Milestone:** Perform a short hands-together piece with one hand moving mostly stepwise and the other using held, repeated, or single notes, without losing the pulse after a mistake.
+**Physical skills:** Coordinated attacks and releases, one hand holding while the other moves, simple hands-together five-finger patterns, maintaining pulse through hand changes, and moving one hand between two nearby prepared positions without twisting or reaching.
+**Practice and reinforcement:** “One hand, other hand, together” preparation; blocked coordination; reduced-tempo loops; frequent return to single-hand accuracy; position-change preparation away from tempo; several miniature duets with the learner playing both roles separately before combining.
+**Milestone:** Read and perform a short hands-together piece with one hand moving mostly stepwise and the other using held, repeated, or single notes; make one simple prepared position change; and recover the pulse after a mistake.
 **Allocation:** 30 sessions.
 
 ### Chapter 04 — Steps, Skips, and Chords
@@ -122,8 +139,8 @@ Allocations follow learning demands rather than equal months or weeks.
 **Purpose:** Read by musical relationships and hear how intervals and triads organize melody and harmony.
 **Prerequisites:** Basic grand-staff reading and simple hands-together coordination.
 **Musical concepts:** Seconds through fifths, melodic versus harmonic intervals, tonic/dominant feeling, major/minor sound, root-position C-major and A-minor triads, broken versus blocked chords.
-**Physical skills:** Prepare interval shapes, play balanced two- and three-note groups without squeezing, move between melody and chord shapes.
-**Practice and reinforcement:** Interval recognition by sight, sound, and keyboard shape; transpose tiny patterns within familiar positions; accompaniment drones and blocked chords; a piece built from skips.
+**Physical skills:** Prepare interval shapes, play balanced two- and three-note groups without squeezing, release and relocate to a nearby five-finger position, and move between melody and chord shapes.
+**Practice and reinforcement:** Interval recognition by sight, sound, and keyboard shape; guided “release–move–prepare–play” position changes; transpose tiny written patterns within familiar positions; accompaniment drones and blocked chords; a piece built from skips.
 **Milestone:** Identify and play seconds, thirds, fourths, and fifths from a starting note; play C-major and A-minor triads comfortably; perform a piece combining stepwise melody and simple chord support.
 **Allocation:** 31 sessions.
 
@@ -149,7 +166,7 @@ Allocations follow learning demands rather than equal months or weeks.
 
 ### Chapter 07 — Moving Beyond Five Fingers
 
-**Purpose:** Expand keyboard range while preserving relaxed alignment and reading fluency.
+**Purpose:** Develop sustained movement beyond positions and formal scale technique while preserving relaxed alignment and reading fluency; this extends, rather than begins, earlier position changes.
 **Prerequisites:** Confident five-finger playing in C/G/F and elementary expression.
 **Musical concepts:** Octave, scale, tetrachord, fingering as movement planning, one-octave C and G major, A natural minor, ledger-line orientation.
 **Physical skills:** Thumb-under preparation and lateral arm movement, one-octave scales hands separately, position shifts, simple broken-chord patterns, crossing over without wrist collapse.
@@ -169,22 +186,22 @@ Allocations follow learning demands rather than equal months or weeks.
 
 ### Chapter 09 — Harmony and Accompaniment
 
-**Purpose:** Use chords functionally to accompany melodies and understand common musical motion.
+**Purpose:** Use chords functionally to understand the harmony inside notated repertoire and to accompany simple melodies without displacing score-reading development.
 **Prerequisites:** Major/minor triad shapes, wider-range movement, and steady two-hand pulse.
 **Musical concepts:** I, IV, V, and V7 in C/G/F; chord symbols; cadence; primary-chord progressions; lead-sheet melody plus accompaniment; broken-chord and waltz patterns.
 **Physical skills:** Move LH chord shapes efficiently, voice melody above accompaniment, sustain/release harmonies cleanly, optional basic pedal changes.
 **Practice and reinforcement:** Block before breaking chords; hear and predict home/away/return; harmonize constrained melodies; rotate accompaniment patterns across familiar keys.
-**Milestone:** Accompany a simple melody using primary chords in at least two keys, follow elementary chord symbols, and perform a short solo arrangement with melody clearly projected.
+**Milestone:** Read and perform a short solo arrangement with melody clearly projected, identify its primary harmonies, and accompany a simple melody from elementary chord symbols in at least two keys.
 **Allocation:** 34 sessions.
 
 ### Chapter 10 — Musical Independence
 
-**Purpose:** Increase hand independence, reading range, and the ability to solve problems without continuous instruction.
+**Purpose:** Increase hand independence, reading range, and the ability to learn suitable notated music without continuous instruction.
 **Prerequisites:** Primary chords, one-octave movement, varied rhythms, and expressive short pieces.
 **Musical concepts:** Independent voices, simple canon/imitation, phrase form (AB/ABA), scale-degree tendencies, ornament introduction where repertoire requires it, score scanning.
 **Physical skills:** Different articulations or dynamics between hands, moving melody between hands, layered rhythmic roles, controlled balance in simple polyphonic textures.
 **Practice and reinforcement:** Voice alone/combined practice; start from multiple locations; diagnose pitch, rhythm, coordination, or expression separately; progressively less annotated sight-reading.
-**Milestone:** Learn a short section from notation using a self-chosen practice plan; perform a simple two-voice or melody-transfer piece with audible independence; sight-read substantially easier hands-together material.
+**Milestone:** Independently learn a short section from standard notation using a self-chosen practice plan; perform a simple two-voice or melody-transfer piece with audible independence; sight-read substantially easier hands-together material.
 **Allocation:** 32 sessions.
 
 ### Chapter 11 — Repertoire Workshop
@@ -204,7 +221,7 @@ Allocations follow learning demands rather than equal months or weeks.
 **Musical concepts:** Synthesis of notation, rhythm, harmony, listening, form, interpretation, and practice planning; next-step goal setting.
 **Physical skills:** Comfortable setup, self-correction, warm-up selection, coordinated performance, stopping before fatigue or pain.
 **Practice and reinforcement:** Mixed retrieval across the entire course; an unseen-piece learning project; ear-to-keyboard task; simple harmonization or improvisation; final program preparation.
-**Milestone:** Perform a three-piece mini-recital, sight-read a short easier excerpt, reproduce a short heard melody/rhythm, harmonize or create a small phrase, and independently plan the first practice session for a new suitable piece.
+**Milestone:** Perform a three-piece mini-recital primarily learned from standard notation, sight-read a short easier excerpt, reproduce a short heard melody/rhythm, harmonize or create a small phrase, and independently plan the first practice session for a new suitable score.
 **Allocation:** 26 sessions.
 
 ## Reusable session model
@@ -220,7 +237,9 @@ Every session has one primary type. A session may contain a brief retrieval task
 
 ### Keep Playing
 
-The optional extension is 3–10 additional minutes and must remain genuinely optional. It may offer another repetition, a transposition, an improvisation constraint, a learner-choice piece, or a listening prompt. It should not contain knowledge required by the next session.
+The optional extension is approximately 3–10 additional minutes and must remain genuinely optional. It may offer another repetition, a transposition, an improvisation constraint, a learner-choice piece, or a listening prompt. It should not contain knowledge required by the next session.
+
+The 10–15-minute core is a useful minimum learning encounter, not a promise that coordination or repertoire will become fluent in one sitting. A learner may repeat the core, stop after it, or continue playing. No learner should feel required to begin a new numbered session every calendar day, and the 365 sessions do not guarantee proficiency within one calendar year.
 
 ### Self-assessment and evidence
 
@@ -230,6 +249,36 @@ Keep separate indicators when both are relevant:
 - **I can play it:** “I can produce it comfortably and intentionally on my instrument.”
 
 Neither checkbox certifies mastery. Sessions also define a small observable outcome: for example, “three correct starts from different notes,” “four measures without losing pulse,” or “an audible soft-to-loud contrast.” Review sessions should sometimes ask for the task before showing the hint, reducing the risk that familiarity is mistaken for recall.
+
+### Learner-controlled position and readiness
+
+The future product should distinguish five pieces of information rather than compressing them into one progress percentage:
+
+| Information | Meaning | Expected behavior |
+|---|---|---|
+| **Current learning position** | The next/current numbered session in the main sequence | Changes only when the learner explicitly continues or chooses another current session |
+| **Previously completed sessions** | Sessions whose core activity the learner has finished at least once | Remain recorded through repeats and revisits |
+| **Understanding** | Whether the learner can explain, recognize, count, or predict the concept | Preserves the existing separate “I understand it” reflection |
+| **Playing ability** | Whether the learner can physically produce the skill comfortably and intentionally | Preserves the existing separate “I can play it” reflection |
+| **Reinforcement recommendations** | Skills or earlier sessions likely to help next | Supportive suggestions, not locked gates or a second hidden curriculum |
+
+Opening an earlier session for review must not automatically move the current learning position backward. Repeating a completed session must not erase its prior completion or later-session history. The learner may explicitly choose “make this my current session” if the eventual product supports that action.
+
+Readiness complements the two existing self-assessments:
+
+| Readiness state | Learner meaning | Useful next step |
+|---|---|---|
+| **Ready** | “I can play this comfortably.” | Continue when desired, repeat for enjoyment, or use Keep Playing; schedule a later mixed review |
+| **Practicing** | “I’m getting there, but more practice would help.” | Keep the current position; recommend one short targeted exercise, a repeat of the core, or a nearby Practice session; continuing remains the learner’s choice |
+| **Stuck** | “I need a simpler exercise or additional explanation.” | Offer a simpler prerequisite-sized exercise, reopen the most relevant explanation/hint, and suggest one specific earlier session; do not erase progress or impose a punitive reset |
+
+“Ready” is not permanent mastery, and “Stuck” is not failure. If understanding is secure but playing is not, recommend a slower or physically simpler Practice task. If playing succeeds by imitation but understanding is uncertain, recommend notation, counting, or explanation review. This model is conceptual documentation only; it does not specify a database or adaptive algorithm.
+
+### Practice and Review mix
+
+Across the full journey, a provisional **35–40% of core sessions should be Practice or Review**, with chapter-specific flexibility. Learn and Play sessions also contain retrieval, but they do not count toward this target merely to satisfy a ratio. Chapter authors should report the actual mix and justify meaningful deviations—for example, a repertoire workshop may contain more Practice and Play, while an early concept chapter may contain more Learn.
+
+The target protects against a novelty conveyor belt, but it is not a guarantee of enough repetition for every learner. Readiness recommendations and voluntary repeats supply individual reinforcement without adding unlimited numbered sessions.
 
 ### Spaced reinforcement policy
 
@@ -242,6 +291,15 @@ Each durable skill enters a reinforcement queue:
 5. **Adaptive return:** if either self-assessment remains uncertain or an observable task fails, provide a targeted practice session before increasing complexity.
 
 These are session gaps, not day counts. The cadence must be tested; piano-motor evidence does not justify a universal spacing formula. Repetition should vary context after initial accuracy—for example, a rhythm on a new note set or a chord in a new piece—while preserving occasional exact repetition for technique calibration.
+
+Four reinforcement actions should remain visibly distinct:
+
+1. **Repeat the complete session:** replay its original core because the overall experience is still useful.
+2. **Do a short reinforcement exercise:** spend roughly 2–5 minutes on one prerequisite or weak movement without creating a new numbered session.
+3. **Review in a new musical context:** retrieve the same reading, rhythm, or technique inside different notes or repertoire.
+4. **Practice a specific weakness:** isolate a named issue—such as a hand change or rhythm—before choosing whether to continue.
+
+When the learner selects **Practicing**, prefer actions 2 or 4 and offer a complete repeat as an option. When the learner selects **Stuck**, first simplify or re-explain, then identify one relevant earlier session or prerequisite exercise. Recommendations must be few and concrete, not an opaque adaptive queue.
 
 ## Repertoire and musical breadth
 
@@ -256,11 +314,33 @@ Repertoire is the application layer, not a reward delayed until the end. Every c
 
 Provisional repertoire milestones are stated as capabilities because actual titles require copyright, diversity, difficulty, and pedagogical review.
 
+### Progressive repertoire pathway
+
+“Approximate difficulty” is described by musical demands rather than a promised examination grade. Each chapter should contain frequent miniature Play experiences plus the complete pieces below.
+
+| Chapter | Complete-piece expectation and approximate difficulty | Reading and technique reinforced | Performance milestone | Choice and sourcing |
+|---|---|---|---|---|
+| **01. Meet the Piano** | Two original miniatures of 4–12 measures: one RH phrase and one alternating/shared-hand chapter piece | C–G, first treble/bass landmarks, quarter/half notes and rest, pulse, basic dynamics | Play the notated chapter piece with recognizable beginning/end and one dynamic contrast | Fixed original core pieces; learner may choose title/character |
+| **02. Read and Feel the Beat** | Two contrasting short pieces, mostly hands separate, with one optional equivalent | C3–C5 landmark/step reading, basic meters and rests, silent preparation | Read and perform both pieces without letter labels over every note | Original/public-domain pool; one bounded choice by character |
+| **03. Two Hands, One Pulse** | Two or three very easy hands-together pieces using held, repeated, or alternating support | Simple grand-staff alignment, coordinated attacks/releases, first prepared position change | Sustain one complete piece through a small error without losing the overall pulse | Choose one of two technically equivalent final pieces |
+| **04. Steps, Skips, and Chords** | Two short pieces featuring intervallic melody; one includes blocked or broken triad support | Interval reading through fifths, triad shape, release–move–prepare position changes | Perform a melody-and-chord piece with clean relocation and balanced sound | Original and reviewed public-domain selections; optional key/character choice |
+| **05. Keys That Feel Like Home** | Two complete pieces outside C major, including one with a key signature and accidentals | G/F major orientation, black-key approach, transposition, five-finger patterns | Perform a notated piece in G or F and explain its key signature | Choice between equivalent G- and F-centered works where possible |
+| **06. Articulation and Expression** | Two contrasting character pieces, one lyrical and one detached/energetic | Slurs, staccato, dynamics, phrase shaping, melody/accompaniment balance | Present both with clearly different articulation and expressive plans | Wider reviewed pool; original, public-domain, or licensed living-composer work |
+| **07. Moving Beyond Five Fingers** | Two wider-range pieces requiring position shifts; one scale-based | Ledger orientation, thumb crossings, one-octave scale fingering, lateral movement | Perform a piece spanning more than five notes without position-locking or pervasive note labels | Choose one of several equivalent wider-range works after educator leveling |
+| **08. Rhythm in Motion** | Three short pieces contrasting march/simple meter, waltz, and 6/8 or compound feel | Eighths, dotted patterns, pickups, rests, subdivision, metronome diagnostics | Perform one rhythmically varied piece with stable beat and correct entrances | Choice of final meter/style; sources must preserve clear notation and context |
+| **09. Harmony and Accompaniment** | One notated solo arrangement plus one simple melody accompanied from chord symbols | I–IV–V/V7, LH chord movement, voicing melody, optional pedal changes | Read the arrangement and accompany a separate tune in at least two keys | Original/public-domain melodies or appropriately licensed material; limited accompaniment-pattern choice |
+| **10. Musical Independence** | Two short pieces with independent voices, changing roles, or simple imitation | Score scanning, two-voice reading, balance, different hand articulations | Independently prepare a new section and perform one complete independence piece | Learner chooses one of two comparable scores after previewing both |
+| **11. Repertoire Workshop** | Three contrasting complete beginner pieces forming a small program | Integrated reading, technique, rhythm, style, continuity, recovery, self-recording/reflection | Present all three with distinct character and evidence of targeted revision | Meaningful choice from a curated, licensed/public-domain/original pool; at least one work read from score |
+| **12. Confident Beginner** | Retain the three-piece program and independently begin one new suitable score | Transfer of reading and practice planning; consolidated technique and expression | Give a mini-recital and demonstrate the first productive practice session on unseen suitable music | Learner owns program order and one new-piece choice within reviewed difficulty bounds |
+
+The pool should include music recognizable as complete musical expression, not exercises with decorative titles. “Recognizable” does not require commercial familiarity. Original pieces and thoughtfully selected public-domain works are the default until a licensing strategy supports copyrighted repertoire.
+
 ## Quality and safety rules for future lesson writing
 
 - The physical instrument is always the sound source; no virtual keyboard replaces it.
 - New notation must connect to sound and movement in the same or next session.
 - New coordination must first be reduced to a simpler physical task.
+- Early position changes use “release–move–prepare–play”: release unnecessary pressure, move the forearm/hand as a unit, prepare over the new keys, then play. Learners should not stretch, twist, or keep fingers glued to old notes.
 - Speed is never the first success criterion. Comfort, pulse, accuracy, and sound come first.
 - Persistent pain, tingling, numbness, or weakness requires stopping and seeking qualified health advice; the application must not diagnose.
 - Fingerings are contextual plans, not immutable properties of notes.
@@ -282,7 +362,7 @@ Before implementation, obtain review from at least two experienced beginner-pian
 
 The questions and alternatives that need decisions are tracked in [Curriculum review questions](curriculum-review-questions.md).
 
-## Sources informing v0.1
+## Sources informing v0.2
 
 - The Royal Conservatory, [*Piano Syllabus, 2022 Edition*](https://teacherportal.rcmusic.com/getattachment/57f3734d-97e5-4777-b67e-4b1111ee31a3/piano-syllabus-2022-edition.pdf), especially Preparatory A technical, ear, rhythm, and sight-reading requirements.
 - National Coalition for Core Arts Standards, [National Core Arts Standards: Music](https://www.nationalartsstandards.org/customize-handbook?discipline=Music%2CMusic+%28PK-8%29%2CMusic+Composition+and+Theory++%28HS%29&display_options=eq_el%2Cprocess_components&grade_level=PK-2%2CPK%2CK%2C1st%2C2nd%2C3+-+5%2C3rd%2C4th%2C5th&process=Creating%2CPerforming%2FPresenting%2FProducing%2CResponding%2CConnecting).
