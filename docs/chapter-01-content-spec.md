@@ -446,9 +446,16 @@ The learner should sit at a height and distance that allow the forearms to feel 
 
 **Instructional explanation**
 
-> A musical conversation can pass an idea from one hand to the other. The top staff belongs to the right hand; the bottom staff belongs to the left. Only one hand plays in each measure here. A centered rest sign in the other staff means “this hand waits for all four beats.” Prepare both hands before the count-in.
+> A musical conversation can pass an idea from one hand to the other. The top staff belongs to the right hand; the bottom staff belongs to the left. Only one hand plays in each measure here. A centered rest sign in the other staff means “this hand waits for all four beats.” While the right hand plays Measure 1, count 1, 2, 3, 4 and let the left hand wait comfortably through every count. Prepare both hands before the count-in.
 
-**Demonstration:** Highlight paired measures 1/2 as question/answer. Play each hand separately, then perform all four measures. Introduce the whole-measure rest only as a full-measure waiting sign; do not compare it with a whole note or ask the learner to calculate its value.
+**Demonstration:** Highlight paired Measures 1/2 as question/answer. Before playing, show this counting grid for Measure 1:
+
+| Beat | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| RH | C4 | D4 | E4 begins | E4 continues |
+| LH | wait | wait | wait | wait |
+
+Point to the centered rest on the lower staff while the learner counts “1, 2, 3, 4” and keeps the LH relaxed near its keys. Then show Measure 2 with the roles reversed: LH plays and RH waits for all four counts. Play each hand separately, then perform all four measures. Introduce the whole-measure rest only as this full-measure waiting sign; do not compare it with a whole note or ask the learner to calculate another value.
 
 **Core physical exercise**
 
@@ -704,7 +711,7 @@ The learner should sit at a height and distance that allow the forearms to feel 
 
 ### Timing and practice audit
 
-Every core totals 12–14 minutes, leaving small variance within the 10–15-minute target. Six Practice and three Review sessions remain substantive: they vary context, retrieve without immediate answers, diagnose a specific gap, and route to a targeted repair. Play sessions require preparation, a complete musical attempt, reflection, and one repair rather than mere repetition.
+Every planned core budget totals 12–14 minutes, leaving small calculated variance within the 10–15-minute target. These arithmetic budgets establish scope but do not prove how long a complete beginner will need; actual duration must be observed during prototype validation. Six Practice and three Review sessions remain substantive: they vary context, retrieve without immediate answers, diagnose a specific gap, and route to a targeted repair. Play sessions require preparation, a complete musical attempt, reflection, and one repair rather than mere repetition.
 
 ### Instrument and comfort audit
 
@@ -714,18 +721,52 @@ All required pitches fit C3–G4, all exercises work without pedal, and volume c
 
 A qualified piano teacher should review: hand-position and wrist language for diverse bodies and hand sizes; LH 5 on C3/RH 1 on C4 as the chapter’s default; dynamic-production guidance; every fingering and engraved score; P03’s Measure 6–7 transition; target tempos; and recorded demonstrations. An accessibility reviewer should test staff alternatives, zoom/scroll behavior, audio transcripts, touch targets, and navigation with keyboard and screen reader. These reviews are required before implementation is treated as educationally approved.
 
-### Baseline clarification for review
+### Session 006 implementation decision (baseline unchanged)
 
-The approved outline calls Session 006’s echoes “two-measure” patterns. The music specification begins with three one-measure echoes and reserves a two-measure pattern for Keep Playing, matching the core time and true-beginner load. This is a proposed interpretation, not a silent edit to the approved outline.
+The approved outline calls Session 006’s echoes “two-measure” patterns. The intended implementation is now explicit: the Session 006 core uses the three one-measure R002 patterns A–C, and the optional Keep Playing extension uses the two-measure R002 D. The outline phrase is interpreted as allowing the echo activity to develop to two measures, not requiring every core echo to be two measures. This content decision is recorded here without editing the approved curriculum baseline.
 
-## Recommended first implementation slice
+## Recommended first implementation strategy
 
-Implement **Session 001 (Learn, reused), Session 004 (Practice), and Session 010 (Play)** first, plus the shared repeat/revisit and Ready/Practicing/Stuck ending.
+### Slice A — Sessions 001–004
 
-- **001** preserves the published learning experience and tests how its existing five steps are divided into essential core and Keep Playing without discarding content.
-- **004** reuses its keyboard/fingering assets while testing pulse animation, an actual Practice session, a targeted repair, and the difference between completed and still-practicing.
-- **010** introduces a small, complete notation-led piece and tests score readability, section preparation, optional reference audio, performance reflection, and repair without requiring left-hand or paired-staff implementation yet.
-- Shared navigation must allow a learner at 010 to revisit 001 or 004 without changing the current sequential position, losing completion, or overwriting separate understanding/playing/readiness choices.
-- Each state has distinct useful support: Ready offers Continue/Keep Playing; Practicing offers the named repeat; Stuck opens the simpler prerequisite and earlier-session link.
+Build the first four sessions consecutively as the first learner-facing slice.
 
-This three-session slice spans Learn → Practice → Play, keyboard diagram → pulse-guided playing → standard notation, and first exposure → retrieval → complete performance. It is large enough to test the chapter’s learning loop, local progress model, mobile use beside a physical keyboard, and non-punitive learner control. It intentionally postpones bass clef, paired staves, and final-piece coordination until these foundational interactions are validated. No new application behavior is implemented by this documentation proposal.
+- **001 — Learn** preserves the published first-note experience while separating essential core from Keep Playing.
+- **002 — Review** tests retrieval, same/different listening, replay controls, and support after an uncertain answer.
+- **003 — Learn** establishes pulse before the learner is asked to coordinate changing notes with it.
+- **004 — Practice** applies pulse to the five-note pattern and tests targeted Practicing/Stuck routes.
+
+Slice A is the minimum coherent beginner sequence for validating first notes, early listening, pulse, review, practice, and learner-controlled progress. Shared navigation must let a learner in 003 or 004 revisit an earlier session without moving the furthest current position, losing completion, or overwriting separate understanding, playing, and readiness choices.
+
+### Slice B — Sessions 005–010
+
+After Slice A has been observed and refined, build Sessions 005–010 consecutively.
+
+- **005–006** introduce one- and two-beat durations and rhythm echoes.
+- **007–009** develop staff shape, treble landmarks, and C4–E4 step reading in prerequisite order.
+- **010 — Play** asks the learner to prepare and perform P01 “Three-Step Walk” from notation.
+
+Slice B validates the complete path from pulse to duration, heard rhythm, staff reading, and a first score-reading performance. Session 010 is pedagogically ready for beginner testing only after Sessions 001–009 are available and the learner has completed or meaningfully attempted them. It must not be presented as a standalone learner-facing lesson whose prerequisites are supplied only by hints or demonstration audio.
+
+### UI/component prototypes versus learning validation
+
+A standalone Play component may be prototyped with P01 or sample music to check score rendering, responsive layout, audio controls, reflection controls, and progress events. That is **component testing**, not evidence that a beginner can learn Session 010. Similarly, isolated prototypes for Ready/Practicing/Stuck or revisit navigation can establish state behavior without validating whether their language makes sense to a learner.
+
+**Real beginner learning validation requires the consecutive sequence.** Slice A must be tested as 001→004, and Session 010 must be evaluated at the end of Slice B after 001–009. A technically correct screen, passing automated test, or successful expert walkthrough cannot by itself establish appropriate pacing, comprehensibility, or educational effectiveness.
+
+## Prototype acceptance checks
+
+Use adults who self-identify as complete beginners for pedagogical checks. A small prototype sample provides directional evidence, not statistical proof. Record observations without microphone scoring or automated performance judgment, and keep qualified piano-teacher review separate and explicit.
+
+| Area | Implementation correctness check | Pedagogical validation check | Acceptance evidence |
+|---|---|---|---|
+| Actual session duration | The session includes every specified core activity and optional Keep Playing remains outside the core timer/observation. | Observe complete beginners using each session beside a physical instrument; measure from the start of core instruction through reflection, excluding researcher discussion and unrelated technical setup. | Most observed learners can attempt every essential core activity in 10–15 minutes without the facilitator skipping explanations or rushing physical repetitions. Record the range and where time is spent; revise scope when an essential activity routinely exceeds the target. Calculated budgets alone do not pass this check. |
+| Listening audio and replay | Audio never autoplays, Play/Replay is keyboard and touch operable, state is visibly announced, replay does not erase the answer or progress, transcripts/answer reveals are available as specified, and volume is consistent. | In Sessions 002 and 006, beginners can find Play/Replay, understand what will replay, listen more than once without embarrassment or confusion, and return to the physical-key task. | Learners complete a same/different and rhythm-echo flow without facilitator help operating audio. Note whether replay, reveal, or volume causes mistaken answers or abandoned tasks. |
+| iPhone notation beside an instrument | On a representative narrow viewport and at least one real iPhone Safari device, scores retain correct engraving, labels, focus order, and touch targets; page-level horizontal overflow does not hide controls. | Place the phone where a learner would realistically use it beside an acoustic piano or portable keyboard. Observe reading distance, posture changes, scrolling, and movement between score and keys. | Staff lines, noteheads, clefs, finger cues, and current measure are readable without mandatory pinch-zoom. Any score-specific zoom or horizontal scroll is discoverable and does not make the learner lose their place. Validate P01 in Slice B, not only an isolated notation sample. |
+| Ready / Practicing / Stuck | Each choice persists separately from understanding, playing, completion, and current position; every choice opens the specified next actions. | After using Slice A, ask learners in their own words what each choice means and observe which option they select after an easy task and a difficult task. | Learners can distinguish “continue when I choose,” “repeat targeted practice,” and “show me a simpler prerequisite” without treating Stuck as failure or Ready as an automated grade. Revise labels/support if repeated explanation is needed. |
+| Revisit and progress preservation | Automated and manual state checks confirm that revisiting 001 from a later session preserves furthest current position, completions, reflections, and readiness choices, then returns to the later location. | Ask a learner at Session 004 to revisit 001, repeat one activity, and return. Observe whether they expect to lose work or become unsure where to continue. | Stored progress is unchanged except for intentionally updated revisit data, and the learner can return to 004 without facilitator navigation or fear that progress was reset. |
+| Session 010 learned from notation | P01 pitches, rhythms, fingering, score, section flow, and optional reference audio match the music specification; Session 010 is sequentially unavailable as a normal next lesson before 001–009. | After attempting Sessions 001–009, observe beginners previewing and learning P01. Audio may support comparison after a reading attempt but must not become the only way to copy the piece. | Learners can use the score to find the start, trace direction/rhythm, prepare sections, and produce a recognizable complete attempt within the session’s intended scope. Record reliance on labels, cursor, audio, or facilitator prompts. Failure to do so triggers review of Sessions 007–010 or the time budget; it is not dismissed as learner error. |
+
+Implementation correctness can be established with code tests, content-reference checks, responsive inspection, and deterministic progress-state tests. Pedagogical validation requires observed beginner behavior across the intended sequence and review by a qualified piano educator. Neither form of evidence substitutes for the other, and neither authorizes merging or broader rollout without human review.
+
+Slices A and B retain the 24-session Chapter 01 and 365-session curriculum structures. Bass clef, paired-staff performance, and the chapter final piece remain later work. No new application behavior is implemented by this documentation proposal.

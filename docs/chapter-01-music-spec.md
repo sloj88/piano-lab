@@ -39,7 +39,7 @@ Scientific pitch notation is used in this specification so that implementers can
 
 The first staff-shape examples may suppress clefs and letter names so the learner can attend to repeat/up/down movement. Once a clef is introduced, every staff example must show it. Letter names must not appear above notes in reading challenges; accessible text alternatives may name the sequence after the learner chooses to reveal the answer.
 
-From Session 015, a paired-staff layout shows the right-hand line above the left-hand line. Beat columns and barlines align vertically. Session 015 uses a hand-lane diagram first and presents paired staves only as a preview. Session 016 introduces a centered whole-measure rest as one practical sign meaning “this hand waits for all four beats”; it does not introduce or compare the whole-note value. Session 017 then teaches a quarter rest as exactly one silent beat. Session 016 labels every entrance `RH` or `LH` so the rest symbol is not the learner’s only hand cue.
+From Session 015, a paired-staff layout shows the right-hand line above the left-hand line. Beat columns and barlines align vertically. Session 015 uses a hand-lane diagram first and presents paired staves only as a preview. Session 016 introduces a centered whole-measure rest as one practical sign meaning “this hand waits for all four beats”; it does not introduce or compare the whole-note value. Its first visual aligns beats 1–4 across both staves: RH plays C4, D4, then a two-beat E4 while the LH row says “wait” on all four counts. The next measure reverses the active/waiting hands. Session 017 then teaches a quarter rest as exactly one silent beat. Session 016 labels every entrance `RH` or `LH` so the rest symbol is not the learner’s only hand cue.
 
 ### Rhythm and counting
 
@@ -269,7 +269,7 @@ Typeset in treble clef. Show `RH` and the starting finger only. The final half n
 | 3 | RH, “question” | E4 q, D4 q, C4 h | 3, 2, 1 |
 | 4 | LH, “answer” | E3 q, D3 q, C3 h | 3, 4, 5 |
 
-Typeset on paired treble and bass staves. The inactive staff contains one centered whole-measure rest, introduced in this session only as “this hand waits for all four beats.” Mark `RH` and `LH` at entrances; show the first finger for each hand. Reference audio is useful after hands-separate preparation and should preserve the full four-count.
+Typeset on paired treble and bass staves. The inactive staff contains one centered whole-measure rest, introduced in this session only as “this hand waits for all four beats.” Before the full score, show Measure 1 with a four-column count guide: RH `C4 / D4 / E4 begins / E4 continues`; LH `wait / wait / wait / wait`. Then show Measure 2 with LH playing and RH waiting. Mark `RH` and `LH` at entrances; show the first finger for each hand. Reference audio is useful after hands-separate preparation and should preserve the full four-count.
 
 ### Piece P03 — “Across the Keys” (Chapter 01 final piece)
 
@@ -378,6 +378,6 @@ No example listens to the learner. There is no microphone permission, MIDI conne
 - The 8-measure final piece uses only skills introduced by Session 020.
 - A qualified teacher must review the C4/C3 five-finger positions for varied adult hand sizes; the “level wrist” shorthand in published Session 001; dynamic-production wording; the Measure 6–7 change in P03; all notation engraving; and all demonstration performances before implementation is accepted.
 
-## Proposed clarification, not a baseline change
+## Session 006 implementation decision (baseline unchanged)
 
-The approved outline describes the Session 006 echoes as “two-measure echo patterns,” while its core objective can be met more safely with the one-measure R002 patterns before the optional two-measure Echo D. This specification treats the phrase as a maximum example length, not a requirement that every echo span two measures. No approved curriculum document has been edited; reviewers should confirm this interpretation.
+The approved outline describes the Session 006 echoes as “two-measure echo patterns.” The intended implementation is: R002 A–C are the one-measure core echoes, and R002 D is the optional two-measure Keep Playing echo. The outline phrase is interpreted as allowing the activity to develop to two measures, not requiring every core echo to span two measures. This specification records that content decision explicitly; no approved curriculum baseline document has been edited.
