@@ -1,7 +1,9 @@
 import { BLACK_KEYS, WHITE_NOTES, lesson } from './lessons.js';
 import { calculateProgress, createProgressStore } from './progress.js';
 
-const store = createProgressStore(window.localStorage, lesson.steps.length);
+let browserStorage = null;
+try { browserStorage = window.localStorage; } catch { /* Access can be blocked by browser privacy settings. */ }
+const store = createProgressStore(browserStorage, lesson.steps.length);
 let progress = store.load();
 const $ = (selector) => document.querySelector(selector);
 const elements = {

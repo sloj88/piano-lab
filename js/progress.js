@@ -14,16 +14,25 @@ function normalize(value, stepCount) {
 }
 
 export function createProgressStore(storage, stepCount) {
+  let memory = normalize(null, stepCount);
+  let storageAvailable = Boolean(storage);
+
   const read = () => {
+    if (!storageAvailable) return memory;
     try {
       const raw = storage?.getItem(PROGRESS_KEY);
-      return normalize(raw ? JSON.parse(raw) : null, stepCount);
-    } catch { return normalize(null, stepCount); }
+      if (raw) memory = normalize(JSON.parse(raw), stepCount);
+    } catch {
+      storageAvailable = false;
+    }
+    return memory;
   };
   const write = (progress) => {
-    const normalized = normalize(progress, stepCount);
-    try { storage?.setItem(PROGRESS_KEY, JSON.stringify(normalized)); } catch { /* Storage may be unavailable. */ }
-    return normalized;
+    memory = normalize(progress, stepCount);
+    if (storageAvailable) {
+      try { storage.setItem(PROGRESS_KEY, JSON.stringify(memory)); } catch { storageAvailable = false; }
+    }
+    return memory;
   };
   return {
     load: read,
@@ -34,8 +43,11 @@ export function createProgressStore(storage, stepCount) {
       return write(progress);
     },
     reset() {
-      try { storage?.removeItem(PROGRESS_KEY); } catch { /* Storage may be unavailable. */ }
-      return normalize(null, stepCount);
+      memory = normalize(null, stepCount);
+      if (storageAvailable) {
+        try { storage.removeItem(PROGRESS_KEY); } catch { storageAvailable = false; }
+      }
+      return memory;
     }
   };
 }

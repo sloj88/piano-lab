@@ -28,3 +28,35 @@ test('corrupt storage falls back safely and reset clears progress', () => {
   assert.equal(store.reset().steps[2].canPlay, false);
 });
 
+test('progress remains in memory when storage is unavailable', () => {
+  const unavailableStorage = {
+    getItem() { throw new Error('storage blocked'); },
+    setItem() { throw new Error('storage blocked'); },
+    removeItem() { throw new Error('storage blocked'); }
+  };
+  const store = createProgressStore(unavailableStorage, 5);
+
+  store.setAssessment(2, 'understands', true);
+  store.setCurrentStep(2);
+
+  const progress = store.load();
+  assert.equal(progress.currentStep, 2);
+  assert.equal(progress.steps[2].understands, true);
+});
+
+test('a failed write does not let stale storage replace session progress', () => {
+  const saved = JSON.stringify({ currentStep: 1, steps: { 1: { understands: true } } });
+  const failingStorage = {
+    getItem: () => saved,
+    setItem() { throw new Error('quota exceeded'); },
+    removeItem() { throw new Error('storage blocked'); }
+  };
+  const store = createProgressStore(failingStorage, 5);
+
+  assert.equal(store.load().currentStep, 1);
+  store.setCurrentStep(3);
+
+  assert.equal(store.load().currentStep, 3);
+  assert.equal(store.load().steps[1].understands, true);
+});
+
