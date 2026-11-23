@@ -2,7 +2,7 @@
 
 Piano Lab is a free, open-source learning companion for absolute beginners practicing on a real piano or keyboard. Every exercise is played on the learner's physical instrument—the application guides learning rather than replacing the piano. It is intentionally small: plain HTML, CSS, and JavaScript, with no framework, account, backend, or virtual instrument.
 
-Version 0.1 contains one complete lesson, **Your First Five Notes**. It teaches keyboard landmarks, middle C, C–D–E–F–G, right-hand finger numbers, and an original seven-note melody.
+The current learner-facing catalog contains Session 001, **Your First Five Notes**. It teaches keyboard landmarks, middle C, C–D–E–F–G, right-hand finger numbers, and an original seven-note melody. A reusable session engine now provides the foundation for the sequential 365-session curriculum without creating separate pages for each lesson.
 
 ## Run locally
 
@@ -20,18 +20,24 @@ Node.js 18 or newer is recommended. The suite uses only Node's built-in test run
 
 ```sh
 npm test
+npm run validate:content
 ```
 
-Tests cover piano-key mapping, the two/three black-key pattern, the C landmark, and local progress persistence.
+Tests cover piano-key mapping, structured-content validation, rendering, navigation/revisit behavior, v0.1 progress migration, independent session state, reinforcement history, and localStorage failure fallback.
 
 ## Project structure
 
 ```text
-index.html          Page shell and lesson navigation
+index.html          Page shell and session navigation
 css/styles.css      Responsive, accessible visual design
-js/app.js           Rendering and lesson interactions
-js/lessons.js       Lesson content and keyboard note model
-js/progress.js      localStorage-backed progress behavior
+js/app.js           Browser coordination and interaction handling
+js/session-*.js     Session catalog, rendering, navigation, and v2 progress
+js/content-validator.js  Structured curriculum validation
+js/music-library.js     Referenced musical examples
+js/reinforcements.js    Optional targeted support content
+js/lessons.js       Keyboard model and v0.1 compatibility export
+js/progress.js      Preserved v0.1 progress implementation
+docs/learning-engine.md Architecture and future-session guide
 test/               Dependency-free Node tests
 ```
 
@@ -48,7 +54,7 @@ Do not select the feature branch for the production Pages source. No Pages-speci
 
 ## Known limitations and privacy
 
-The two self-assessment checks in each step are saved in the browser's `localStorage`. Progress stays on that browser and device; clearing site data or using another device starts a fresh lesson. There is no cloud sync, microphone listening, MIDI, automated scoring, or performance verification.
+Session position, completion, separate understanding/playing reflections, readiness, per-step checks, and optional reinforcement history are saved in the browser's `localStorage`. Existing v0.1 progress is migrated without deleting or overwriting its original storage record. Progress stays on that browser and device; clearing site data or using another device starts fresh. There is no cloud sync, microphone listening, MIDI, automated scoring, or performance verification.
 
 ## Accessibility
 
