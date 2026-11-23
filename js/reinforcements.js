@@ -34,5 +34,47 @@ export const reinforcementCatalog = {
     prerequisite: 'Copy four beats from the pulse guide, pause, then copy four more. Use your leg or another safe surface rather than the keys.',
     readiness: 'You can make 16 beats without an obvious final rush, long unplanned pause, or added beat.',
     earlierSessionId: null
+  },
+  'RF-RHY-1': {
+    id: 'RF-RHY-1', title: 'One- and two-beat durations', sessions: ['005', '006', '009', '010'],
+    repeat: 'On middle C, play quarter, quarter, half while counting 1–4. Press once for the half note and release after its second count. Repeat half, half.',
+    prerequisite: 'Use four beat boxes. Tap once in each box; then join boxes 1–2 and hold one tap gesture across them before joining 3–4.',
+    readiness: 'You can perform at least two R001 patterns with one press per written note and the correct four-beat total.',
+    earlierSessionId: '005'
+  },
+  'RF-RHY-2': {
+    id: 'RF-RHY-2', title: 'Hear, tap, and play rhythm echoes', sessions: ['006'],
+    repeat: 'Choose one R002 pattern. Hear it once or twice, tap it, reveal the count blocks, and play it twice identically on C and D.',
+    prerequisite: 'Use R001 quarter, quarter, half entirely on middle C with spoken count visible; remove audio-comparison pressure.',
+    readiness: 'You can reproduce three one-measure echoes after no more than two listens each and identify where the two-beat sound occurs.',
+    earlierSessionId: '005'
+  },
+  'RF-READ-1': {
+    id: 'RF-READ-1', title: 'Staff direction and time order', sessions: ['007', '008', '009', '010'],
+    repeat: 'Trace N001 left to right. Say repeat, up, or down between notes, then play the shape on C–D–E.',
+    prerequisite: 'Compare only two large noteheads: same height, one step higher, or one step lower. Move between C and D to match.',
+    readiness: 'You can map an unfamiliar four-note contour to same, right, or left keyboard motion without needing letter names.',
+    earlierSessionId: '007'
+  },
+  'RF-READ-2': {
+    id: 'RF-READ-2', title: 'Treble landmarks C and G', sessions: ['008', '009', '010'],
+    repeat: 'Shuffle four C and G cards. Point, name, and play; then perform N002 A after a count-in.',
+    prerequisite: 'Match only middle C’s ledger-line note to middle C three times. Add G only after C is secure.',
+    readiness: 'You can identify C and G from staff position without a mnemonic and play the correct key in the fixed right-hand position.',
+    earlierSessionId: '007'
+  },
+  'RF-TREBLE-1': {
+    id: 'RF-TREBLE-1', title: 'Treble C–D–E step reading', sessions: ['009', '010'],
+    repeat: 'Preview one N003 card using first note, direction, and rhythm; play after a four-count; reveal names only afterward.',
+    prerequisite: 'Read two notes only: C–D, D–C, or C–C. Keep right-hand fingers 1 and 2 prepared.',
+    readiness: 'You can play a new four-note C–E card without letters above notes and with no more than one self-corrected pitch.',
+    earlierSessionId: '007'
+  },
+  'RF-PIECE-1': {
+    id: 'RF-PIECE-1', title: 'Prepare and repair a complete short piece', sessions: ['010'],
+    repeat: 'Choose P01’s least secure measure, speak its count, play it twice, then connect it once to the following measure.',
+    prerequisite: 'Play only P01 Measures 1–2 after tracing their contour and tapping rhythm. Completion of the whole piece is not required.',
+    readiness: 'You can use preview, complete attempt, named repair, and replay, and reach P01’s ending without restarting after every small error.',
+    earlierSessionId: '009'
   }
 };

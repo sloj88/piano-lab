@@ -5,16 +5,17 @@ import { groupSessionsByChapter, homeSessionState, renderHome } from '../js/home
 import { sessionCatalog } from '../js/session-catalog.js';
 import { createEmptySessionProgress } from '../js/session-progress.js';
 
-test('home shows only the four implemented sessions with current and future availability', () => {
+test('home shows only the ten implemented sessions with current and future availability', () => {
   const progress = createEmptySessionProgress(sessionCatalog);
   const html = renderHome(sessionCatalog, progress);
-  assert.equal((html.match(/class="home-session-card/g) ?? []).length, 4);
+  assert.equal((html.match(/class="home-session-card/g) ?? []).length, 10);
   assert.match(html, /Continue Learning · Session 001/);
   assert.match(html, /Current/);
   assert.match(html, /Up next/);
   assert.match(html, /data-chapter-toggle aria-expanded="true"/);
   assert.match(html, /aria-controls="chapter-1-sessions"/);
-  assert.doesNotMatch(html, /Session 005/);
+  assert.match(html, /Session 010/);
+  assert.doesNotMatch(html, /Session 011/);
   assert.deepEqual(homeSessionState(sessionCatalog[1], 1, sessionCatalog, progress), { available: false, current: false, completed: false, label: 'Up next' });
 });
 
@@ -40,16 +41,16 @@ test('the page shell provides persistent home and lesson help actions', () => {
 
 test('chapter grouping scales from metadata and expands only the current chapter by default', () => {
   const sessions = structuredClone(sessionCatalog);
-  const fifth = structuredClone(sessionCatalog[0]);
-  fifth.id = '005';
-  fifth.title = 'Second Chapter Session';
-  fifth.chapter = 2;
-  sessions.push(fifth);
+  const eleventh = structuredClone(sessionCatalog[0]);
+  eleventh.id = '011';
+  eleventh.title = 'Second Chapter Session';
+  eleventh.chapter = 2;
+  sessions.push(eleventh);
   const progress = createEmptySessionProgress(sessions);
-  progress.currentSessionId = '005';
+  progress.currentSessionId = '011';
   const groups = groupSessionsByChapter(sessions);
   const html = renderHome(sessions, progress);
-  assert.deepEqual(groups.map(({ chapter, entries }) => [chapter, entries.length]), [[1, 4], [2, 1]]);
+  assert.deepEqual(groups.map(({ chapter, entries }) => [chapter, entries.length]), [[1, 10], [2, 1]]);
   assert.match(html, /id="chapter-1-toggle"[^>]*aria-expanded="false"/);
   assert.match(html, /id="chapter-2-toggle"[^>]*aria-expanded="true"/);
   assert.match(html, /id="chapter-1-sessions"[^>]*hidden/);

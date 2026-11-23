@@ -1,11 +1,11 @@
 # Shared Learning Engine
 
 Status: v0.2 Slice A reference implementation
-Implemented learner catalog: Sessions 001–004
+Implemented learner catalog: Sessions 001–010
 
 ## Purpose
 
-Piano Lab renders numbered learning sessions from structured JavaScript data. A future session should be added to the catalog, not built as a separate HTML page or a custom application branch. Slice A preserves published Session 001 and adds the listening and pulse blocks required by Sessions 002–004. Score rendering remains deferred until Slice B requires it.
+Piano Lab renders numbered learning sessions from structured JavaScript data. A future session should be added to the catalog, not built as a separate HTML page or a custom application branch. Slice A preserves published Session 001 and adds the listening and pulse blocks required by Sessions 002–004. Slice B adds the small monophonic notation and rhythm-audio presentations required by Sessions 005–010.
 
 The physical piano remains the instrument. Renderer blocks explain, demonstrate, and organize practice; they never create a playable on-screen piano, listen through a microphone, connect to MIDI, or score a performance.
 
@@ -48,8 +48,11 @@ The current renderer supports these minimal block types:
 | `reflection` | Reflect prompt and the published per-step self-check |
 | `audio-listening` | User-initiated local audio, Same/Different choice, replay, and answer reveal |
 | `pulse-guide` | Even visual beats for tapping or a note/finger sequence |
+| `notation` | Responsive five-line neutral or treble notation for the approved monophonic examples |
+| `rhythm-echo` | User-started local pattern/count recordings with a score revealed after the attempt |
+| `audio-reference` | Optional local reference recordings, including the post-attempt piece models |
 
-Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. A general score block should wait for the notation work in Slice B.
+Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. The notation renderer intentionally supports only the Chapter 01 monophonic quarter/half-note requirements; it is not a general engraving engine.
 
 ## Progress model
 
@@ -84,7 +87,7 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 ## Navigation and reinforcement
 
-Only implemented sessions at or before `currentSessionId` are available. Sessions 001–004 are implemented; no Session 005 or later placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
+Only implemented sessions at or before `currentSessionId` are available. Sessions 001–010 are implemented; no Session 011 or later placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
 
 Practicing shows one short repeat. Stuck shows one simpler prerequisite and may link to an earlier implemented session. Recording a reinforcement attempt only increments supportive history; it cannot complete, lock, reset, or advance a numbered session.
 
@@ -128,9 +131,9 @@ That future work requires representative two-staff fixtures and educator-reviewe
 
 ## Deliberate limitations
 
-- Sessions 001–004 are learner-facing; Session 005 onward remains absent until implemented.
-- The E001 demonstrations are compact synthesized tones, not teacher-performed piano recordings. Their pitch and timing data is tested, but their timbre and learning effectiveness still require human review.
-- Full score notation is deferred to Slice B.
+- Sessions 001–010 are learner-facing; Session 011 onward remains absent until implemented.
+- Listening and reference demonstrations use locally bundled spoken counts and compact synthesized tones, not teacher-performed piano recordings. Their pitch, timing, file format, and references are tested, but timbre, balance, and learning effectiveness still require human and teacher review.
+- The current score renderer covers one treble or neutral staff, quarter notes, half notes, 4/4, labels, finger cues, barlines, and the middle-C ledger line. Rests, beaming, accidentals, chords, multiple voices, and two staves remain outside this implementation.
 - The v2 migration supports the existing v1 shape; future schema versions need explicit migration functions rather than silent coercion.
 - localStorage remains browser/device-local with no account or cloud synchronization.
 - The engine records self-report and completion; it does not verify playing.

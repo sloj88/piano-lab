@@ -4,8 +4,8 @@ import { musicLibrary } from '../js/music-library.js';
 import { sessionCatalog } from '../js/session-catalog.js';
 
 test('Slice A exposes exactly four consecutive approved session types', () => {
-  assert.deepEqual(sessionCatalog.map(({ id }) => id), ['001', '002', '003', '004']);
-  assert.deepEqual(sessionCatalog.map(({ type }) => type), ['Learn', 'Review', 'Learn', 'Practice']);
+  assert.deepEqual(sessionCatalog.slice(0, 4).map(({ id }) => id), ['001', '002', '003', '004']);
+  assert.deepEqual(sessionCatalog.slice(0, 4).map(({ type }) => type), ['Learn', 'Review', 'Learn', 'Practice']);
   assert.deepEqual(sessionCatalog[1].prerequisites, ['001']);
   assert.deepEqual(sessionCatalog[2].prerequisites, []);
   assert.deepEqual(sessionCatalog[3].prerequisites, ['001', '003']);
@@ -28,7 +28,7 @@ test('K001 retains the approved C4–G4 right-hand pattern and fingering', () =>
 });
 
 test('every Slice A session includes physical practice, separate reflections, and optional extension content', () => {
-  for (const session of sessionCatalog) {
+  for (const session of sessionCatalog.slice(0, 4)) {
     assert.equal(session.steps.some(({ blocks }) => blocks.some(({ type }) => type === 'practice')), true, session.id);
     assert.ok(session.reflection.understanding);
     assert.ok(session.reflection.playing);

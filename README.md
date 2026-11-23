@@ -2,7 +2,7 @@
 
 Piano Lab is a free, open-source learning companion for absolute beginners practicing on a real piano or keyboard. Every exercise is played on the learner's physical instrument—the application guides learning rather than replacing the piano. It is intentionally small: plain HTML, CSS, and JavaScript, with no framework, account, backend, or virtual instrument.
 
-The learner-facing catalog contains the first four consecutive sessions: keyboard landmarks and C–G, same/different listening, steady pulse, and a right-hand five-note pattern played one note per beat. A reusable session engine provides the foundation for the sequential 365-session curriculum without creating separate pages for each lesson.
+The learner-facing catalog contains the first ten consecutive sessions. It moves from keyboard landmarks, listening, and steady pulse into quarter and half notes, staff shape, treble landmarks, C–D–E reading, and a first four-measure piece. A reusable session engine provides the foundation for the sequential 365-session curriculum without creating separate pages for each lesson.
 
 ## Run locally
 
@@ -23,7 +23,7 @@ npm test
 npm run validate:content
 ```
 
-Tests cover piano-key mapping, structured-content validation, local audio assets, pulse behavior, rendering, navigation/revisit behavior, v0.1 progress migration, independent session state, reinforcement history, and localStorage failure fallback.
+Tests cover piano-key mapping, structured-content validation, notation geometry, rhythm and measure totals, local audio pitches and timing, pulse behavior, rendering, navigation/revisit behavior, v0.1 progress migration, independent session state, reinforcement history, and localStorage failure fallback.
 
 ## Project structure
 
@@ -34,7 +34,9 @@ js/app.js           Browser coordination and interaction handling
 js/session-*.js     Session catalog, rendering, navigation, and v2 progress
 js/content-validator.js  Structured curriculum validation
 js/music-library.js     Referenced musical examples
+js/notation.js          Small responsive monophonic score renderer
 assets/audio/           Local listening demonstrations
+scripts/audio-voice/    Offline spoken-count sources for generated audio
 js/reinforcements.js    Optional targeted support content
 js/lessons.js       Keyboard model and v0.1 compatibility export
 js/progress.js      Preserved v0.1 progress implementation

@@ -1,4 +1,5 @@
 import { BLACK_KEYS, WHITE_NOTES } from './lessons.js';
+import { beatGridMarkup, scoreMarkup } from './notation.js';
 
 const phaseLabels = { explain: ['01', 'Explain'], demonstrate: ['02', 'Demonstrate'], try: ['03', 'Try it on your piano'], reflect: ['04', 'Reflect'] };
 
@@ -39,10 +40,10 @@ function listeningMarkup(block, context) {
     const asset = context.assets[pair.audioRef];
     const first = pair.first.join('–');
     const second = pair.second.join('–');
-    return `<article class="listening-card" data-listening-pair="${pair.id}" data-answer="${pair.answer}">
+    return `<article class="listening-card" data-audio-card data-listening-pair="${pair.id}" data-answer="${pair.answer}">
       <p class="listening-title"><strong>Pair ${pair.id}</strong><span>Two groups of three notes</span></p>
-      <audio preload="metadata" src="${asset.src}" data-listening-audio></audio>
-      <button class="button button-secondary audio-button" type="button" data-audio-control aria-label="Play listening pair ${pair.id}">▶ Play pair ${pair.id}</button>
+      <audio preload="metadata" src="${asset.src}" data-audio-id="${pair.audioRef}"></audio>
+      <button class="button button-secondary audio-button" type="button" data-audio-control="${pair.audioRef}" data-audio-label="pair ${pair.id}" aria-label="Play listening pair ${pair.id}">▶ Play pair ${pair.id}</button>
       <p class="audio-status" role="status" aria-live="polite">Ready to play</p>
       <fieldset class="listening-choices"><legend>Pair ${pair.id}: choose same or different</legend>
         <button type="button" data-listening-answer="same" aria-pressed="false">Same</button>
@@ -50,6 +51,47 @@ function listeningMarkup(block, context) {
       </fieldset>
       <button class="text-button reveal-answer" type="button" data-reveal-answer>Reveal notes and answer</button>
       <div class="listening-reveal" data-listening-reveal hidden><p><strong>${pair.answer === 'same' ? 'Same' : 'Different'}.</strong> ${first} / ${second}</p><p>Direction: ${pair.directions}.</p><p>Now play both groups on your physical piano.</p></div>
+    </article>`;
+  }).join('')}</section>`;
+}
+
+function notationMarkup(block, context) {
+  const examples = block.musicRefs.map((reference) => context.music[reference]);
+  return `<section class="notation-set" aria-label="Music notation">${examples.map((example) => {
+    const score = scoreMarkup(example, { ...(block.options ?? {}), showDirections: false });
+    const beatGrid = block.options?.showBeatGrid ? beatGridMarkup(example) : '';
+    const reveal = block.options?.reveal
+      ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal notes and reading help'}</summary>${scoreMarkup(example, { ...block.options, showLabels: block.options.revealLabels ?? true, showDirections: block.options.revealDirections })}${beatGrid}</details>`
+      : beatGrid;
+    const visible = block.options?.hiddenUntilReveal ? '' : score;
+    const hiddenScore = block.options?.hiddenUntilReveal ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal the score and counts'}</summary>${score}${beatGrid}</details>` : reveal;
+    const enlarged = block.options?.enlarge && !block.options.hiddenUntilReveal ? `<details class="score-enlarge"><summary>Open an enlarged score</summary>${scoreMarkup(example, { ...block.options, enlarged: true })}</details>` : '';
+    return `<article class="notation-card"><h4>${example.title}</h4>${visible}${hiddenScore}${enlarged}</article>`;
+  }).join('')}</section>`;
+}
+
+function audioTracksMarkup(block, context) {
+  const transcript = block.transcript
+    ? block.transcriptHidden
+      ? `<details class="audio-transcript"><summary>${block.transcriptSummary ?? 'Read the audio description'}</summary><p>${block.transcript}</p></details>`
+      : `<p class="audio-transcript"><strong>Transcript:</strong> ${block.transcript}</p>`
+    : '';
+  const content = `<section class="audio-reference" data-audio-card aria-label="${block.title}"><h4>${block.title}</h4>${block.tracks.map((track) => {
+    const asset = context.assets[track.assetRef];
+    return `<audio preload="metadata" src="${asset.src}" data-audio-id="${track.assetRef}"></audio><button class="button button-secondary audio-button" type="button" data-audio-control="${track.assetRef}" data-audio-label="${track.label}">▶ ${track.label}</button>`;
+  }).join('')}<p class="audio-status" role="status" aria-live="polite">Ready to play</p>${transcript}</section>`;
+  return block.collapsed ? `<details class="audio-details"><summary>${block.summary ?? 'Hear after my try'}</summary>${content}</details>` : content;
+}
+
+function rhythmEchoMarkup(block, context) {
+  return `<section class="echo-set" aria-label="Rhythm echo exercises">${block.musicRefs.map((reference) => {
+    const example = context.music[reference];
+    return `<article class="echo-card" data-audio-card><h4>${example.title}</h4>
+      <audio preload="metadata" src="${context.assets[example.audioRef].src}" data-audio-id="${example.audioRef}"></audio>
+      <audio preload="metadata" src="${context.assets[example.countedAudioRef].src}" data-audio-id="${example.countedAudioRef}"></audio>
+      <div class="echo-actions"><button class="button button-secondary audio-button" type="button" data-audio-control="${example.audioRef}" data-audio-label="${example.title} pattern">▶ Hear pattern</button><button class="text-button" type="button" data-audio-control="${example.countedAudioRef}" data-audio-label="${example.title} with spoken count">Hear with spoken count</button></div>
+      <p class="audio-status" role="status" aria-live="polite">Listen first, then tap and play.</p>
+      <details class="score-reveal"><summary>Reveal score and count blocks</summary>${scoreMarkup(example, { showLabels: true })}${beatGridMarkup(example)}</details>
     </article>`;
   }).join('')}</section>`;
 }
@@ -89,6 +131,9 @@ export function renderBlock(block, context) {
     case 'musical-pattern': return patternMarkup(context.music[block.musicRef]);
     case 'audio-listening': return listeningMarkup(block, context);
     case 'pulse-guide': return pulseMarkup(block, context);
+    case 'notation': return notationMarkup(block, context);
+    case 'rhythm-echo': return rhythmEchoMarkup(block, context);
+    case 'audio-reference': return audioTracksMarkup(block, context);
     case 'practice':
       return `<section class="learning-block try-block" aria-label="Try it on your piano">${phaseMarkup(block.phase)}<p>${block.instruction}</p><details><summary>Need a hint?</summary><p>${block.hint}</p>${block.hintVisual?.type === 'keyboard' ? keyboardMarkup(block.hintVisual) : ''}</details></section>`;
     case 'reflection':
@@ -109,7 +154,7 @@ export function renderReadinessGuidance(session, state, reinforcements) {
   return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${earlierSessionId ? `<button class="text-button" type="button" data-revisit-session="${earlierSessionId}">Revisit Session ${earlierSessionId}</button>` : ''}</div>`;
 }
 
-export function renderSessionEnding(session, state, reinforcements) {
+export function renderSessionEnding(session, state, reinforcements, context = {}) {
   const readinessOptions = ['ready', 'practicing', 'stuck'].map((value) => {
     const option = session.readiness[value];
     return `<label><input type="radio" name="readiness" value="${value}" ${state.readiness === value ? 'checked' : ''}><span><strong>${option.label}</strong><small>${option.guidance}</small></span></label>`;
@@ -124,7 +169,7 @@ export function renderSessionEnding(session, state, reinforcements) {
     <div data-readiness-guidance>${renderReadinessGuidance(session, state, reinforcements)}</div>
     <p class="observable-outcome"><strong>Observable outcome:</strong> ${session.outcome}</p>
     <div class="keep-playing"><p class="eyebrow">Optional extension</p><h3>Keep Playing</h3><p>Stop after the core if that is enough today. These ideas are optional and are not required by the next session.</p>
-    <ul>${session.keepPlaying.map((activity) => `<li>${activity}</li>`).join('')}</ul></div>
+    <ul>${session.keepPlaying.map((activity) => `<li>${activity}</li>`).join('')}</ul>${(session.keepPlayingBlocks ?? []).map((block) => renderBlock(block, context)).join('')}</div>
     <div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
     <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>
   </section>`;
@@ -134,7 +179,7 @@ export function renderSessionStep(session, stepIndex, state, { music, reinforcem
   const step = session.steps[stepIndex];
   const stepAssessment = state.stepAssessments?.[step.id] ?? {};
   const blocks = step.blocks.map((block) => renderBlock(block, { music, assets, stepAssessment })).join('');
-  const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements) : '';
+  const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements, { music, assets, stepAssessment }) : '';
   return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p><button class="step-help" type="button" data-ask-chatgpt>Ask ChatGPT about this step</button></header>${blocks}${ending}`;
 }
 

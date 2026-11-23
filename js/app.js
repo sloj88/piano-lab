@@ -188,16 +188,17 @@ elements.step.addEventListener('click', (event) => {
   }
   const audioControl = event.target.closest('[data-audio-control]');
   if (audioControl) {
-    const card = audioControl.closest('[data-listening-pair]');
-    const audio = card.querySelector('[data-listening-audio]');
+    const card = audioControl.closest('[data-audio-card]');
+    const audio = card.querySelector(`[data-audio-id="${audioControl.dataset.audioControl}"]`);
     const status = card.querySelector('.audio-status');
     if (activeAudio && activeAudio !== audio) activeAudio.pause();
     activeAudio = audio;
     audio.currentTime = 0;
-    status.textContent = `Playing pair ${card.dataset.listeningPair}`;
-    audioControl.textContent = `↻ Play pair ${card.dataset.listeningPair} again`;
+    const label = audioControl.dataset.audioLabel;
+    status.textContent = `Playing ${label}`;
+    audioControl.textContent = `↻ Play ${label} again`;
     audio.onended = () => {
-      status.textContent = `Pair ${card.dataset.listeningPair} finished. Replay whenever you need.`;
+      status.textContent = `${label} finished. Replay whenever you need.`;
       activeAudio = null;
     };
     audio.play().catch(() => {
