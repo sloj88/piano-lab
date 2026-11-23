@@ -27,7 +27,7 @@ const elements = {
   progressbar: $('[role="progressbar"]'), reset: $('#reset-progress'), toast: $('#toast'), release: $('#release-label'),
   positionSummary: $('#session-position-summary'), completionSummary: $('#session-completion-summary'),
   heroEyebrow: $('#session-eyebrow'), heroTitle: $('#lesson-title'), heroIntro: $('#session-intro'), shell: $('#lesson'),
-  home: $('#home-view'), learning: $('#learning-view'), main: $('#main-content'), askChatGPT: $('#ask-chatgpt'),
+  home: $('#home-view'), learning: $('#learning-view'), main: $('#main-content'),
   helpDialog: $('#chatgpt-help-dialog'), helpQuestion: $('#chatgpt-question'), helpPrompt: $('#chatgpt-prompt'),
   helpCopy: $('#copy-chatgpt-prompt'), helpStatus: $('#chatgpt-copy-status')
 };
@@ -132,6 +132,14 @@ function render({ focus = false } = {}) {
 }
 
 elements.home.addEventListener('click', (event) => {
+  const chapterToggle = event.target.closest('[data-chapter-toggle]');
+  if (chapterToggle) {
+    const panel = document.getElementById(chapterToggle.getAttribute('aria-controls'));
+    const expanded = chapterToggle.getAttribute('aria-expanded') === 'true';
+    chapterToggle.setAttribute('aria-expanded', String(!expanded));
+    panel.hidden = expanded;
+    return;
+  }
   const target = event.target.closest('[data-continue-learning], [data-home-session]');
   if (target) openSession(target.dataset.continueLearning ?? target.dataset.homeSession);
 });
@@ -174,6 +182,10 @@ elements.step.addEventListener('change', (event) => {
   if (readiness) $('[data-readiness-guidance]').innerHTML = renderReadinessGuidance(session, progress.sessions[session.id], reinforcementCatalog);
 });
 elements.step.addEventListener('click', (event) => {
+  if (event.target.closest('[data-ask-chatgpt]')) {
+    openHelpDialog();
+    return;
+  }
   const audioControl = event.target.closest('[data-audio-control]');
   if (audioControl) {
     const card = audioControl.closest('[data-listening-pair]');
@@ -306,14 +318,14 @@ function updateHelpPrompt() {
   elements.helpPrompt.value = buildChatGPTPrompt(session, session.steps[state.stepIndex], elements.helpQuestion.value);
 }
 
-elements.askChatGPT.addEventListener('click', () => {
+function openHelpDialog() {
   elements.helpQuestion.value = '';
   elements.helpStatus.textContent = '';
   updateHelpPrompt();
   if (typeof elements.helpDialog.showModal === 'function') elements.helpDialog.showModal();
   else elements.helpDialog.setAttribute('open', '');
   elements.helpQuestion.focus();
-});
+}
 elements.helpQuestion.addEventListener('input', updateHelpPrompt);
 elements.helpDialog.querySelector('[data-close-help]').addEventListener('click', () => {
   if (typeof elements.helpDialog.close === 'function') elements.helpDialog.close();

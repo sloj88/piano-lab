@@ -96,3 +96,23 @@ test('Sessions 003 and 004 render reusable pulse controls from approved music da
   assert.match(pulseHtml, /Start guide/);
   assert.match(patternHtml, /finger 5/);
 });
+
+test('every rendered step has exactly one contextual Ask ChatGPT action after its introduction', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  for (const session of sessionCatalog) {
+    session.steps.forEach((step, index) => {
+      const html = renderSessionStep(session, index, progress.sessions[session.id], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+      assert.equal((html.match(/data-ask-chatgpt/g) ?? []).length, 1, `${session.id} step ${index + 1}`);
+      assert.ok(html.indexOf(step.intro) < html.indexOf('data-ask-chatgpt'));
+      assert.ok(html.indexOf('data-ask-chatgpt') < html.indexOf('learning-block'));
+    });
+  }
+});
+
+test('the modal close icon uses geometry rather than a font-positioned multiplication glyph', () => {
+  const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+  assert.match(page, /class="dialog-close"[^>]*><\/button>/);
+  assert.match(css, /\.dialog-close:before,\.dialog-close:after/);
+  assert.match(css, /translate\(-50%,-50%\) rotate\(45deg\)/);
+});

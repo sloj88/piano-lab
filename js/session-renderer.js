@@ -135,7 +135,7 @@ export function renderSessionStep(session, stepIndex, state, { music, reinforcem
   const stepAssessment = state.stepAssessments?.[step.id] ?? {};
   const blocks = step.blocks.map((block) => renderBlock(block, { music, assets, stepAssessment })).join('');
   const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements) : '';
-  return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p></header>${blocks}${ending}`;
+  return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p><button class="step-help" type="button" data-ask-chatgpt>Ask ChatGPT about this step</button></header>${blocks}${ending}`;
 }
 
 export function renderStepNavigation(session, state) {
