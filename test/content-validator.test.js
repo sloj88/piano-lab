@@ -32,8 +32,8 @@ test('duplicate, non-sequential, and invalid session metadata fail schema valida
 test('prerequisites must exist and come before their session', () => {
   const fixture = catalogs();
   const second = structuredClone(fixture.sessions[0]);
-  second.id = '002';
-  second.prerequisites = ['002', '999'];
+  second.id = '005';
+  second.prerequisites = ['005', '999'];
   fixture.sessions.push(second);
   const result = validateCurriculum(fixture);
   assert.equal(errorCodes(result).includes('prerequisite-order'), true);
@@ -125,4 +125,26 @@ test('assertValidCurriculum identifies schema failures distinctly from runtime f
   const fixture = catalogs();
   fixture.sessions[0].steps = [];
   assert.throws(() => assertValidCurriculum(fixture), (error) => error instanceof ContentValidationError && error.category === 'schema');
+});
+
+test('listening answers, pitch data, pair references, and local audio references are validated', () => {
+  const fixture = catalogs();
+  fixture.music.E001.pairs[0].answer = 'different';
+  fixture.music.E001.pairs[1].first[0] = 'H4';
+  fixture.music.E001.pairs[2].audioRef = 'missing-audio';
+  fixture.sessions[1].steps[2].blocks.find(({ type }) => type === 'audio-listening').pairIds.push('Z');
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('listening-answer-data'), true);
+  assert.equal(codes.includes('pitch'), true);
+  assert.equal(codes.includes('audio-reference'), true);
+  assert.equal(codes.includes('listening-pair-reference'), true);
+});
+
+test('pulse guide shape and tempo metadata are validated', () => {
+  const fixture = catalogs();
+  fixture.music.P001.beats = 15;
+  fixture.music.P001.bpm = 0;
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('pulse-shape'), true);
+  assert.equal(codes.includes('pulse-tempo'), true);
 });

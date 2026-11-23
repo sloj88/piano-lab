@@ -1,11 +1,11 @@
 # Shared Learning Engine
 
-Status: v0.2 foundation for Slice A
-Implemented learner catalog: Session 001 only
+Status: v0.2 Slice A reference implementation
+Implemented learner catalog: Sessions 001–004
 
 ## Purpose
 
-Piano Lab renders numbered learning sessions from structured JavaScript data. A future session should be added to the catalog, not built as a separate HTML page or a custom application branch. The first engine release intentionally implements only the block types needed to preserve published Session 001; listening audio, pulse animation, and score rendering will be added when Sessions 002–004 require them.
+Piano Lab renders numbered learning sessions from structured JavaScript data. A future session should be added to the catalog, not built as a separate HTML page or a custom application branch. Slice A preserves published Session 001 and adds the listening and pulse blocks required by Sessions 002–004. Score rendering remains deferred until Slice B requires it.
 
 The physical piano remains the instrument. Renderer blocks explain, demonstrate, and organize practice; they never create a playable on-screen piano, listen through a microphone, connect to MIDI, or score a performance.
 
@@ -46,8 +46,10 @@ The current renderer supports these minimal block types:
 | `musical-pattern` | Pitch/finger sequence such as M001 |
 | `practice` | Physical-instrument instruction with optional hint |
 | `reflection` | Reflect prompt and the published per-step self-check |
+| `audio-listening` | User-initiated local audio, Same/Different choice, replay, and answer reveal |
+| `pulse-guide` | Even visual beats for tapping or a note/finger sequence |
 
-Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. Planned needs include an audio-demonstration block for Session 002 and a pulse visualization for Session 003. A general score block should wait for the notation work in Slice B.
+Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. A general score block should wait for the notation work in Slice B.
 
 ## Progress model
 
@@ -82,7 +84,7 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 ## Navigation and reinforcement
 
-Only implemented sessions at or before `currentSessionId` are available. No placeholder Session 002–004 entries are exposed. An earlier session can be revisited, repeated, and left without changing the main position.
+Only implemented sessions at or before `currentSessionId` are available. Sessions 001–004 are implemented; no Session 005 or later placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
 
 Practicing shows one short repeat. Stuck shows one simpler prerequisite and may link to an earlier implemented session. Recording a reinforcement attempt only increments supportive history; it cannot complete, lock, reset, or advance a numbered session.
 
@@ -100,7 +102,7 @@ The validator checks the actual populated catalog beginning at 001 and requires 
 
 ### Music-event boundary and future polyphony
 
-The implemented music schema is deliberately monophonic. Every event declares `kind: "note"` or `kind: "rest"` plus a recognized rhythm. Notes require one valid scientific pitch and may carry a fingering; rests forbid pitch and fingering and require a rest rhythm. Metered events also require an explicit positive beat duration compatible with the rhythm. The unmetered `pulse` rhythm remains valid for Session 001 and does not require a beat duration.
+The implemented event schema is deliberately monophonic. Every event declares `kind: "note"` or `kind: "rest"` plus a recognized rhythm. Notes require one valid scientific pitch and may carry a fingering; rests forbid pitch and fingering and require a rest rhythm. Metered events also require an explicit positive beat duration compatible with the rhythm. The unmetered `pulse` rhythm remains valid for Sessions 001 and 004 and does not require a beat duration. Separate validated shapes hold E001 listening pairs and P001 pulse-guide metadata; neither is treated as a notated measure.
 
 For now a metered measure has one sequential `events` array, so its event durations may safely be summed and compared with the meter. A measure containing `voices` or `staves` fails with `polyphony-unsupported`; the validator intentionally does not flatten or sum it. This prevents two simultaneous four-beat voices from being misreported as an eight-beat measure.
 
@@ -126,8 +128,9 @@ That future work requires representative two-staff fixtures and educator-reviewe
 
 ## Deliberate limitations
 
-- Only Session 001 is learner-facing in this foundation PR.
-- Audio playback, same/different answers, pulse animation, and full score notation are deferred to the sessions that need them.
+- Sessions 001–004 are learner-facing; Session 005 onward remains absent until implemented.
+- The E001 demonstrations are compact synthesized tones, not teacher-performed piano recordings. Their pitch and timing data is tested, but their timbre and learning effectiveness still require human review.
+- Full score notation is deferred to Slice B.
 - The v2 migration supports the existing v1 shape; future schema versions need explicit migration functions rather than silent coercion.
 - localStorage remains browser/device-local with no account or cloud synchronization.
 - The engine records self-report and completion; it does not verify playing.

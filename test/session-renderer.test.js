@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { musicLibrary } from '../js/music-library.js';
 import { reinforcementCatalog } from '../js/reinforcements.js';
-import { sessionCatalog } from '../js/session-catalog.js';
+import { assetCatalog, sessionCatalog } from '../js/session-catalog.js';
 import { createEmptySessionProgress } from '../js/session-progress.js';
 import { renderBlock, renderSessionStep, renderStepNavigation } from '../js/session-renderer.js';
 
@@ -51,4 +51,46 @@ test('the page shell labels assessment, position, and completion separately', ()
   assert.match(html, /id="session-position-summary"/);
   assert.match(html, /id="session-completion-summary"/);
   assert.match(html, /aria-label="Session self-assessment progress"/);
+});
+
+test('Session 002 renders user-initiated listening controls with hidden accurate reveals', () => {
+  const review = sessionCatalog[1];
+  const reviewState = createEmptySessionProgress(sessionCatalog).sessions['002'];
+  const html = renderSessionStep(review, 2, reviewState, { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /Play pair A/);
+  assert.match(html, /assets\/audio\/e001-pair-a\.wav/);
+  assert.match(html, /data-answer="same"/);
+  assert.match(html, /data-answer="different"/);
+  assert.match(html, /data-listening-reveal hidden/);
+  assert.doesNotMatch(html, /autoplay/);
+});
+
+test('Session 002 keeps the keyboard answer inside the optional retrieval hint', () => {
+  const review = sessionCatalog[1];
+  const reviewState = createEmptySessionProgress(sessionCatalog).sessions['002'];
+  const html = renderSessionStep(review, 0, reviewState, { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /<details><summary>Need a hint\?<\/summary>/);
+  assert.match(html, /Middle C/);
+  assert.ok(html.indexOf('<details>') < html.indexOf('keyboard-figure'));
+});
+
+test('targeted Practicing and Stuck guidance uses each session-specific repair', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  progress.sessions['003'].readiness = 'practicing';
+  progress.sessions['004'].readiness = 'stuck';
+  const pulse = renderSessionStep(sessionCatalog[2], 3, progress.sessions['003'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const pattern = renderSessionStep(sessionCatalog[3], 3, progress.sessions['004'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(pulse, /Tap eight beats, rest for four counted beats/);
+  assert.match(pattern, /Return to Session 003’s eight C presses/);
+  assert.match(pattern, /Revisit Session 003/);
+});
+
+test('Sessions 003 and 004 render reusable pulse controls from approved music data', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const pulseHtml = renderSessionStep(sessionCatalog[2], 1, progress.sessions['003'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const patternHtml = renderSessionStep(sessionCatalog[3], 2, progress.sessions['004'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.equal((pulseHtml.match(/data-pulse-index=/g) ?? []).length, 16);
+  assert.equal((patternHtml.match(/data-pulse-index=/g) ?? []).length, 9);
+  assert.match(pulseHtml, /Start guide/);
+  assert.match(patternHtml, /finger 5/);
 });
