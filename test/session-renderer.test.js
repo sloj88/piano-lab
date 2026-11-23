@@ -116,3 +116,59 @@ test('the modal close icon uses geometry rather than a font-positioned multiplic
   assert.match(css, /\.dialog-close:before,\.dialog-close:after/);
   assert.match(css, /translate\(-50%,-50%\) rotate\(45deg\)/);
 });
+
+test('Session 005 renders accurate one- and two-beat notation with count blocks', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[4], 0, progress.sessions['005'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /data-rhythm="quarter"/);
+  assert.match(html, /data-rhythm="half"/);
+  assert.match(html, /class="notehead is-half"/);
+  assert.match(html, /class="is-held"/);
+});
+
+test('Session 006 renders user-initiated pattern and spoken-count audio with hidden scores', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[5], 1, progress.sessions['006'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /r002-a-pattern\.wav/);
+  assert.match(html, /r002-a-counted\.wav/);
+  assert.match(html, /Reveal score and count blocks/);
+  assert.doesNotMatch(html, /autoplay/);
+});
+
+test('Sessions 007–009 render neutral contour and accurate treble landmarks', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const contour = renderSessionStep(sessionCatalog[6], 0, progress.sessions['007'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const landmarks = renderSessionStep(sessionCatalog[7], 0, progress.sessions['008'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const reading = renderSessionStep(sessionCatalog[8], 0, progress.sessions['009'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.doesNotMatch(contour, /class="treble-clef"/);
+  assert.match(landmarks, /class="treble-clef"/);
+  assert.match(landmarks, /class="ledger-line"/);
+  assert.match(reading, /Reveal note names and directions/);
+});
+
+test('Session 007 does not reveal the listening answer before the learner chooses', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[6], 3, progress.sessions['007'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /Reveal the accessible audio description after choosing/);
+  assert.match(html, /<details class="audio-transcript">/);
+  assert.equal((html.match(/class="notation-card"/g) ?? []).length, 3);
+});
+
+test('Session 010 keeps the exact score primary and reference audio closed until after an attempt', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const score = renderSessionStep(sessionCatalog[9], 0, progress.sessions['010'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const ending = renderSessionStep(sessionCatalog[9], 3, progress.sessions['010'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.equal((score.match(/class="measure-number"/g) ?? []).length >= 4, true);
+  assert.match(score, /Three-Step Walk/);
+  assert.match(ending, /<details class="audio-details"><summary>Hear after my try<\/summary>/);
+  assert.match(ending, /p01-practice\.wav/);
+  assert.match(ending, /p01-musical\.wav/);
+});
+
+test('optional Echo D appears only in Session 006 Keep Playing', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const ending = renderSessionStep(sessionCatalog[5], 3, progress.sessions['006'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(ending, /Optional extension/);
+  assert.match(ending, /Rhythm echo D/);
+  assert.match(ending, /r002-d-pattern\.wav/);
+});

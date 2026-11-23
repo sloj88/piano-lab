@@ -31,13 +31,31 @@ test('duplicate, non-sequential, and invalid session metadata fail schema valida
 
 test('prerequisites must exist and come before their session', () => {
   const fixture = catalogs();
-  const second = structuredClone(fixture.sessions[0]);
-  second.id = '005';
-  second.prerequisites = ['005', '999'];
-  fixture.sessions.push(second);
+  fixture.sessions[4].prerequisites = ['010', '999'];
   const result = validateCurriculum(fixture);
   assert.equal(errorCodes(result).includes('prerequisite-order'), true);
   assert.equal(errorCodes(result).includes('prerequisite-reference'), true);
+});
+
+test('notation relationships, reference sets, and required audio are validated', () => {
+  const fixture = catalogs();
+  fixture.music['N001-A'].notation.staffSteps[3] = 7;
+  fixture.music['N002-A'].notation.clef = 'alto';
+  fixture.music.R001.refs.push('MISSING');
+  fixture.music['R002-A'].countedAudioRef = 'missing-audio';
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('staff-pitch-relationship'), true);
+  assert.equal(codes.includes('notation-clef'), true);
+  assert.equal(codes.includes('music-set-reference'), true);
+  assert.equal(codes.includes('audio-reference'), true);
+});
+
+test('optional Keep Playing blocks receive the same reference validation', () => {
+  const fixture = catalogs();
+  fixture.sessions[5].keepPlayingBlocks[0].musicRefs = ['MISSING'];
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('music-reference'), true);
+  assert.equal(codes.includes('block-music-type'), true);
 });
 
 test('content blocks and asset, music, and reinforcement references must be recognized', () => {

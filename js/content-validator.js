@@ -5,6 +5,7 @@ const RHYTHMS = new Set(['pulse', 'quarter', 'half', 'quarter-rest', 'whole-meas
 const NOTE_RHYTHMS = new Set(['pulse', 'quarter', 'half']);
 const REST_RHYTHMS = new Set(['quarter-rest', 'whole-measure-rest']);
 const FIXED_BEATS = { quarter: 1, half: 2, 'quarter-rest': 1 };
+const STAFF_LETTERS = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
 
 export class ContentValidationError extends Error {
   constructor(result) {
@@ -60,6 +61,11 @@ function validatePitchList(pitches, path, errors) {
   });
 }
 
+function staffIndex(pitch) {
+  const match = /^([A-G])(?:#|b)?([0-8])$/.exec(pitch ?? '');
+  return match ? Number(match[2]) * 7 + STAFF_LETTERS[match[1]] : null;
+}
+
 function validateMusic(music, assets, errors) {
   for (const [id, example] of Object.entries(music)) {
     const path = `music.${id}`;
@@ -68,6 +74,11 @@ function validateMusic(music, assets, errors) {
       continue;
     }
     if (example.id !== id) errors.push(issue('music-id', `${path}.id`, 'Music entry ID must match its catalog key.'));
+    if (example.kind === 'reference-set') {
+      if (!Array.isArray(example.refs) || example.refs.length === 0) errors.push(issue('music-set', `${path}.refs`, 'A reference set needs at least one music reference.'));
+      for (const reference of example.refs ?? []) if (!music[reference] || reference === id) errors.push(issue('music-set-reference', `${path}.refs`, `Unknown or recursive music reference ${reference}.`));
+      continue;
+    }
     if (example.kind === 'listening-set') {
       if (!Array.isArray(example.pairs) || example.pairs.length === 0) errors.push(issue('listening-pairs', `${path}.pairs`, 'A listening set needs at least one pair.'));
       const pairIds = new Set();
@@ -129,6 +140,26 @@ function validateMusic(music, assets, errors) {
         }
       });
     }
+    if (example.notation !== undefined) {
+      if (!['treble', 'neutral'].includes(example.notation?.clef)) errors.push(issue('notation-clef', `${path}.notation.clef`, 'Notation clef must be treble or neutral.'));
+      const events = example.measures?.flatMap((measure) => measure.events ?? []) ?? example.events ?? [];
+      if (example.notation?.clef === 'neutral') {
+        const steps = example.notation.staffSteps;
+        if (!Array.isArray(steps) || steps.length !== events.length || steps.some((step) => !Number.isInteger(step))) errors.push(issue('staff-steps', `${path}.notation.staffSteps`, 'Neutral notation needs one integer staff step for every event.'));
+        else {
+          const basePitch = staffIndex(events[0]?.pitch);
+          events.forEach((event, index) => {
+            const pitchDistance = staffIndex(event.pitch) - basePitch;
+            const stepDistance = steps[index] - steps[0];
+            if (pitchDistance !== stepDistance) errors.push(issue('staff-pitch-relationship', `${path}.notation.staffSteps.${index}`, 'Staff-step movement must match the pitch relationship.'));
+          });
+        }
+      }
+    }
+    for (const field of ['audioRef', 'countedAudioRef']) {
+      if (example[field] && assets[example[field]]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.${field}`, `Unknown audio asset ${example[field]}.`));
+    }
+    for (const reference of example.audioRefs ?? []) if (assets[reference]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.audioRefs`, `Unknown audio asset ${reference}.`));
   }
 }
 
@@ -174,6 +205,7 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
         if (block.hintVisual && block.hintVisual.type !== 'keyboard') errors.push(issue('hint-visual-type', `${blockPath}.hintVisual.type`, 'Practice hint visuals currently support only keyboard diagrams.'));
         if (block.hintVisual?.assetRef && !assets[block.hintVisual.assetRef]) errors.push(issue('asset-reference', `${blockPath}.hintVisual.assetRef`, `Unknown asset ${block.hintVisual.assetRef}.`));
         if (block.musicRef && !music[block.musicRef]) errors.push(issue('music-reference', `${blockPath}.musicRef`, `Unknown music example ${block.musicRef}.`));
+        for (const reference of block.musicRefs ?? []) if (!music[reference]) errors.push(issue('music-reference', `${blockPath}.musicRefs`, `Unknown music example ${reference}.`));
         if (block.type === 'audio-listening' && music[block.musicRef]?.kind !== 'listening-set') errors.push(issue('block-music-type', blockPath, 'An audio-listening block requires a listening-set music reference.'));
         if (block.type === 'audio-listening') {
           const availablePairs = new Set(music[block.musicRef]?.pairs?.map(({ id }) => id));
@@ -181,6 +213,26 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
           for (const pairId of block.pairIds ?? []) if (!availablePairs.has(pairId)) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, `Unknown listening pair ${pairId}.`));
         }
         if (block.type === 'pulse-guide' && music[block.musicRef]?.kind !== 'pulse-guide' && !Array.isArray(music[block.musicRef]?.events)) errors.push(issue('block-music-type', blockPath, 'A pulse-guide block requires pulse-guide data or sequential music events.'));
+        if (block.type === 'notation') {
+          if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('notation-reference', `${blockPath}.musicRefs`, 'A notation block needs at least one music reference.'));
+          for (const reference of block.musicRefs ?? []) if (!music[reference]?.notation || !Array.isArray(music[reference]?.measures)) errors.push(issue('block-music-type', blockPath, `Notation reference ${reference} must contain notated measures.`));
+        }
+        if (block.type === 'rhythm-echo') {
+          if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('echo-reference', `${blockPath}.musicRefs`, 'A rhythm-echo block needs at least one music reference.'));
+          for (const reference of block.musicRefs ?? []) if (!music[reference]?.audioRef || !music[reference]?.countedAudioRef) errors.push(issue('block-music-type', blockPath, `Rhythm echo ${reference} requires pattern and counted audio.`));
+        }
+        if (block.type === 'audio-reference') {
+          if (!Array.isArray(block.tracks) || block.tracks.length === 0) errors.push(issue('audio-reference', `${blockPath}.tracks`, 'An audio-reference block needs at least one track.'));
+          for (const track of block.tracks ?? []) if (assets[track.assetRef]?.type !== 'audio') errors.push(issue('audio-reference', `${blockPath}.tracks`, `Unknown audio asset ${track.assetRef}.`));
+        }
+      }
+    }
+    for (const [blockIndex, block] of (session.keepPlayingBlocks ?? []).entries()) {
+      const blockPath = `${path}.keepPlayingBlocks.${blockIndex}`;
+      if (!BLOCK_TYPES.includes(block.type)) errors.push(issue('block-type', `${blockPath}.type`, `Unrecognized block type: ${block.type}.`));
+      for (const reference of block.musicRefs ?? []) if (!music[reference]) errors.push(issue('music-reference', `${blockPath}.musicRefs`, `Unknown music example ${reference}.`));
+      if (block.type === 'rhythm-echo') {
+        for (const reference of block.musicRefs ?? []) if (!music[reference]?.audioRef || !music[reference]?.countedAudioRef) errors.push(issue('block-music-type', blockPath, `Rhythm echo ${reference} requires pattern and counted audio.`));
       }
     }
     if (!Array.isArray(session.steps) || session.steps.length === 0) errors.push(issue('steps', `${path}.steps`, 'A session must contain at least one instructional step.'));

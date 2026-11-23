@@ -1,13 +1,21 @@
 export const SESSION_TYPES = ['Learn', 'Practice', 'Play', 'Review'];
-export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide'];
+export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide', 'notation', 'rhythm-echo', 'audio-reference'];
 
 export const assetCatalog = {
   'keyboard-c3-c5': { id: 'keyboard-c3-c5', type: 'generated-diagram' },
   'right-hand-fingers': { id: 'right-hand-fingers', type: 'generated-diagram' },
   'e001-pair-a': { id: 'e001-pair-a', type: 'audio', src: 'assets/audio/e001-pair-a.wav' },
   'e001-pair-b': { id: 'e001-pair-b', type: 'audio', src: 'assets/audio/e001-pair-b.wav' },
-  'e001-pair-c': { id: 'e001-pair-c', type: 'audio', src: 'assets/audio/e001-pair-c.wav' }
+  'e001-pair-c': { id: 'e001-pair-c', type: 'audio', src: 'assets/audio/e001-pair-c.wav' },
+  'r002-a-pattern': audioAsset('r002-a-pattern'), 'r002-a-counted': audioAsset('r002-a-counted'),
+  'r002-b-pattern': audioAsset('r002-b-pattern'), 'r002-b-counted': audioAsset('r002-b-counted'),
+  'r002-c-pattern': audioAsset('r002-c-pattern'), 'r002-c-counted': audioAsset('r002-c-counted'),
+  'r002-d-pattern': audioAsset('r002-d-pattern'), 'r002-d-counted': audioAsset('r002-d-counted'),
+  'n001-a-shape': audioAsset('n001-a-shape'),
+  'p01-practice': audioAsset('p01-practice'), 'p01-musical': audioAsset('p01-musical')
 };
+
+function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }
 
 const publishedSteps = [
   {
@@ -129,6 +137,113 @@ const publishedSteps = [
   }
 ];
 
+const sliceBSessions = () => [
+  {
+    id: '005', title: 'One Beat or Two', summary: 'Read and play quarter notes and half notes while the pulse continues.',
+    type: 'Learn', chapter: 1,
+    objective: 'Distinguish one-beat quarter notes from two-beat half notes and keep counting while a held sound continues.',
+    prerequisites: ['003'], duration: { min: 10, max: 15 }, steps: session005Steps,
+    musicRefs: ['R001', 'R001-A', 'R001-B', 'R001-C', 'R001-D'], assetRefs: ['keyboard-c3-c5'],
+    outcome: 'Performs at least two four-beat patterns with one press per note and holds each half note for two counts.',
+    reflection: { understanding: 'I understand the difference between a one-beat note and a two-beat note.', playing: 'I can keep counting while one piano sound continues for two beats.' },
+    keepPlaying: ['Create one four-beat measure from quarter notes and half notes, then repeat it exactly.'],
+    readiness: {
+      ready: { label: 'Ready', guidance: 'Continue when you choose, or transfer one pattern to another key.' },
+      practicing: { label: 'Practicing', guidance: 'Repeat quarter, quarter, half on middle C while counting 1–4.', reinforcementRefs: ['RF-RHY-1'] },
+      stuck: { label: 'Stuck', guidance: 'Use four visible beat boxes and join them into two-beat holds.', reinforcementRefs: ['RF-RHY-1'], earlierSessionId: '003' }
+    },
+    reinforcementRefs: ['RF-PULSE-1', 'RF-RHY-1'],
+    pedagogicalReview: ['Session 005 note-duration language, release timing, and visual notation require qualified piano-teacher review.']
+  },
+  {
+    id: '006', title: 'Rhythm Echoes', summary: 'Hear, tap, and play short one-measure rhythm echoes.',
+    type: 'Practice', chapter: 1,
+    objective: 'Copy one-measure rhythms by listening, tapping, counting, and then playing on physical keys.',
+    prerequisites: ['005'], duration: { min: 10, max: 15 }, steps: session006Steps,
+    musicRefs: ['R002', 'R002-A', 'R002-B', 'R002-C'],
+    assetRefs: ['r002-a-pattern', 'r002-a-counted', 'r002-b-pattern', 'r002-b-counted', 'r002-c-pattern', 'r002-c-counted', 'r002-d-pattern', 'r002-d-counted'],
+    outcome: 'Reproduces three one-measure echoes after optional replay and identifies where the two-beat sound occurs.',
+    reflection: { understanding: 'I can hear where a sound lasts for two beats.', playing: 'I can hear, tap, and play a short rhythm without adding an extra press.' },
+    keepPlaying: ['Try the optional two-measure Echo D after the three core echoes.', 'Invent one four-beat echo with C and D, tap it, then play it.'],
+    keepPlayingBlocks: [{ type: 'rhythm-echo', musicRefs: ['R002-D'] }],
+    readiness: {
+      ready: { label: 'Ready', guidance: 'Continue when you choose, or try optional Echo D.' },
+      practicing: { label: 'Practicing', guidance: 'Repeat one echo and make both attempts match.', reinforcementRefs: ['RF-RHY-2'] },
+      stuck: { label: 'Stuck', guidance: 'Return to an all-C pattern with visible counts.', reinforcementRefs: ['RF-RHY-1', 'RF-RHY-2'], earlierSessionId: '005' }
+    },
+    reinforcementRefs: ['RF-RHY-1', 'RF-RHY-2'],
+    pedagogicalReview: ['Session 006 recordings, count timing, and hear–tap–play pacing require qualified piano-teacher review.']
+  },
+  {
+    id: '007', title: 'The Staff Shows Shape', summary: 'Follow repeat, upward, and downward movement on a five-line staff.',
+    type: 'Learn', chapter: 1,
+    objective: 'Read left-to-right pitch contour as repeat, up, and down before relying on note names.',
+    prerequisites: ['001'], duration: { min: 10, max: 15 }, steps: session007Steps,
+    musicRefs: ['N001', 'N001-A', 'N001-B', 'N001-C'], assetRefs: ['keyboard-c3-c5', 'n001-a-shape'],
+    outcome: 'Maps an unfamiliar four-note contour to same, right, or left keyboard movement and plays it on C–E.',
+    reflection: { understanding: 'I can follow written music from left to right and see repeat, up, and down.', playing: 'I can turn a short staff shape into movement on neighboring piano keys.' },
+    keepPlaying: ['Draw four noteheads that repeat, rise, or fall, then play your shape on C–E.'],
+    readiness: {
+      ready: { label: 'Ready', guidance: 'Continue when you choose, or invent one more four-note shape.' },
+      practicing: { label: 'Practicing', guidance: 'Trace one contour and say each direction before playing.', reinforcementRefs: ['RF-READ-1'] },
+      stuck: { label: 'Stuck', guidance: 'Compare only two large noteheads, then move between C and D.', reinforcementRefs: ['RF-READ-1'] }
+    },
+    reinforcementRefs: ['RF-READ-1', 'RF-EAR-1'],
+    pedagogicalReview: ['Session 007 contour-reading language and neutral-staff presentation require qualified piano-teacher review.']
+  },
+  {
+    id: '008', title: 'Two Treble Landmarks', summary: 'Find written middle C and treble G, then connect them to physical keys.',
+    type: 'Learn', chapter: 1,
+    objective: 'Recognize middle C on its ledger line and G on the second treble-staff line.',
+    prerequisites: ['007'], duration: { min: 10, max: 15 }, steps: session008Steps,
+    musicRefs: ['N002', 'N002-A', 'N002-B'], assetRefs: ['keyboard-c3-c5'],
+    outcome: 'Identifies written C and G without a mnemonic and plays the matching keys in a fixed right-hand position.',
+    reflection: { understanding: 'I can recognize middle C and treble G from their staff locations.', playing: 'I can move between C with finger 1 and G with finger 5 without shifting my hand.' },
+    keepPlaying: ['Find another C and G on the keyboard and compare whether they sound higher or lower. Staff reading stays at middle C and treble G.'],
+    readiness: {
+      ready: { label: 'Ready', guidance: 'Continue when you choose, or shuffle the two landmarks once more.' },
+      practicing: { label: 'Practicing', guidance: 'Point, name, and play four mixed C and G cards.', reinforcementRefs: ['RF-READ-2'] },
+      stuck: { label: 'Stuck', guidance: 'Match only the ledger-line middle C before adding G.', reinforcementRefs: ['RF-READ-2'], earlierSessionId: '007' }
+    },
+    reinforcementRefs: ['RF-READ-1', 'RF-READ-2'],
+    pedagogicalReview: ['Session 008 treble-clef, ledger-line, and landmark teaching require qualified piano-teacher review.']
+  },
+  {
+    id: '009', title: 'Read C, D, E', summary: 'Read short treble-staff patterns with middle C, D, and E.',
+    type: 'Practice', chapter: 1,
+    objective: 'Use middle C plus step direction to read and play four-note C–D–E patterns.',
+    prerequisites: ['005', '008'], duration: { min: 10, max: 15 }, steps: session009Steps,
+    musicRefs: ['N003', 'N003-A', 'N003-B', 'N003-C', 'N003-D'], assetRefs: [],
+    outcome: 'Plays a new four-note C–E card without letter labels and with no more than one self-corrected pitch.',
+    reflection: { understanding: 'I can find D and E by stepping upward from written middle C.', playing: 'I can preview and play a four-note C–D–E pattern without letter labels.' },
+    keepPlaying: ['Move the same physical key shape to D–E–F by ear and shape only. This is not a notation-reading test.'],
+    readiness: {
+      ready: { label: 'Ready', guidance: 'Continue when you choose, or read the optional fourth card.' },
+      practicing: { label: 'Practicing', guidance: 'Preview one card and reveal names only after playing.', reinforcementRefs: ['RF-TREBLE-1'] },
+      stuck: { label: 'Stuck', guidance: 'Read only two-note C–D, D–C, or C–C patterns.', reinforcementRefs: ['RF-READ-1', 'RF-TREBLE-1'], earlierSessionId: '007' }
+    },
+    reinforcementRefs: ['RF-RHY-1', 'RF-READ-1', 'RF-READ-2', 'RF-TREBLE-1'],
+    pedagogicalReview: ['Session 009 staff-reading sequence, fingering cues, and self-correction expectations require qualified piano-teacher review.']
+  },
+  {
+    id: '010', title: 'A Phrase from the Page', summary: 'Prepare, play, repair, and replay the four-measure Three-Step Walk.',
+    type: 'Play', chapter: 1,
+    objective: 'Read and complete the four-measure piece Three-Step Walk using preview, sectional practice, and one focused repair.',
+    prerequisites: ['005', '009'], duration: { min: 10, max: 15 }, steps: session010Steps,
+    musicRefs: ['P01'], assetRefs: ['p01-practice', 'p01-musical'],
+    outcome: 'Uses a score preview and focused repair, then reaches the piece’s ending without restarting after every small error.',
+    reflection: { understanding: 'I can preview a short score by finding its first note, shape, and note lengths.', playing: 'I can play the complete phrase with a steady thread and a recognizable ending.' },
+    keepPlaying: ['Choose a title or character for Three-Step Walk and replay it.', 'Then hear a reference and compare one musical detail rather than judging correctness.'],
+    readiness: {
+      ready: { label: 'Ready', guidance: 'Finish here or enjoy one more complete performance.' },
+      practicing: { label: 'Practicing', guidance: 'Name one measure to repair, play it twice, then reconnect it.', reinforcementRefs: ['RF-PIECE-1'] },
+      stuck: { label: 'Stuck', guidance: 'Play only Measures 1–2 or return to a four-note reading card.', reinforcementRefs: ['RF-TREBLE-1', 'RF-PIECE-1'], earlierSessionId: '009' }
+    },
+    reinforcementRefs: ['RF-RHY-1', 'RF-READ-1', 'RF-READ-2', 'RF-TREBLE-1', 'RF-PIECE-1'],
+    pedagogicalReview: ['Three-Step Walk notation, fingering guidance, reference performances, and tempo targets require qualified piano-teacher review.']
+  }
+];
+
 const session002Steps = [
   {
     id: 'retrieve-landmarks', title: 'Find the landmarks again', kicker: 'Try before the hint',
@@ -246,6 +361,238 @@ const session004Steps = [
   }
 ];
 
+const session005Steps = [
+  {
+    id: 'one-or-two-beats', title: 'One beat or two beats', kicker: 'Meet two note lengths',
+    intro: 'A note can begin once and continue while the pulse keeps moving.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['A <strong>quarter note</strong> lasts for one beat. A <strong>half note</strong> lasts for two beats. During a half note, press once and let the sound continue while you count the second number. Do not press the key again.', 'The pulse never waits for the note. In 4/4, every measure below contains four beats.'] },
+      { type: 'notation', musicRefs: ['R001-A', 'R001-D'], options: { showLabels: true, showBeatGrid: true, caption: 'Quarter notes begin on one beat. Half notes continue through two beats.' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you point to a one-beat note and a two-beat note?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'hold-middle-c', title: 'Hold middle C for two', kicker: 'Press once, keep counting',
+    intro: 'The second beat belongs to the same sound—not another key press.',
+    blocks: [
+      { type: 'keyboard', labels: 'middle-c', highlights: ['C4'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Count four even beats. Press middle C once on count 1, hold through count 2, and release before count 3. Press once again on count 3, hold through count 4, then release.', hint: 'Say “press, hold, press, hold.” Keep the pulse moving even if the piano sound fades.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Did each two-beat sound use only one key press?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'four-duration-patterns', title: 'Speak, tap, then play', kicker: 'Read four rhythm patterns',
+    intro: 'Prepare the timing away from the keys before you play it.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R001-A', 'R001-B', 'R001-C', 'R001-D'], options: { showLabels: true, showBeatGrid: true } },
+      { type: 'practice', phase: 'try', instruction: 'For each pattern: speak the counts, tap the note beginnings, then play it on middle C. Hold each half note through its second beat without pressing again.', hint: 'Work with Pattern A only until “quarter, quarter, half” fills four even beats.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you keep counting through the held beats in at least two patterns?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'move-the-pitches', title: 'Keep the rhythm while notes move', kicker: 'Transfer the first pattern',
+    intro: 'Changing the key does not change the written duration.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Play Pattern A once more as C, D, E: C for one beat, D for one beat, then E for two beats. Count 1–4 and release E after count 4.', hint: 'Say “C on 1, D on 2, E on 3—hold 4” before playing.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you explain one beat versus two beats, and keep counting while E continues?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session006Steps = [
+  {
+    id: 'echo-method', title: 'Hear, tap, play', kicker: 'Copy timing by ear',
+    intro: 'An echo waits for the whole pattern, then sends the same timing back.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Listen to the whole rhythm before moving. Then tap it, count it, and finally play it. The note may change, but the timing is the part you are copying.', 'Replay is a practice tool, not a penalty. Each recording begins with a spoken four-count.'] },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you name the order: Hear, Tap, Play?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'echo-a', title: 'Echo A', kicker: 'Try before revealing',
+    intro: 'Listen once or twice, then tap and play the pattern on middle C.',
+    blocks: [
+      { type: 'rhythm-echo', musicRefs: ['R002-A'] },
+      { type: 'practice', phase: 'try', instruction: 'Hear Echo A. Tap it, then play it on middle C. Reveal the score only after your first attempt.', hint: 'The spoken-count version is available after you try the pattern-only recording.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Where did the two-beat sound occur?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'echo-b-c', title: 'Echo B and C', kicker: 'Keep the timing, change the key',
+    intro: 'These patterns use C and D, but each measure still contains four beats.',
+    blocks: [
+      { type: 'rhythm-echo', musicRefs: ['R002-B', 'R002-C'] },
+      { type: 'practice', phase: 'try', instruction: 'For Echoes B and C, listen, tap, and then play C and D as written. Use no more than two listens before each first attempt, then reveal and check.', hint: 'If the pitch change distracts you, tap the rhythm first and add C/D afterward.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you hear which sound continues for two beats?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'repair-one-echo', title: 'Repair one echo', kicker: 'Repeat the least secure pattern',
+    intro: 'Choose one small target instead of repeating everything.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Choose the least secure echo. Reveal its score and count blocks, then play it twice the same way. Explain where its half note occurs.', hint: 'Return to the all-C Pattern A from Session 005 if hearing, pitch, and movement feel like too much at once.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you copy the rhythm without adding an extra press?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session007Steps = [
+  {
+    id: 'meet-the-staff', title: 'Meet the five-line staff', kicker: 'See pitch shape',
+    intro: 'Written music moves from left to right and places sounds higher or lower.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['The five horizontal lines are called a <strong>staff</strong>. A note placed higher sounds higher and moves right on this part of the keyboard. A note placed lower sounds lower and moves left. Notes at the same height repeat the same key.', 'Today, follow shape. Specific written note names come next.'] },
+      { type: 'notation', musicRefs: ['N001-A'], options: { reveal: true, revealDirections: true, revealLabels: false, revealLabel: 'Reveal directions' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you trace the notes from left to right?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'trace-three-shapes', title: 'Trace repeat, up, and down', kicker: 'Read movement',
+    intro: 'Neighboring line and space positions represent neighboring steps.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N001-A', 'N001-B', 'N001-C'], options: { reveal: true, revealDirections: true, revealLabels: false, revealLabel: 'Reveal directions' } },
+      { type: 'practice', phase: 'try', instruction: 'Point left to right across each card. Between notes, say repeat, up, or down. Then place your right hand over C–D–E and play the same shape on neighboring keys.', hint: 'Use only two notes first: same height means the same key; one step higher means move one white key right.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you connect higher/lower placement with right/left movement?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'play-the-shapes', title: 'Play what the shape shows', kicker: 'Staff to physical keys',
+    intro: 'The staff guides movement even before every note has a name.',
+    blocks: [
+      { type: 'keyboard', labels: 'five-notes', highlights: ['C4', 'D4', 'E4'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Choose each contour card in turn. Start on middle C and use adjacent C–D–E keys to follow its repeats, upward steps, and downward steps.', hint: 'Keep fingers 1–3 resting over C–D–E so “up” is one prepared key to the right.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you follow a four-note shape without letter labels?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'match-sound-shape', title: 'Match sound to shape', kicker: 'Listen, choose, reveal',
+    intro: 'Listen for repeats and upward steps, then choose the matching card.',
+    blocks: [
+      { type: 'audio-reference', title: 'Contour listening example', tracks: [{ assetRef: 'n001-a-shape', label: 'Hear the contour' }], transcriptHidden: true, transcriptSummary: 'Reveal the accessible audio description after choosing', transcript: 'Four-count, then four notes: repeat, up, up.' },
+      { type: 'notation', musicRefs: ['N001-A', 'N001-B', 'N001-C'], options: {} },
+      { type: 'practice', phase: 'try', instruction: 'Listen, then choose Contour A, B, or C from the cards you just played. Open the hint only after choosing, then replay and play the answer on your piano.', hint: 'The answer is Contour A: C, C, D, E—repeat, up, up.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you match repeat/up/down in sound to the written shape?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session008Steps = [
+  {
+    id: 'treble-c-and-g', title: 'Meet written C and G', kicker: 'Two treble landmarks',
+    intro: 'Two dependable locations help you orient without memorizing a sentence.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['The <strong>treble clef</strong> marks the staff used for these right-hand notes. Middle C sits on one short <strong>ledger line</strong> below the staff. G sits on the second line up from the bottom.', 'Count the lines from the bottom for G once. After that, learn its visual location.'] },
+      { type: 'notation', musicRefs: ['N002-A'], options: { showLabels: true, showAllFingers: true, showBeatGrid: true } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you describe where middle C and treble G sit?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'match-staff-and-keys', title: 'Match the landmarks to keys', kicker: 'Written note to physical piano',
+    intro: 'Connect each staff position to the key under your prepared hand.',
+    blocks: [
+      { type: 'keyboard', labels: 'fingers', highlights: ['C4', 'G4'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Point to written middle C, then play C with right-hand finger 1. Point to written G, then play G with finger 5. Mix the order four times.', hint: 'Middle C has the short line through it below the staff. G sits on the second full line from the bottom.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you identify each landmark without a mnemonic?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'play-landmark-patterns', title: 'Play two landmark patterns', kicker: 'Count in, then read',
+    intro: 'Your hand remains in the familiar C–G position while the notation changes.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N002-A', 'N002-B'], options: { showAllFingers: true, showBeatGrid: true, reveal: true, revealLabel: 'Reveal note names' } },
+      { type: 'practice', phase: 'try', instruction: 'Give a four-count, then play Pattern A. Reset and play Pattern B. Keep the half note sounding for two beats.', hint: 'Prepare fingers 1 and 5 over C and G before the count-in.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you move between C and G without shifting your whole hand?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'landmarks-without-labels', title: 'Read without labels', kicker: 'Retrieve the locations',
+    intro: 'Try one pattern again with only the clef and note positions.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N002-B'], options: { showBeatGrid: false } },
+      { type: 'practice', phase: 'try', instruction: 'Play the pattern after a four-count without revealing note names. If needed, identify the first note, reset your hand, and try once more.', hint: 'The first note is G on the second line from the bottom.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you match both written landmarks to the correct physical keys?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session009Steps = [
+  {
+    id: 'map-c-d-e', title: 'Map C, D, and E', kicker: 'Read outward from middle C',
+    intro: 'A known landmark plus step direction reveals nearby notes.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Start from middle C on its ledger line. The next note up is D, in the space below the staff. The next step is E, on the bottom line.', 'Before playing, find the first note and trace whether the pattern repeats, steps up, or steps down.'] },
+      { type: 'notation', musicRefs: ['N003-A'], options: { showStartingFinger: true, reveal: true, revealDirections: true, revealLabel: 'Reveal note names and directions' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you use middle C plus upward steps to find D and E?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'read-card-a', title: 'Preview and read Card A', kicker: 'Landmark, direction, rhythm',
+    intro: 'Preview first; the cursor will not follow while you play.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N003-A'], options: { showStartingFinger: true, showBeatGrid: true, reveal: true, revealDirections: true } },
+      { type: 'practice', phase: 'try', instruction: 'Find the first note, speak the directions, prepare right-hand fingers 1–3, count four, and play Card A.', hint: 'The shape is up, up, down from middle C.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you preview before your hand begins moving?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'read-card-b-c', title: 'Read Cards B and C', kicker: 'Try before names appear',
+    intro: 'Let staff position and direction—not printed letters—lead the first attempt.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N003-B', 'N003-C'], options: { showStartingFinger: true, reveal: true, revealDirections: true, revealLabel: 'Reveal note names and directions' } },
+      { type: 'practice', phase: 'try', instruction: 'Preview and play Card B, then Card C, after separate four-counts. Reveal the names only after each attempt.', hint: 'If three notes are too much, read only C–D, D–C, or C–C.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you keep your right hand prepared while your eyes follow the staff?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'independent-reading', title: 'Read one card independently', kicker: 'No labels, no moving cursor',
+    intro: 'A calm preview gives you a plan before the count-in.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N003-C'], options: { showStartingFinger: true } },
+      { type: 'practice', phase: 'try', instruction: 'Preview Card C silently, count four, and play it without labels or cursor help. A self-corrected note is useful information, not failure.', hint: 'Find middle C first, then follow repeat, up, up.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you read a four-note C–D–E pattern without letters above the notes?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session010Steps = [
+  {
+    id: 'preview-the-piece', title: 'Preview Three-Step Walk', kicker: 'Look before playing',
+    intro: 'A short preview turns the score into a practical plan.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['A piece has a beginning, a journey, and an ending. Before playing, find the first note, trace the shape, notice one- and two-beat notes, and prepare your hand.', 'The score is primary. Reference audio stays closed until after your own attempt.'] },
+      { type: 'notation', musicRefs: ['P01'], options: { measureNumbers: true, showStartingFinger: true, enlarge: true, caption: 'RH only. Four measures in 4/4. Start on middle C with finger 1.' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you point out the first note, the direction changes, and every half note?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'prepare-two-sections', title: 'Prepare two sections', kicker: 'Measures 1–2, then 3–4',
+    intro: 'Tap and play each half before connecting the full piece.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P01'], options: { measureNumbers: true, showStartingFinger: true, showBeatGrid: true } },
+      { type: 'practice', phase: 'try', instruction: 'Tap and count Measures 1–2, then play them. Reset, tap and count Measures 3–4, then play them. Hold every half note through its second beat.', hint: 'If needed, work with only Measure 1: C quarter, D quarter, E half.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you prepare each two-measure section without hearing a model first?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'complete-attempt', title: 'Play the complete phrase', kicker: 'Keep the musical thread',
+    intro: 'Small errors do not have to stop the journey to the ending.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P01'], options: { measureNumbers: true, showStartingFinger: true, enlarge: true } },
+      { type: 'practice', phase: 'try', instruction: 'Prepare right-hand fingers 1–3, count four, and play all four measures at a comfortable pulse. If a note is missed, keep moving when you can and reach the final C.', hint: 'A comfortable target is about 56 beats per minute, but an even self-count matters more than the number.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you reach the ending without restarting for every small error?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'repair-and-replay', title: 'Repair one measure and replay', kicker: 'Practice a specific place',
+    intro: 'One named repair is more useful than judging the whole performance.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Choose the least secure measure. Speak its count, play it twice, connect it once to the following measure when possible, then replay the complete piece.', hint: 'If the whole piece feels too large, prepare and play only Measures 1–2 today.' },
+      { type: 'audio-reference', title: 'Reference performances', collapsed: true, summary: 'Hear after my try', tracks: [{ assetRef: 'p01-practice', label: 'Practice version at 56 bpm' }, { assetRef: 'p01-musical', label: 'Musical version at 64 bpm' }], transcript: 'Spoken four-count, then the four written measures of Three-Step Walk.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you show your preview method and complete the phrase with a recognizable ending?', legacySelfCheck: true }
+    ]
+  }
+];
+
 export const sessionCatalog = [
   {
     id: '001',
@@ -328,5 +675,6 @@ export const sessionCatalog = [
     },
     reinforcementRefs: ['RF-RH-1', 'RF-PULSE-1'],
     pedagogicalReview: ['Session 004 hand-position language, fingering, and target pulse require qualified piano-teacher review.']
-  }
+  },
+  ...sliceBSessions()
 ];
