@@ -1,9 +1,12 @@
 import { assertValidCurriculum } from './content-validator.js';
+import { buildChatGPTPrompt, copyPrompt } from './chatgpt-help.js';
+import { renderHome as renderHomeMarkup } from './home-renderer.js';
 import { musicLibrary } from './music-library.js';
 import { reinforcementCatalog } from './reinforcements.js';
 import { assetCatalog, sessionCatalog } from './session-catalog.js';
 import { continueTarget, createNavigation, revisitSession } from './session-navigation.js';
 import { nextPulseFrame, pulseIntervalMs } from './pulse-guide.js';
+import { continueSession, finishSession } from './session-actions.js';
 import { calculateAssessmentProgress, createSessionProgressStore } from './session-progress.js';
 import { renderReadinessGuidance, renderSessionNavigation, renderSessionStep, renderStepNavigation } from './session-renderer.js';
 
@@ -23,7 +26,10 @@ const elements = {
   repeat: $('#repeat-session'), position: $('#step-position'), percent: $('#progress-percent'), fill: $('#progress-fill'),
   progressbar: $('[role="progressbar"]'), reset: $('#reset-progress'), toast: $('#toast'), release: $('#release-label'),
   positionSummary: $('#session-position-summary'), completionSummary: $('#session-completion-summary'),
-  heroEyebrow: $('#session-eyebrow'), heroTitle: $('#lesson-title'), heroIntro: $('#session-intro'), shell: $('#lesson')
+  heroEyebrow: $('#session-eyebrow'), heroTitle: $('#lesson-title'), heroIntro: $('#session-intro'), shell: $('#lesson'),
+  home: $('#home-view'), learning: $('#learning-view'), main: $('#main-content'), askChatGPT: $('#ask-chatgpt'),
+  helpDialog: $('#chatgpt-help-dialog'), helpQuestion: $('#chatgpt-question'), helpPrompt: $('#chatgpt-prompt'),
+  helpCopy: $('#copy-chatgpt-prompt'), helpStatus: $('#chatgpt-copy-status')
 };
 
 function sessionById(id) { return sessionCatalog.find((session) => session.id === id); }
@@ -61,20 +67,20 @@ function renderNavigation(session, state) {
 }
 
 function configureEnding(session, state) {
-  const complete = $('[data-complete-session]');
+  const finish = $('[data-finish-session]');
   const continueButton = $('[data-continue-session]');
-  if (!complete || !continueButton) return;
-  complete.disabled = state.completed;
+  if (!finish || !continueButton) return;
+  finish.disabled = state.completed;
   const target = continueTarget(session.id, sessionCatalog, progress);
   continueButton.hidden = !target;
   if (target) {
     continueButton.dataset.targetSession = target.sessionId;
     continueButton.dataset.advancesCurrent = String(target.advancesCurrent);
-    continueButton.textContent = `${target.advancesCurrent ? 'Continue to' : 'Review'} Session ${target.sessionId}`;
+    continueButton.textContent = `Continue to Session ${target.sessionId}`;
   }
 }
 
-function render({ focus = false } = {}) {
+function stopActiveMedia() {
   if (pulseTimer) {
     window.clearInterval(pulseTimer);
     pulseTimer = null;
@@ -83,6 +89,32 @@ function render({ focus = false } = {}) {
     activeAudio.pause();
     activeAudio = null;
   }
+}
+
+function renderHomeView({ focus = false } = {}) {
+  stopActiveMedia();
+  elements.learning.hidden = true;
+  elements.home.hidden = false;
+  elements.home.innerHTML = renderHomeMarkup(sessionCatalog, progress);
+  elements.release.textContent = 'Chapter 01';
+  document.title = 'Piano Lab — Learn on Your Piano';
+  if (focus) {
+    elements.main.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function openSession(sessionId, { focus = true } = {}) {
+  const nextNavigation = revisitSession(sessionId, sessionCatalog, progress, navigation);
+  if (nextNavigation.viewingSessionId !== sessionId) return;
+  navigation = nextNavigation;
+  elements.home.hidden = true;
+  elements.learning.hidden = false;
+  render({ focus });
+}
+
+function render({ focus = false } = {}) {
+  stopActiveMedia();
   const session = viewedSession();
   const state = progress.sessions[session.id];
   updateMetadata(session);
@@ -91,13 +123,24 @@ function render({ focus = false } = {}) {
   updateProgress(session, state);
   configureEnding(session, state);
   elements.previous.disabled = state.stepIndex === 0;
-  elements.next.textContent = state.stepIndex === session.steps.length - 1 ? 'Review session' : 'Next step';
+  elements.next.textContent = state.stepIndex === session.steps.length - 1 ? 'Go to session check-in' : 'Next step';
   elements.position.textContent = `${state.stepIndex + 1} / ${session.steps.length}`;
   if (focus) {
     elements.step.focus({ preventScroll: true });
     elements.shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
+
+elements.home.addEventListener('click', (event) => {
+  const target = event.target.closest('[data-continue-learning], [data-home-session]');
+  if (target) openSession(target.dataset.continueLearning ?? target.dataset.homeSession);
+});
+document.addEventListener('click', (event) => {
+  const home = event.target.closest('[data-return-home]');
+  if (!home) return;
+  event.preventDefault();
+  renderHomeView({ focus: true });
+});
 
 function goToStep(index) {
   const session = viewedSession();
@@ -230,11 +273,11 @@ elements.step.addEventListener('click', (event) => {
     render({ focus: true });
     return;
   }
-  if (event.target.closest('[data-complete-session]')) {
+  if (event.target.closest('[data-finish-session]')) {
     const session = viewedSession();
-    progress = store.completeSession(session.id);
+    progress = finishSession(store, session.id);
     render();
-    showToast(`Session ${session.id} recorded as complete. You can repeat it whenever you choose.`);
+    showToast(`Session ${session.id} is complete for today. You can repeat it whenever you choose.`);
     return;
   }
   const continueButton = event.target.closest('[data-continue-session]');
@@ -242,8 +285,7 @@ elements.step.addEventListener('click', (event) => {
     const session = viewedSession();
     const target = continueButton.dataset.targetSession;
     if (!target) return;
-    progress = store.completeSession(session.id);
-    if (continueButton.dataset.advancesCurrent === 'true') progress = store.setCurrentSession(target);
+    progress = continueSession(store, session.id, target, continueButton.dataset.advancesCurrent === 'true');
     navigation = { viewingSessionId: target };
     render({ focus: true });
   }
@@ -253,8 +295,40 @@ elements.next.addEventListener('click', () => {
   const session = viewedSession();
   const state = progress.sessions[session.id];
   if (state.stepIndex < session.steps.length - 1) return goToStep(state.stepIndex + 1);
-  $('[data-complete-session]')?.focus();
-  $('.session-ending')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const ending = $('.session-ending');
+  ending?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  ending?.focus({ preventScroll: true });
+});
+
+function updateHelpPrompt() {
+  const session = viewedSession();
+  const state = progress.sessions[session.id];
+  elements.helpPrompt.value = buildChatGPTPrompt(session, session.steps[state.stepIndex], elements.helpQuestion.value);
+}
+
+elements.askChatGPT.addEventListener('click', () => {
+  elements.helpQuestion.value = '';
+  elements.helpStatus.textContent = '';
+  updateHelpPrompt();
+  if (typeof elements.helpDialog.showModal === 'function') elements.helpDialog.showModal();
+  else elements.helpDialog.setAttribute('open', '');
+  elements.helpQuestion.focus();
+});
+elements.helpQuestion.addEventListener('input', updateHelpPrompt);
+elements.helpDialog.querySelector('[data-close-help]').addEventListener('click', () => {
+  if (typeof elements.helpDialog.close === 'function') elements.helpDialog.close();
+  else elements.helpDialog.removeAttribute('open');
+});
+elements.helpCopy.addEventListener('click', async () => {
+  const copied = await copyPrompt(elements.helpPrompt.value, navigator.clipboard);
+  if (copied) {
+    elements.helpStatus.textContent = 'Prompt copied. Open ChatGPT and paste it when you are ready.';
+    return;
+  }
+  elements.helpPrompt.focus();
+  elements.helpPrompt.select();
+  elements.helpPrompt.setSelectionRange(0, elements.helpPrompt.value.length);
+  elements.helpStatus.textContent = 'Automatic copying was blocked. The prompt is selected—use your device’s Copy command, then paste it into ChatGPT.';
 });
 elements.repeat.addEventListener('click', () => {
   const session = viewedSession();
@@ -270,4 +344,4 @@ elements.reset.addEventListener('click', () => {
   }
 });
 
-render();
+renderHomeView();

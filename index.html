@@ -10,18 +10,21 @@
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#lesson">Skip to lesson</a>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="Piano Lab home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Piano Lab</span></a>
-    <span class="release" id="release-label">Session 001</span>
+    <a class="brand" href="#home" data-return-home aria-label="Piano Lab home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Piano Lab</span></a>
+    <span class="release" id="release-label">Chapter 01</span>
   </header>
-  <main id="top">
+  <main id="main-content" tabindex="-1">
+    <div id="home-view"></div>
+    <div id="learning-view" hidden>
     <section class="hero" aria-labelledby="lesson-title">
       <div class="hero-copy">
         <p class="eyebrow" id="session-eyebrow">Learn · 10–15 minute core</p>
         <h1 id="lesson-title">Your First<br><em>Five Notes</em></h1>
         <p class="hero-intro" id="session-intro">Meet the keyboard, find middle C, and play a short melody on your own piano.</p>
         <div class="instrument-note"><span aria-hidden="true">♫</span><p><strong>Bring your instrument.</strong> Piano Lab guides you; every note is played on your physical piano or keyboard.</p></div>
+        <div class="lesson-utility-actions"><button class="utility-button" type="button" data-return-home>← Back to home</button><button class="utility-button" id="ask-chatgpt" type="button">Ask ChatGPT</button></div>
       </div>
       <div class="hero-card" aria-hidden="true"><p>C · D · E · F · G</p><div class="mini-staff"><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span></div><small>Your first five notes</small></div>
     </section>
@@ -40,8 +43,20 @@
         <nav class="step-controls" aria-label="Step navigation"><button class="button button-secondary" id="previous-step" type="button">Previous</button><span id="step-position" aria-live="polite"></span><button class="button button-primary" id="next-step" type="button">Next step</button></nav>
       </div>
     </section>
+    </div>
   </main>
   <footer><p>Learn slowly. Listen closely. There is no score to chase.</p><p>Free, open source, and made for real instruments.</p></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog class="help-dialog" id="chatgpt-help-dialog" aria-labelledby="chatgpt-help-title">
+    <div class="help-dialog-header"><div><p class="eyebrow">Optional help</p><h2 id="chatgpt-help-title">Ask ChatGPT</h2></div><button class="dialog-close" type="button" data-close-help aria-label="Close Ask ChatGPT help">×</button></div>
+    <p>Write your own question if you want. Piano Lab will prepare a prompt using only this lesson’s public content—never your saved progress, assessments, or browser data.</p>
+    <label for="chatgpt-question"><strong>Your question</strong> <span>(optional)</span></label>
+    <textarea id="chatgpt-question" rows="3" placeholder="For example: How can I keep my hand relaxed at G?"></textarea>
+    <label for="chatgpt-prompt"><strong>Prompt to copy</strong></label>
+    <textarea id="chatgpt-prompt" rows="9" readonly></textarea>
+    <p class="help-note">Copy the prompt, then open ChatGPT and paste it yourself. Opening ChatGPT does not send this prompt automatically.</p>
+    <div class="help-actions"><button class="button button-primary" id="copy-chatgpt-prompt" type="button">Copy prompt</button><a class="button button-secondary" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT ↗</a></div>
+    <p id="chatgpt-copy-status" role="status" aria-live="polite"></p>
+  </dialog>
 </body>
 </html>

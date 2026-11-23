@@ -30,7 +30,9 @@ test('the final step renders the original melody plus optional and readiness con
   assert.match(html, /Ready/);
   assert.match(html, /Practicing/);
   assert.match(html, /Stuck/);
-  assert.match(html, /Mark core complete/);
+  assert.match(html, /Finish for today/);
+  assert.match(html, /Continue to next session/);
+  assert.ok(html.indexOf('Keep Playing') < html.indexOf('Choose what happens next'));
 });
 
 test('step navigation retains prior checks without treating them as session completion', () => {

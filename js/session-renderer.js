@@ -114,7 +114,7 @@ export function renderSessionEnding(session, state, reinforcements) {
     const option = session.readiness[value];
     return `<label><input type="radio" name="readiness" value="${value}" ${state.readiness === value ? 'checked' : ''}><span><strong>${option.label}</strong><small>${option.guidance}</small></span></label>`;
   }).join('');
-  return `<section class="session-ending" aria-labelledby="session-ending-heading">
+  return `<section class="session-ending" tabindex="-1" aria-labelledby="session-ending-heading">
     <h3 id="session-ending-heading">Session check-in</h3>
     <fieldset class="session-assessments"><legend>Understanding and playing can develop at different speeds.</legend>
       <label><input type="checkbox" data-session-assessment="understanding" ${state.understanding ? 'checked' : ''}><span><strong>I understand it</strong><small>${session.reflection.understanding}</small></span></label>
@@ -123,9 +123,10 @@ export function renderSessionEnding(session, state, reinforcements) {
     <fieldset class="readiness-choices"><legend>What would help next?</legend>${readinessOptions}</fieldset>
     <div data-readiness-guidance>${renderReadinessGuidance(session, state, reinforcements)}</div>
     <p class="observable-outcome"><strong>Observable outcome:</strong> ${session.outcome}</p>
-    <div class="session-actions"><button class="button button-primary" type="button" data-complete-session>${state.completed ? 'Session completed' : 'Mark core complete'}</button><button class="button button-secondary" type="button" data-continue-session>Continue to next session</button></div>
     <div class="keep-playing"><p class="eyebrow">Optional extension</p><h3>Keep Playing</h3><p>Stop after the core if that is enough today. These ideas are optional and are not required by the next session.</p>
     <ul>${session.keepPlaying.map((activity) => `<li>${activity}</li>`).join('')}</ul></div>
+    <div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
+    <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>
   </section>`;
 }
 
