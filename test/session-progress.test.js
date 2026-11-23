@@ -144,3 +144,21 @@ test('an unknown future schema is never overwritten by this version', () => {
   assert.equal(store.load().sessions['001'].stepIndex, 3);
   assert.equal(storage.value(SESSION_PROGRESS_KEY), future);
 });
+
+test('Slice A progress and independent readiness survive reload across all four sessions', () => {
+  const storage = memoryStorage();
+  const store = createSessionProgressStore(storage, sessionCatalog);
+  for (const session of sessionCatalog) {
+    store.setSessionAssessment(session.id, 'understanding', session.id !== '003');
+    store.setSessionAssessment(session.id, 'playing', session.id === '001' || session.id === '004');
+    store.setReadiness(session.id, session.id === '002' ? 'stuck' : 'practicing');
+    store.completeSession(session.id);
+  }
+  store.setCurrentSession('004');
+  const reloaded = createSessionProgressStore(storage, sessionCatalog).load();
+  assert.equal(reloaded.currentSessionId, '004');
+  assert.equal(reloaded.sessions['002'].readiness, 'stuck');
+  assert.equal(reloaded.sessions['003'].understanding, false);
+  assert.equal(reloaded.sessions['004'].playing, true);
+  assert.equal(Object.values(reloaded.sessions).every(({ completed }) => completed), true);
+});

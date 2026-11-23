@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "generate:audio": "node scripts/generate-audio.js",
     "test": "node --test",
     "validate:content": "node scripts/validate-content.js"
   }

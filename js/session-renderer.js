@@ -32,6 +32,47 @@ function patternMarkup(example) {
   return `<div class="melody" aria-label="Melody: ${example.events.map(({ pitch }) => name(pitch)).join(', ')}">${example.events.map(({ pitch, finger }) => `<div><strong>${name(pitch)}</strong><span>finger ${finger}</span></div>`).join('<i aria-hidden="true">–</i>')}</div>`;
 }
 
+function listeningMarkup(block, context) {
+  const example = context.music[block.musicRef];
+  const pairs = block.pairIds.map((id) => example.pairs.find((pair) => pair.id === id));
+  return `<section class="listening-set" aria-label="Same or different listening exercise">${pairs.map((pair) => {
+    const asset = context.assets[pair.audioRef];
+    const first = pair.first.join('–');
+    const second = pair.second.join('–');
+    return `<article class="listening-card" data-listening-pair="${pair.id}" data-answer="${pair.answer}">
+      <p class="listening-title"><strong>Pair ${pair.id}</strong><span>Two groups of three notes</span></p>
+      <audio preload="metadata" src="${asset.src}" data-listening-audio></audio>
+      <button class="button button-secondary audio-button" type="button" data-audio-control aria-label="Play listening pair ${pair.id}">▶ Play pair ${pair.id}</button>
+      <p class="audio-status" role="status" aria-live="polite">Ready to play</p>
+      <fieldset class="listening-choices"><legend>Pair ${pair.id}: choose same or different</legend>
+        <button type="button" data-listening-answer="same" aria-pressed="false">Same</button>
+        <button type="button" data-listening-answer="different" aria-pressed="false">Different</button>
+      </fieldset>
+      <button class="text-button reveal-answer" type="button" data-reveal-answer>Reveal notes and answer</button>
+      <div class="listening-reveal" data-listening-reveal hidden><p><strong>${pair.answer === 'same' ? 'Same' : 'Different'}.</strong> ${first} / ${second}</p><p>Direction: ${pair.directions}.</p><p>Now play both groups on your physical piano.</p></div>
+    </article>`;
+  }).join('')}</section>`;
+}
+
+function pulseMarkup(block, context) {
+  const example = context.music[block.musicRef];
+  const events = Array.isArray(example.events) ? example.events : null;
+  const beats = events?.length ?? example.beats;
+  const groupSize = example.groupSize ?? 4;
+  const bpm = example.bpm ?? 56;
+  const cells = Array.from({ length: beats }, (_, index) => {
+    const event = events?.[index];
+    const label = event ? event.pitch.replace(/[0-9]$/, '') : String((index % groupSize) + 1);
+    const detail = event?.finger ? `<small>finger ${event.finger}</small>` : '';
+    return `<li data-pulse-index="${index}"><span>${label}</span>${detail}</li>`;
+  }).join('');
+  const label = events ? `${example.title} beat guide` : `${beats}-beat pulse guide`;
+  return `<section class="pulse-guide ${events ? 'pulse-pattern' : 'pulse-count'}" data-pulse-guide data-bpm="${bpm}" aria-label="${label}">
+    <ol style="--pulse-count:${beats}">${cells}</ol>
+    <div class="pulse-controls"><button class="button button-secondary" type="button" data-pulse-start>Start guide</button><button class="text-button" type="button" data-pulse-reset>Reset</button><span data-pulse-status role="status" aria-live="polite">Ready · ${bpm} beats per minute</span></div>
+  </section>`;
+}
+
 function legacyCheckMarkup(assessment = {}) {
   return `<fieldset class="self-check"><legend>Check in with yourself</legend>
     <label><input type="checkbox" data-step-assessment="understands" ${assessment.understands ? 'checked' : ''}><span><strong>I understand it</strong><small>I can explain the idea in my own words.</small></span></label>
@@ -46,8 +87,10 @@ export function renderBlock(block, context) {
     case 'keyboard': return keyboardMarkup(block);
     case 'finger-position': return fingerMarkup();
     case 'musical-pattern': return patternMarkup(context.music[block.musicRef]);
+    case 'audio-listening': return listeningMarkup(block, context);
+    case 'pulse-guide': return pulseMarkup(block, context);
     case 'practice':
-      return `<section class="learning-block try-block" aria-label="Try it on your piano">${phaseMarkup(block.phase)}<p>${block.instruction}</p><details><summary>Need a hint?</summary><p>${block.hint}</p></details></section>`;
+      return `<section class="learning-block try-block" aria-label="Try it on your piano">${phaseMarkup(block.phase)}<p>${block.instruction}</p><details><summary>Need a hint?</summary><p>${block.hint}</p>${block.hintVisual?.type === 'keyboard' ? keyboardMarkup(block.hintVisual) : ''}</details></section>`;
     case 'reflection':
       return `<section class="learning-block reflect-block" aria-label="Reflect">${phaseMarkup(block.phase)}<p>${block.prompt}</p>${block.legacySelfCheck ? legacyCheckMarkup(context.stepAssessment) : ''}</section>`;
     default: throw new Error(`Unsupported content block type: ${block.type}`);
@@ -61,8 +104,9 @@ export function renderReadinessGuidance(session, state, reinforcements) {
   const reference = config.reinforcementRefs?.[0];
   const reinforcement = reference ? reinforcements[reference] : null;
   if (!reinforcement) return `<p class="readiness-guidance"><strong>${config.label}:</strong> ${config.guidance}</p>`;
-  const instruction = readiness === 'stuck' ? reinforcement.prerequisite : reinforcement.repeat;
-  return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${reinforcement.earlierSessionId ? `<button class="text-button" type="button" data-revisit-session="${reinforcement.earlierSessionId}">Revisit Session ${reinforcement.earlierSessionId}</button>` : ''}</div>`;
+  const instruction = config.exercise ?? (readiness === 'stuck' ? reinforcement.prerequisite : reinforcement.repeat);
+  const earlierSessionId = config.earlierSessionId ?? reinforcement.earlierSessionId;
+  return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${earlierSessionId ? `<button class="text-button" type="button" data-revisit-session="${earlierSessionId}">Revisit Session ${earlierSessionId}</button>` : ''}</div>`;
 }
 
 export function renderSessionEnding(session, state, reinforcements) {
@@ -70,7 +114,7 @@ export function renderSessionEnding(session, state, reinforcements) {
     const option = session.readiness[value];
     return `<label><input type="radio" name="readiness" value="${value}" ${state.readiness === value ? 'checked' : ''}><span><strong>${option.label}</strong><small>${option.guidance}</small></span></label>`;
   }).join('');
-  return `<section class="session-ending" aria-labelledby="session-ending-heading">
+  return `<section class="session-ending" tabindex="-1" aria-labelledby="session-ending-heading">
     <h3 id="session-ending-heading">Session check-in</h3>
     <fieldset class="session-assessments"><legend>Understanding and playing can develop at different speeds.</legend>
       <label><input type="checkbox" data-session-assessment="understanding" ${state.understanding ? 'checked' : ''}><span><strong>I understand it</strong><small>${session.reflection.understanding}</small></span></label>
@@ -79,18 +123,19 @@ export function renderSessionEnding(session, state, reinforcements) {
     <fieldset class="readiness-choices"><legend>What would help next?</legend>${readinessOptions}</fieldset>
     <div data-readiness-guidance>${renderReadinessGuidance(session, state, reinforcements)}</div>
     <p class="observable-outcome"><strong>Observable outcome:</strong> ${session.outcome}</p>
-    <div class="session-actions"><button class="button button-primary" type="button" data-complete-session>${state.completed ? 'Session completed' : 'Mark core complete'}</button><button class="button button-secondary" type="button" data-continue-session>Continue to next session</button></div>
     <div class="keep-playing"><p class="eyebrow">Optional extension</p><h3>Keep Playing</h3><p>Stop after the core if that is enough today. These ideas are optional and are not required by the next session.</p>
     <ul>${session.keepPlaying.map((activity) => `<li>${activity}</li>`).join('')}</ul></div>
+    <div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
+    <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>
   </section>`;
 }
 
-export function renderSessionStep(session, stepIndex, state, { music, reinforcements }) {
+export function renderSessionStep(session, stepIndex, state, { music, reinforcements, assets = {} }) {
   const step = session.steps[stepIndex];
   const stepAssessment = state.stepAssessments?.[step.id] ?? {};
-  const blocks = step.blocks.map((block) => renderBlock(block, { music, stepAssessment })).join('');
+  const blocks = step.blocks.map((block) => renderBlock(block, { music, assets, stepAssessment })).join('');
   const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements) : '';
-  return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p></header>${blocks}${ending}`;
+  return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p><button class="step-help" type="button" data-ask-chatgpt>Ask ChatGPT about this step</button></header>${blocks}${ending}`;
 }
 
 export function renderStepNavigation(session, state) {

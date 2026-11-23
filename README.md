@@ -2,7 +2,7 @@
 
 Piano Lab is a free, open-source learning companion for absolute beginners practicing on a real piano or keyboard. Every exercise is played on the learner's physical instrument—the application guides learning rather than replacing the piano. It is intentionally small: plain HTML, CSS, and JavaScript, with no framework, account, backend, or virtual instrument.
 
-The current learner-facing catalog contains Session 001, **Your First Five Notes**. It teaches keyboard landmarks, middle C, C–D–E–F–G, right-hand finger numbers, and an original seven-note melody. A reusable session engine now provides the foundation for the sequential 365-session curriculum without creating separate pages for each lesson.
+The learner-facing catalog contains the first four consecutive sessions: keyboard landmarks and C–G, same/different listening, steady pulse, and a right-hand five-note pattern played one note per beat. A reusable session engine provides the foundation for the sequential 365-session curriculum without creating separate pages for each lesson.
 
 ## Run locally
 
@@ -23,7 +23,7 @@ npm test
 npm run validate:content
 ```
 
-Tests cover piano-key mapping, structured-content validation, rendering, navigation/revisit behavior, v0.1 progress migration, independent session state, reinforcement history, and localStorage failure fallback.
+Tests cover piano-key mapping, structured-content validation, local audio assets, pulse behavior, rendering, navigation/revisit behavior, v0.1 progress migration, independent session state, reinforcement history, and localStorage failure fallback.
 
 ## Project structure
 
@@ -34,6 +34,7 @@ js/app.js           Browser coordination and interaction handling
 js/session-*.js     Session catalog, rendering, navigation, and v2 progress
 js/content-validator.js  Structured curriculum validation
 js/music-library.js     Referenced musical examples
+assets/audio/           Local listening demonstrations
 js/reinforcements.js    Optional targeted support content
 js/lessons.js       Keyboard model and v0.1 compatibility export
 js/progress.js      Preserved v0.1 progress implementation
@@ -58,7 +59,7 @@ Session position, completion, separate understanding/playing reflections, readin
 
 ## Accessibility
 
-Piano Lab uses semantic landmarks, keyboard-operable controls, visible focus styles, large touch targets, reduced-motion support, and text labels alongside color. Keyboard diagrams are explanatory references; every playing task is performed on a physical instrument.
+Piano Lab uses semantic landmarks, keyboard-operable controls, visible focus styles, large touch targets, reduced-motion support, and text labels alongside color. Listening audio never autoplays and its answers have text reveals. Keyboard diagrams are explanatory references; every playing task is performed on a physical instrument.
 
 ## License
 

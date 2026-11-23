@@ -50,7 +50,17 @@ function validateMusicEvent(event, path, meter, errors) {
   }
 }
 
-function validateMusic(music, errors) {
+function validatePitchList(pitches, path, errors) {
+  if (!Array.isArray(pitches) || pitches.length === 0) {
+    errors.push(issue('pitch-list', path, 'A listening pattern needs at least one pitch.'));
+    return;
+  }
+  pitches.forEach((pitch, index) => {
+    if (typeof pitch !== 'string' || !PITCH_PATTERN.test(pitch)) errors.push(issue('pitch', `${path}.${index}`, `Invalid pitch name: ${pitch}.`));
+  });
+}
+
+function validateMusic(music, assets, errors) {
   for (const [id, example] of Object.entries(music)) {
     const path = `music.${id}`;
     if (!example || typeof example !== 'object' || Array.isArray(example)) {
@@ -58,6 +68,29 @@ function validateMusic(music, errors) {
       continue;
     }
     if (example.id !== id) errors.push(issue('music-id', `${path}.id`, 'Music entry ID must match its catalog key.'));
+    if (example.kind === 'listening-set') {
+      if (!Array.isArray(example.pairs) || example.pairs.length === 0) errors.push(issue('listening-pairs', `${path}.pairs`, 'A listening set needs at least one pair.'));
+      const pairIds = new Set();
+      for (const [pairIndex, pair] of (example.pairs ?? []).entries()) {
+        const pairPath = `${path}.pairs.${pairIndex}`;
+        if (!pair?.id || pairIds.has(pair.id)) errors.push(issue('listening-pair-id', `${pairPath}.id`, 'Listening pair IDs are required and must be unique.'));
+        pairIds.add(pair?.id);
+        if (!['same', 'different'].includes(pair?.answer)) errors.push(issue('listening-answer', `${pairPath}.answer`, 'Listening answer must be same or different.'));
+        validatePitchList(pair?.first, `${pairPath}.first`, errors);
+        validatePitchList(pair?.second, `${pairPath}.second`, errors);
+        if (pair?.answer === 'same' && JSON.stringify(pair.first) !== JSON.stringify(pair.second)) errors.push(issue('listening-answer-data', pairPath, 'A pair marked same must contain identical pitch sequences.'));
+        if (pair?.answer === 'different' && JSON.stringify(pair.first) === JSON.stringify(pair.second)) errors.push(issue('listening-answer-data', pairPath, 'A pair marked different must contain different pitch sequences.'));
+        if (!pair?.audioRef || assets[pair.audioRef]?.type !== 'audio') errors.push(issue('audio-reference', `${pairPath}.audioRef`, `Unknown audio asset ${pair?.audioRef ?? 'none'}.`));
+      }
+      continue;
+    }
+    if (example.kind === 'pulse-guide') {
+      if (!Number.isInteger(example.beats) || example.beats < 1 || !Number.isInteger(example.groupSize) || example.groupSize < 1 || example.beats % example.groupSize !== 0) {
+        errors.push(issue('pulse-shape', path, 'A pulse guide needs a positive beat count evenly divisible by its positive group size.'));
+      }
+      if (!Number.isFinite(example.bpm) || example.bpm < 40 || example.bpm > 120) errors.push(issue('pulse-tempo', `${path}.bpm`, 'Pulse guide tempo must be between 40 and 120 bpm.'));
+      continue;
+    }
     const hasEvents = Array.isArray(example.events);
     const hasMeasures = Array.isArray(example.measures);
     if (hasEvents === hasMeasures) errors.push(issue('music-structure', path, 'Music must define either an unmetered events array or a measures array, but not both.'));
@@ -138,7 +171,16 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
         const blockPath = `${stepPath}.blocks.${blockIndex}`;
         if (!BLOCK_TYPES.includes(block.type)) errors.push(issue('block-type', `${blockPath}.type`, `Unrecognized block type: ${block.type}.`));
         if (block.assetRef && !assets[block.assetRef]) errors.push(issue('asset-reference', `${blockPath}.assetRef`, `Unknown asset ${block.assetRef}.`));
+        if (block.hintVisual && block.hintVisual.type !== 'keyboard') errors.push(issue('hint-visual-type', `${blockPath}.hintVisual.type`, 'Practice hint visuals currently support only keyboard diagrams.'));
+        if (block.hintVisual?.assetRef && !assets[block.hintVisual.assetRef]) errors.push(issue('asset-reference', `${blockPath}.hintVisual.assetRef`, `Unknown asset ${block.hintVisual.assetRef}.`));
         if (block.musicRef && !music[block.musicRef]) errors.push(issue('music-reference', `${blockPath}.musicRef`, `Unknown music example ${block.musicRef}.`));
+        if (block.type === 'audio-listening' && music[block.musicRef]?.kind !== 'listening-set') errors.push(issue('block-music-type', blockPath, 'An audio-listening block requires a listening-set music reference.'));
+        if (block.type === 'audio-listening') {
+          const availablePairs = new Set(music[block.musicRef]?.pairs?.map(({ id }) => id));
+          if (!Array.isArray(block.pairIds) || block.pairIds.length === 0) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, 'An audio-listening block needs at least one pair reference.'));
+          for (const pairId of block.pairIds ?? []) if (!availablePairs.has(pairId)) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, `Unknown listening pair ${pairId}.`));
+        }
+        if (block.type === 'pulse-guide' && music[block.musicRef]?.kind !== 'pulse-guide' && !Array.isArray(music[block.musicRef]?.events)) errors.push(issue('block-music-type', blockPath, 'A pulse-guide block requires pulse-guide data or sequential music events.'));
       }
     }
     if (!Array.isArray(session.steps) || session.steps.length === 0) errors.push(issue('steps', `${path}.steps`, 'A session must contain at least one instructional step.'));
@@ -158,7 +200,11 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
     for (const sessionId of reinforcement.sessions ?? []) if (!ids.includes(sessionId)) errors.push(issue('reinforcement-session', `reinforcements.${id}.sessions`, `Unknown session ${sessionId}.`));
     if (reinforcement.earlierSessionId && !ids.includes(reinforcement.earlierSessionId)) errors.push(issue('reinforcement-session', `reinforcements.${id}.earlierSessionId`, `Unknown earlier session ${reinforcement.earlierSessionId}.`));
   }
-  validateMusic(music, errors);
+  for (const [id, asset] of Object.entries(assets)) {
+    if (asset.id !== id) errors.push(issue('asset-id', `assets.${id}.id`, 'Asset ID must match its catalog key.'));
+    if (asset.type === 'audio' && (typeof asset.src !== 'string' || !asset.src.startsWith('assets/audio/'))) errors.push(issue('audio-source', `assets.${id}.src`, 'Audio assets require a local assets/audio source.'));
+  }
+  validateMusic(music, assets, errors);
   return { valid: errors.length === 0, errors, warnings };
 }
 
