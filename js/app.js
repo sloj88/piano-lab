@@ -3,7 +3,7 @@ import { musicLibrary } from './music-library.js';
 import { reinforcementCatalog } from './reinforcements.js';
 import { assetCatalog, sessionCatalog } from './session-catalog.js';
 import { continueTarget, createNavigation, revisitSession } from './session-navigation.js';
-import { calculateSessionProgress, createSessionProgressStore } from './session-progress.js';
+import { calculateAssessmentProgress, createSessionProgressStore } from './session-progress.js';
 import { renderReadinessGuidance, renderSessionNavigation, renderSessionStep, renderStepNavigation } from './session-renderer.js';
 
 const validation = assertValidCurriculum({ sessions: sessionCatalog, reinforcements: reinforcementCatalog, music: musicLibrary, assets: assetCatalog });
@@ -19,6 +19,7 @@ const elements = {
   step: $('#lesson-step'), stepList: $('#step-list'), sessionList: $('#session-list'), previous: $('#previous-step'), next: $('#next-step'),
   repeat: $('#repeat-session'), position: $('#step-position'), percent: $('#progress-percent'), fill: $('#progress-fill'),
   progressbar: $('[role="progressbar"]'), reset: $('#reset-progress'), toast: $('#toast'), release: $('#release-label'),
+  positionSummary: $('#session-position-summary'), completionSummary: $('#session-completion-summary'),
   heroEyebrow: $('#session-eyebrow'), heroTitle: $('#lesson-title'), heroIntro: $('#session-intro'), shell: $('#lesson')
 };
 
@@ -43,10 +44,12 @@ function updateMetadata(session) {
 }
 
 function updateProgress(session, state) {
-  const percent = calculateSessionProgress(session, state);
+  const percent = calculateAssessmentProgress(session, state);
   elements.percent.textContent = `${percent}%`;
   elements.fill.style.width = `${percent}%`;
   elements.progressbar.setAttribute('aria-valuenow', percent);
+  elements.positionSummary.textContent = `Position: Step ${state.stepIndex + 1} of ${session.steps.length}`;
+  elements.completionSummary.textContent = state.completed ? 'Core completed' : 'Core in progress';
 }
 
 function renderNavigation(session, state) {

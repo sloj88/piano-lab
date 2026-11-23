@@ -63,6 +63,12 @@ The engine stores v2 state under `piano-lab.progress.v2`. It keeps these concept
 
 The session being viewed is runtime navigation state, not the current curriculum position. Opening an earlier available session therefore cannot move `currentSessionId` backward. Repeating sets that session's step to the beginning but preserves completion, reflections, readiness, later progress, and reinforcement history. Continue is the only normal UI action that advances the current position, and it is never gated by self-assessment or readiness.
 
+The sidebar labels three different signals rather than compressing them into one score:
+
+- **Self-assessment percentage** counts the published per-step understanding/playing checks, matching the v0.1 meaning. Repeating or revisiting changes no checked evidence unless the learner changes a check.
+- **Position** reports the currently viewed step, such as “Step 2 of 5.” Repeating may intentionally return this to Step 1 without implying lost learning.
+- **Core status** reports whether the session has ever been explicitly completed. It remains completed through repeats and revisits, even if self-assessments are still developing.
+
 ### v0.1 preservation
 
 The original key remains `piano-lab.progress.v1`. When no v2 record exists, the engine reads v1 once and maps:
@@ -91,6 +97,22 @@ Practicing shows one short repeat. Stuck shows one simpler prerequisite and may 
 **Pedagogical questions** include whether wording, fingering, pacing, demonstrations, and exercises work for real beginners. They remain warning records and require beginner observation and qualified teacher review. Passing validation does not establish educational correctness.
 
 The validator checks the actual populated catalog beginning at 001 and requires it to remain sequential. It does not require all 365 sessions to exist.
+
+### Music-event boundary and future polyphony
+
+The implemented music schema is deliberately monophonic. Every event declares `kind: "note"` or `kind: "rest"` plus a recognized rhythm. Notes require one valid scientific pitch and may carry a fingering; rests forbid pitch and fingering and require a rest rhythm. Metered events also require an explicit positive beat duration compatible with the rhythm. The unmetered `pulse` rhythm remains valid for Session 001 and does not require a beat duration.
+
+For now a metered measure has one sequential `events` array, so its event durations may safely be summed and compared with the meter. A measure containing `voices` or `staves` fails with `polyphony-unsupported`; the validator intentionally does not flatten or sum it. This prevents two simultaneous four-beat voices from being misreported as an eight-beat measure.
+
+When two-staff or polyphonic music is implemented, its schema and validator should be added together:
+
+1. Represent each staff and independent voice explicitly, with onset and duration inside the measure.
+2. Validate the timeline of each voice independently against the meter; never sum durations across simultaneous voices or staves.
+3. Represent a chord as one onset/duration containing multiple pitches, not several sequential events.
+4. Validate that every voice ends within the measure and that required rests account for gaps.
+5. Validate cross-staff alignment by onset positions while keeping notation/engraving concerns separate from duration arithmetic.
+
+That future work requires representative two-staff fixtures and educator-reviewed scores. This PR only establishes the safe rejection boundary; it does not implement a polyphonic playback or notation engine.
 
 ## Adding the next session
 

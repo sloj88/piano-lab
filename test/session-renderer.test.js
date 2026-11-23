@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { musicLibrary } from '../js/music-library.js';
 import { reinforcementCatalog } from '../js/reinforcements.js';
 import { sessionCatalog } from '../js/session-catalog.js';
@@ -42,4 +43,12 @@ test('step navigation retains prior checks without treating them as session comp
 
 test('unsupported runtime blocks fail distinctly at render time', () => {
   assert.throws(() => renderBlock({ type: 'unknown' }, {}), /Unsupported content block type/);
+});
+
+test('the page shell labels assessment, position, and completion separately', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, />Self-assessment</);
+  assert.match(html, /id="session-position-summary"/);
+  assert.match(html, /id="session-completion-summary"/);
+  assert.match(html, /aria-label="Session self-assessment progress"/);
 });

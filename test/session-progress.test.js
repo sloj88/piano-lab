@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PROGRESS_KEY as LEGACY_PROGRESS_KEY } from '../js/progress.js';
 import { sessionCatalog } from '../js/session-catalog.js';
-import { SESSION_PROGRESS_KEY, createSessionProgressStore } from '../js/session-progress.js';
+import { SESSION_PROGRESS_KEY, calculateAssessmentProgress, createSessionProgressStore } from '../js/session-progress.js';
 
 function memoryStorage(initial = {}) {
   const values = new Map(Object.entries(initial));
@@ -54,6 +54,34 @@ test('repeating a completed session changes its step without erasing completion 
   assert.equal(repeated.sessions['001'].playing, true);
 });
 
+test('self-assessment percentage is independent from position, repeat, and completion', () => {
+  const store = createSessionProgressStore(memoryStorage(), sessionCatalog);
+  store.setStepAssessment('001', 'discover-keyboard', 'understands', true);
+  store.setStepAssessment('001', 'discover-keyboard', 'canPlay', true);
+  store.setStepIndex('001', 4);
+  store.completeSession('001');
+  const atEnd = store.load().sessions['001'];
+  assert.equal(calculateAssessmentProgress(sessionCatalog[0], atEnd), 20);
+  const repeated = store.setStepIndex('001', 0).sessions['001'];
+  assert.equal(repeated.completed, true);
+  assert.equal(calculateAssessmentProgress(sessionCatalog[0], repeated), 20);
+});
+
+test('revisiting a prior session reads its preserved assessment percentage', () => {
+  const sessions = [
+    { id: '001', steps: [{ id: 'one' }, { id: 'two' }] },
+    { id: '002', steps: [{ id: 'three' }] }
+  ];
+  const store = createSessionProgressStore(memoryStorage(), sessions);
+  store.setStepAssessment('001', 'one', 'understands', true);
+  store.setStepAssessment('001', 'one', 'canPlay', true);
+  store.setCurrentSession('002');
+  store.setStepIndex('001', 0);
+  const progress = store.load();
+  assert.equal(progress.currentSessionId, '002');
+  assert.equal(calculateAssessmentProgress(sessions[0], progress.sessions['001']), 50);
+});
+
 test('v0.1 progress migrates without modifying the legacy storage record', () => {
   const legacy = JSON.stringify({ currentStep: 2, steps: { 0: { understands: true, canPlay: true }, 2: { understands: true, canPlay: false } } });
   const storage = memoryStorage({ [LEGACY_PROGRESS_KEY]: legacy });
@@ -63,6 +91,7 @@ test('v0.1 progress migrates without modifying the legacy storage record', () =>
   assert.deepEqual(progress.sessions['001'].stepAssessments['discover-keyboard'], { understands: true, canPlay: true });
   assert.deepEqual(progress.sessions['001'].stepAssessments['learn-five-notes'], { understands: true, canPlay: false });
   assert.equal(progress.sessions['001'].completed, false);
+  assert.equal(calculateAssessmentProgress(sessionCatalog[0], progress.sessions['001']), 30);
   assert.equal(storage.value(LEGACY_PROGRESS_KEY), legacy);
   store.setReadiness('001', 'practicing');
   assert.ok(storage.value(SESSION_PROGRESS_KEY));

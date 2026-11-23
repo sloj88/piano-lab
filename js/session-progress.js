@@ -156,8 +156,11 @@ export function createSessionProgressStore(storage, sessions) {
   };
 }
 
-export function calculateSessionProgress(session, state) {
+export function calculateAssessmentProgress(session, state) {
   if (!session?.steps?.length || !state) return 0;
-  if (state.completed) return 100;
-  return Math.round((state.stepIndex / session.steps.length) * 100);
+  const checked = session.steps.reduce((total, step) => {
+    const assessment = state.stepAssessments?.[step.id] ?? {};
+    return total + Number(assessment.understands === true) + Number(assessment.canPlay === true);
+  }, 0);
+  return Math.round((checked / (session.steps.length * 2)) * 100);
 }
