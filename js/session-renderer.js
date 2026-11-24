@@ -1,5 +1,5 @@
 import { BLACK_KEYS, WHITE_NOTES } from './lessons.js';
-import { beatGridMarkup, scoreMarkup } from './notation.js';
+import { beatGridMarkup, pairedScoreMarkup, scoreMarkup } from './notation.js';
 
 const phaseLabels = { explain: ['01', 'Explain'], demonstrate: ['02', 'Demonstrate'], try: ['03', 'Try it on your piano'], reflect: ['04', 'Reflect'] };
 
@@ -13,8 +13,13 @@ export function keyboardMarkup(config) {
   const whiteKeys = WHITE_NOTES.map((key) => {
     let label = '';
     if (config.labels === 'middle-c' && key.id === 'C4') label = '<span>Middle C</span>';
+    if (config.labels === 'octave-c' && key.id === 'C3') label = '<span>Lower C<small>C3</small></span>';
+    if (config.labels === 'octave-c' && key.id === 'C4') label = '<span>Middle C<small>C4</small></span>';
     if (['five-notes', 'fingers'].includes(config.labels) && ['C4', 'D4', 'E4', 'F4', 'G4'].includes(key.id)) {
       label = `<span>${key.note}${config.labels === 'fingers' ? `<small>${key.index - 6}</small>` : ''}</span>`;
+    }
+    if (['left-five-notes', 'left-fingers'].includes(config.labels) && ['C3', 'D3', 'E3', 'F3', 'G3'].includes(key.id)) {
+      label = `<span>${key.note}${config.labels === 'left-fingers' ? `<small>${5 - key.index}</small>` : ''}</span>`;
     }
     return `<div class="white-key${highlighted.has(key.id) ? ' is-highlighted' : ''}" data-note="${key.id}">${label}</div>`;
   }).join('');
@@ -24,8 +29,9 @@ export function keyboardMarkup(config) {
   return `<figure class="keyboard-figure"><div class="keyboard" role="img" aria-label="Piano keyboard diagram showing ${description}">${whiteKeys}${blackKeys}${groups}</div><figcaption>Keyboard section from C to C · Green keys are the focus notes</figcaption></figure>`;
 }
 
-function fingerMarkup() {
-  return '<div class="finger-guide" aria-label="Right hand finger numbers"><span>Thumb<strong>1</strong></span><span>Index<strong>2</strong></span><span>Middle<strong>3</strong></span><span>Ring<strong>4</strong></span><span>Pinky<strong>5</strong></span></div>';
+function fingerMarkup(hand = 'right') {
+  const fingers = hand === 'left' ? [['Pinky', 5], ['Ring', 4], ['Middle', 3], ['Index', 2], ['Thumb', 1]] : [['Thumb', 1], ['Index', 2], ['Middle', 3], ['Ring', 4], ['Pinky', 5]];
+  return `<div class="finger-guide" aria-label="${hand === 'left' ? 'Left' : 'Right'} hand finger numbers">${fingers.map(([name, number]) => `<span>${name}<strong>${number}</strong></span>`).join('')}</div>`;
 }
 
 function patternMarkup(example) {
@@ -58,16 +64,60 @@ function listeningMarkup(block, context) {
 function notationMarkup(block, context) {
   const examples = block.musicRefs.map((reference) => context.music[reference]);
   return `<section class="notation-set" aria-label="Music notation">${examples.map((example) => {
-    const score = scoreMarkup(example, { ...(block.options ?? {}), showDirections: false });
+    const renderScore = example.kind === 'paired-score' ? pairedScoreMarkup : scoreMarkup;
+    const score = renderScore(example, { ...(block.options ?? {}), showDirections: false });
     const beatGrid = block.options?.showBeatGrid ? beatGridMarkup(example) : '';
     const reveal = block.options?.reveal
-      ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal notes and reading help'}</summary>${scoreMarkup(example, { ...block.options, showLabels: block.options.revealLabels ?? true, showDirections: block.options.revealDirections })}${beatGrid}</details>`
+      ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal notes and reading help'}</summary>${renderScore(example, { ...block.options, showLabels: block.options.revealLabels ?? true, showDirections: block.options.revealDirections })}${beatGrid}</details>`
       : beatGrid;
     const visible = block.options?.hiddenUntilReveal ? '' : score;
     const hiddenScore = block.options?.hiddenUntilReveal ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal the score and counts'}</summary>${score}${beatGrid}</details>` : reveal;
-    const enlarged = block.options?.enlarge && !block.options.hiddenUntilReveal ? `<details class="score-enlarge"><summary>Open an enlarged score</summary>${scoreMarkup(example, { ...block.options, enlarged: true })}</details>` : '';
+    const enlarged = block.options?.enlarge && !block.options.hiddenUntilReveal ? `<details class="score-enlarge"><summary>Open an enlarged score</summary>${renderScore(example, { ...block.options, enlarged: true })}</details>` : '';
     return `<article class="notation-card"><h4>${example.title}</h4>${visible}${hiddenScore}${enlarged}</article>`;
   }).join('')}</section>`;
+}
+
+function pitchEchoMarkup(block, context) {
+  const example = context.music[block.musicRef];
+  const echoes = (block.echoIds ?? example.echoes.map(({ id }) => id)).map((id) => example.echoes.find((echo) => echo.id === id));
+  return `<section class="echo-set pitch-echo-set" aria-label="Left-hand pitch echoes">${echoes.map((echo) => `<article class="echo-card" data-audio-card><h4>Echo ${echo.id}</h4>
+    <audio preload="metadata" src="${context.assets[echo.audioRef].src}" data-audio-id="${echo.audioRef}"></audio>
+    <button class="button button-secondary audio-button" type="button" data-audio-control="${echo.audioRef}" data-audio-label="Echo ${echo.id}">▶ Hear Echo ${echo.id}</button>
+    <p class="audio-status" role="status" aria-live="polite">Listen first, trace the direction, then play.</p>
+    <details class="echo-reveal"><summary>Reveal contour and note names</summary><p class="echo-arrows">${echo.directions.join(' · ')}</p><p>${echo.pitches.join('–')}</p></details>
+  </article>`).join('')}</section>`;
+}
+
+function expandBeatLabels(events) {
+  const labels = [];
+  for (const event of events) {
+    if (event.kind === 'rest') {
+      for (let beat = 0; beat < event.beats; beat += 1) labels.push('wait');
+      continue;
+    }
+    labels.push(event.beats > 1 ? `${event.pitch} begins (${event.finger})` : `${event.pitch} (${event.finger})`);
+    for (let beat = 1; beat < event.beats; beat += 1) labels.push(`${event.pitch} continues`);
+  }
+  return labels;
+}
+
+function handLanesMarkup(block, context) {
+  const example = context.music[block.musicRef];
+  const selected = block.measureIndexes ?? example.measures.map((_, index) => index);
+  let pulseIndex = 0;
+  const measures = selected.map((measureIndex) => {
+    const measure = example.measures[measureIndex];
+    const rows = example.kind === 'paired-score'
+      ? { RH: expandBeatLabels(measure.staves.treble.events), LH: expandBeatLabels(measure.staves.bass.events) }
+      : {
+          RH: measure.events.map((event) => event.hand === 'RH' ? `${event.pitch} (${event.finger})` : 'wait'),
+          LH: measure.events.map((event) => event.hand === 'LH' ? `${event.pitch} (${event.finger})` : 'wait')
+        };
+    const beatHeadings = Array.from({ length: example.meter.beats }, (_, beat) => `<div ${block.animated ? `data-pulse-index="${pulseIndex++}"` : ''}><span>${beat + 1}</span></div>`).join('');
+    return `<section class="hand-lane-measure" aria-label="Measure ${measureIndex + 1} hand lanes"><h4>Measure ${measureIndex + 1}${measure.activeHand ? ` · ${measure.activeHand} plays` : ''}</h4><div class="hand-lane-grid"><strong>Beat</strong>${beatHeadings}<strong>RH</strong>${rows.RH.map((label) => `<div>${label}</div>`).join('')}<strong>LH</strong>${rows.LH.map((label) => `<div>${label}</div>`).join('')}</div></section>`;
+  }).join('');
+  const controls = block.animated ? `<div class="pulse-controls"><button class="button button-secondary" type="button" data-pulse-start>Start beat guide</button><button class="text-button" type="button" data-pulse-reset>Reset</button><span data-pulse-status role="status" aria-live="polite">Ready · ${block.bpm ?? example.tempo?.min ?? 52} beats per minute</span></div>` : '';
+  return `<section class="hand-lanes${block.animated ? ' pulse-guide' : ''}" ${block.animated ? `data-pulse-guide data-bpm="${block.bpm ?? example.tempo?.min ?? 52}"` : ''}>${measures}${controls}</section>`;
 }
 
 function audioTracksMarkup(block, context) {
@@ -127,13 +177,15 @@ export function renderBlock(block, context) {
     case 'text':
       return `<section class="learning-block ${block.phase}-block" aria-label="${phaseLabels[block.phase]?.[1] ?? block.phase}">${phaseMarkup(block.phase)}${block.paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')}</section>`;
     case 'keyboard': return keyboardMarkup(block);
-    case 'finger-position': return fingerMarkup();
+    case 'finger-position': return fingerMarkup(block.hand);
     case 'musical-pattern': return patternMarkup(context.music[block.musicRef]);
     case 'audio-listening': return listeningMarkup(block, context);
     case 'pulse-guide': return pulseMarkup(block, context);
     case 'notation': return notationMarkup(block, context);
     case 'rhythm-echo': return rhythmEchoMarkup(block, context);
     case 'audio-reference': return audioTracksMarkup(block, context);
+    case 'pitch-echo': return pitchEchoMarkup(block, context);
+    case 'hand-lanes': return handLanesMarkup(block, context);
     case 'practice':
       return `<section class="learning-block try-block" aria-label="Try it on your piano">${phaseMarkup(block.phase)}<p>${block.instruction}</p><details><summary>Need a hint?</summary><p>${block.hint}</p>${block.hintVisual?.type === 'keyboard' ? keyboardMarkup(block.hintVisual) : ''}</details></section>`;
     case 'reflection':

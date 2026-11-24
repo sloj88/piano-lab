@@ -1,11 +1,11 @@
 # Shared Learning Engine
 
 Status: v0.2 Slice A reference implementation
-Implemented learner catalog: Sessions 001–010
+Implemented learner catalog: Sessions 001–016
 
 ## Purpose
 
-Piano Lab renders numbered learning sessions from structured JavaScript data. A future session should be added to the catalog, not built as a separate HTML page or a custom application branch. Slice A preserves published Session 001 and adds the listening and pulse blocks required by Sessions 002–004. Slice B adds the small monophonic notation and rhythm-audio presentations required by Sessions 005–010.
+Piano Lab renders numbered learning sessions from structured JavaScript data. A future session should be added to the catalog, not built as a separate HTML page or a custom application branch. Slice A preserves published Session 001 and adds the listening and pulse blocks required by Sessions 002–004. Slice B adds the small monophonic notation and rhythm-audio presentations required by Sessions 005–010. Sessions 011–016 extend that same engine with left-hand listening, bass notation, explicit hand lanes, and one tightly bounded paired-staff score.
 
 The physical piano remains the instrument. Renderer blocks explain, demonstrate, and organize practice; they never create a playable on-screen piano, listen through a microphone, connect to MIDI, or score a performance.
 
@@ -51,6 +51,8 @@ The current renderer supports these minimal block types:
 | `notation` | Responsive five-line neutral or treble notation for the approved monophonic examples |
 | `rhythm-echo` | User-started local pattern/count recordings with a score revealed after the attempt |
 | `audio-reference` | Optional local reference recordings, including the post-attempt piece models |
+| `pitch-echo` | User-started three-note listening examples with contour and names revealed afterward |
+| `hand-lanes` | Aligned RH/LH beat columns for alternating-hand preparation and full-measure waits |
 
 Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. The notation renderer intentionally supports only the Chapter 01 monophonic quarter/half-note requirements; it is not a general engraving engine.
 
@@ -87,7 +89,7 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 ## Navigation and reinforcement
 
-Only implemented sessions at or before `currentSessionId` are available. Sessions 001–010 are implemented; no Session 011 or later placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
+Only implemented sessions at or before `currentSessionId` are available. Sessions 001–016 are implemented; no Session 017 or later placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
 
 Practicing shows one short repeat. Stuck shows one simpler prerequisite and may link to an earlier implemented session. Recording a reinforcement attempt only increments supportive history; it cannot complete, lock, reset, or advance a numbered session.
 
@@ -103,13 +105,13 @@ Practicing shows one short repeat. Stuck shows one simpler prerequisite and may 
 
 The validator checks the actual populated catalog beginning at 001 and requires it to remain sequential. It does not require all 365 sessions to exist.
 
-### Music-event boundary and future polyphony
+### Music-event boundary and bounded paired staffs
 
-The implemented event schema is deliberately monophonic. Every event declares `kind: "note"` or `kind: "rest"` plus a recognized rhythm. Notes require one valid scientific pitch and may carry a fingering; rests forbid pitch and fingering and require a rest rhythm. Metered events also require an explicit positive beat duration compatible with the rhythm. The unmetered `pulse` rhythm remains valid for Sessions 001 and 004 and does not require a beat duration. Separate validated shapes hold E001 listening pairs and P001 pulse-guide metadata; neither is treated as a notated measure.
+Most implemented music remains deliberately monophonic. Every event declares `kind: "note"` or `kind: "rest"` plus a recognized rhythm. Notes require one valid scientific pitch and may carry a fingering; rests forbid pitch and fingering and require a rest rhythm. Metered events also require an explicit positive beat duration compatible with the rhythm. The unmetered `pulse` rhythm remains valid for keyboard patterns and does not require a beat duration. Separate validated shapes hold listening sets, pulse guides, and alternating-hand lanes.
 
-For now a metered measure has one sequential `events` array, so its event durations may safely be summed and compared with the meter. A measure containing `voices` or `staves` fails with `polyphony-unsupported`; the validator intentionally does not flatten or sum it. This prevents two simultaneous four-beat voices from being misreported as an eight-beat measure.
+Ordinary metered examples have one sequential `events` array, so their event durations may safely be summed and compared with the meter. P02 adds one narrowly defined `paired-score`: exactly one treble staff and one bass staff, each with one sequential event list. Every staff must total four beats independently. The active staff contains notes; the inactive staff contains exactly one four-beat whole-measure rest. The validator never adds the two staff totals together.
 
-When two-staff or polyphonic music is implemented, its schema and validator should be added together:
+Future simultaneous or multi-voice music still requires a separate schema and validator extension:
 
 1. Represent each staff and independent voice explicitly, with onset and duration inside the measure.
 2. Validate the timeline of each voice independently against the meter; never sum durations across simultaneous voices or staves.
@@ -117,7 +119,7 @@ When two-staff or polyphonic music is implemented, its schema and validator shou
 4. Validate that every voice ends within the measure and that required rests account for gaps.
 5. Validate cross-staff alignment by onset positions while keeping notation/engraving concerns separate from duration arithmetic.
 
-That future work requires representative two-staff fixtures and educator-reviewed scores. This PR only establishes the safe rejection boundary; it does not implement a polyphonic playback or notation engine.
+Arbitrary `voices` or unrecognized `staves` still fail with `polyphony-unsupported`. P02 does not create a general polyphonic playback or notation engine; it validates and renders only one-hand-at-a-time paired measures.
 
 ## Adding the next session
 
@@ -131,9 +133,9 @@ That future work requires representative two-staff fixtures and educator-reviewe
 
 ## Deliberate limitations
 
-- Sessions 001–010 are learner-facing; Session 011 onward remains absent until implemented.
+- Sessions 001–016 are learner-facing; Session 017 onward remains absent until implemented.
 - Listening and reference demonstrations use locally bundled spoken counts and compact synthesized tones, not teacher-performed piano recordings. Their pitch, timing, file format, and references are tested, but timbre, balance, and learning effectiveness still require human and teacher review.
-- The current score renderer covers one treble or neutral staff, quarter notes, half notes, 4/4, labels, finger cues, barlines, and the middle-C ledger line. Rests, beaming, accidentals, chords, multiple voices, and two staves remain outside this implementation.
+- The current score renderer covers neutral, treble, and bass staffs; quarter and half notes; 4/4; labels; finger cues; aligned treble/bass staffs; and a whole-measure waiting rest for P02. Quarter rests, beaming, accidentals, chords, and simultaneous voices remain outside this implementation.
 - The v2 migration supports the existing v1 shape; future schema versions need explicit migration functions rather than silent coercion.
 - localStorage remains browser/device-local with no account or cloud synchronization.
 - The engine records self-report and completion; it does not verify playing.

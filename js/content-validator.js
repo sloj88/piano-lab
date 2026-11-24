@@ -102,6 +102,62 @@ function validateMusic(music, assets, errors) {
       if (!Number.isFinite(example.bpm) || example.bpm < 40 || example.bpm > 120) errors.push(issue('pulse-tempo', `${path}.bpm`, 'Pulse guide tempo must be between 40 and 120 bpm.'));
       continue;
     }
+    if (example.kind === 'pitch-echo-set') {
+      if (!Array.isArray(example.echoes) || example.echoes.length === 0) errors.push(issue('echo-set', `${path}.echoes`, 'A pitch-echo set needs at least one echo.'));
+      const echoIds = new Set();
+      for (const [echoIndex, echo] of (example.echoes ?? []).entries()) {
+        const echoPath = `${path}.echoes.${echoIndex}`;
+        if (!echo?.id || echoIds.has(echo.id)) errors.push(issue('echo-id', `${echoPath}.id`, 'Pitch-echo IDs are required and must be unique.'));
+        echoIds.add(echo?.id);
+        validatePitchList(echo?.pitches, `${echoPath}.pitches`, errors);
+        if (!Array.isArray(echo?.directions) || echo.directions.length !== Math.max(0, (echo?.pitches?.length ?? 0) - 1) || echo.directions.some((direction) => !['repeat', 'up', 'down'].includes(direction))) errors.push(issue('echo-directions', `${echoPath}.directions`, 'Echo directions must describe every movement as repeat, up, or down.'));
+        if (!echo?.audioRef || assets[echo.audioRef]?.type !== 'audio') errors.push(issue('audio-reference', `${echoPath}.audioRef`, `Unknown audio asset ${echo?.audioRef ?? 'none'}.`));
+      }
+      continue;
+    }
+    if (example.kind === 'hand-pattern') {
+      if (!example.meter || example.meter.beats !== 4 || example.meter.beatValue !== 4) errors.push(issue('meter', `${path}.meter`, 'The hand-pattern schema currently requires 4/4.'));
+      if (!Array.isArray(example.measures) || example.measures.length === 0) errors.push(issue('measure-events', `${path}.measures`, 'A hand pattern needs at least one measure.'));
+      for (const [measureIndex, measure] of (example.measures ?? []).entries()) {
+        const measurePath = `${path}.measures.${measureIndex}`;
+        if (!Array.isArray(measure?.events) || measure.events.length === 0) {
+          errors.push(issue('measure-events', `${measurePath}.events`, 'A hand-pattern measure needs events.'));
+          continue;
+        }
+        measure.events.forEach((event, eventIndex) => {
+          validateMusicEvent(event, `${measurePath}.events.${eventIndex}`, example.meter, errors);
+          if (!['RH', 'LH'].includes(event?.hand)) errors.push(issue('hand-assignment', `${measurePath}.events.${eventIndex}.hand`, 'A hand-pattern note requires RH or LH.'));
+        });
+        const total = measure.events.reduce((sum, event) => sum + (Number.isFinite(event?.beats) ? event.beats : 0), 0);
+        if (total !== example.meter.beats) errors.push(issue('measure-total', measurePath, `Measure totals ${total} beats; expected ${example.meter.beats}.`));
+      }
+      continue;
+    }
+    if (example.kind === 'paired-score') {
+      if (!example.meter || example.meter.beats !== 4 || example.meter.beatValue !== 4) errors.push(issue('meter', `${path}.meter`, 'The paired-score schema currently requires 4/4.'));
+      if (example.notation?.layout !== 'paired' || example.notation?.upperClef !== 'treble' || example.notation?.lowerClef !== 'bass') errors.push(issue('paired-notation', `${path}.notation`, 'A paired score requires treble above bass.'));
+      if (!Array.isArray(example.measures) || example.measures.length === 0) errors.push(issue('paired-measures', `${path}.measures`, 'A paired score needs at least one measure.'));
+      for (const [measureIndex, measure] of (example.measures ?? []).entries()) {
+        const measurePath = `${path}.measures.${measureIndex}`;
+        if (!['RH', 'LH'].includes(measure?.activeHand)) errors.push(issue('active-hand', `${measurePath}.activeHand`, 'A paired measure requires activeHand RH or LH.'));
+        for (const [staffName, expectedClef] of [['treble', 'treble'], ['bass', 'bass']]) {
+          const staff = measure?.staves?.[staffName];
+          const staffPath = `${measurePath}.staves.${staffName}`;
+          if (!staff || staff.clef !== expectedClef || !Array.isArray(staff.events) || staff.events.length === 0) {
+            errors.push(issue('paired-staff', staffPath, `A paired measure requires a ${expectedClef} staff with events.`));
+            continue;
+          }
+          staff.events.forEach((event, eventIndex) => validateMusicEvent(event, `${staffPath}.events.${eventIndex}`, example.meter, errors));
+          const total = staff.events.reduce((sum, event) => sum + (Number.isFinite(event?.beats) ? event.beats : 0), 0);
+          if (total !== example.meter.beats) errors.push(issue('staff-total', staffPath, `${staffName} staff totals ${total} beats; expected ${example.meter.beats}.`));
+          const activeStaff = measure.activeHand === 'RH' ? 'treble' : 'bass';
+          if (staffName === activeStaff && staff.events.some((event) => event.kind !== 'note')) errors.push(issue('active-staff-rest', staffPath, 'The active staff in this bounded schema must contain only notes.'));
+          if (staffName !== activeStaff && !(staff.events.length === 1 && staff.events[0].kind === 'rest' && staff.events[0].rhythm === 'whole-measure-rest')) errors.push(issue('inactive-staff-rest', staffPath, 'The inactive staff must contain exactly one whole-measure rest.'));
+        }
+      }
+      for (const reference of example.audioRefs ?? []) if (assets[reference]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.audioRefs`, `Unknown audio asset ${reference}.`));
+      continue;
+    }
     const hasEvents = Array.isArray(example.events);
     const hasMeasures = Array.isArray(example.measures);
     if (hasEvents === hasMeasures) errors.push(issue('music-structure', path, 'Music must define either an unmetered events array or a measures array, but not both.'));
@@ -141,7 +197,7 @@ function validateMusic(music, assets, errors) {
       });
     }
     if (example.notation !== undefined) {
-      if (!['treble', 'neutral'].includes(example.notation?.clef)) errors.push(issue('notation-clef', `${path}.notation.clef`, 'Notation clef must be treble or neutral.'));
+      if (!['treble', 'bass', 'neutral'].includes(example.notation?.clef)) errors.push(issue('notation-clef', `${path}.notation.clef`, 'Notation clef must be treble, bass, or neutral.'));
       const events = example.measures?.flatMap((measure) => measure.events ?? []) ?? example.events ?? [];
       if (example.notation?.clef === 'neutral') {
         const steps = example.notation.staffSteps;
@@ -217,6 +273,13 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
           if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('notation-reference', `${blockPath}.musicRefs`, 'A notation block needs at least one music reference.'));
           for (const reference of block.musicRefs ?? []) if (!music[reference]?.notation || !Array.isArray(music[reference]?.measures)) errors.push(issue('block-music-type', blockPath, `Notation reference ${reference} must contain notated measures.`));
         }
+        if (block.type === 'pitch-echo') {
+          const echoes = music[block.musicRef]?.echoes ?? [];
+          const availableEchoes = new Set(echoes.map(({ id }) => id));
+          if (music[block.musicRef]?.kind !== 'pitch-echo-set') errors.push(issue('block-music-type', blockPath, 'A pitch-echo block requires a pitch-echo-set reference.'));
+          for (const echoId of block.echoIds ?? []) if (!availableEchoes.has(echoId)) errors.push(issue('echo-reference', `${blockPath}.echoIds`, `Unknown pitch echo ${echoId}.`));
+        }
+        if (block.type === 'hand-lanes' && !['hand-pattern', 'paired-score'].includes(music[block.musicRef]?.kind)) errors.push(issue('block-music-type', blockPath, 'A hand-lanes block requires a hand-pattern or paired-score reference.'));
         if (block.type === 'rhythm-echo') {
           if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('echo-reference', `${blockPath}.musicRefs`, 'A rhythm-echo block needs at least one music reference.'));
           for (const reference of block.musicRefs ?? []) if (!music[reference]?.audioRef || !music[reference]?.countedAudioRef) errors.push(issue('block-music-type', blockPath, `Rhythm echo ${reference} requires pattern and counted audio.`));

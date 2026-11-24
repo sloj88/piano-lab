@@ -160,7 +160,22 @@ test('an existing four-session v2 record gains new session defaults without losi
   assert.equal(expanded.sessions['010'].stepIndex, 0);
 });
 
-test('progress and independent readiness survive reload across all ten sessions', () => {
+test('an existing ten-session v2 record gains Sessions 011–016 without losing saved progress', () => {
+  const oldCatalog = sessionCatalog.slice(0, 10);
+  const storage = memoryStorage();
+  const oldStore = createSessionProgressStore(storage, oldCatalog);
+  oldStore.setCurrentSession('010');
+  oldStore.setReadiness('010', 'ready');
+  oldStore.completeSession('010');
+  const expanded = createSessionProgressStore(storage, sessionCatalog).load();
+  assert.equal(expanded.currentSessionId, '010');
+  assert.equal(expanded.sessions['010'].completed, true);
+  assert.equal(expanded.sessions['010'].readiness, 'ready');
+  assert.equal(expanded.sessions['011'].completed, false);
+  assert.equal(expanded.sessions['016'].stepIndex, 0);
+});
+
+test('progress and independent readiness survive reload across all sixteen sessions', () => {
   const storage = memoryStorage();
   const store = createSessionProgressStore(storage, sessionCatalog);
   for (const session of sessionCatalog) {
@@ -169,12 +184,12 @@ test('progress and independent readiness survive reload across all ten sessions'
     store.setReadiness(session.id, session.id === '002' ? 'stuck' : 'practicing');
     store.completeSession(session.id);
   }
-  store.setCurrentSession('010');
+  store.setCurrentSession('016');
   const reloaded = createSessionProgressStore(storage, sessionCatalog).load();
-  assert.equal(reloaded.currentSessionId, '010');
+  assert.equal(reloaded.currentSessionId, '016');
   assert.equal(reloaded.sessions['002'].readiness, 'stuck');
   assert.equal(reloaded.sessions['003'].understanding, false);
   assert.equal(reloaded.sessions['004'].playing, true);
-  assert.equal(reloaded.sessions['010'].readiness, 'practicing');
+  assert.equal(reloaded.sessions['016'].readiness, 'practicing');
   assert.equal(Object.values(reloaded.sessions).every(({ completed }) => completed), true);
 });
