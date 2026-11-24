@@ -166,3 +166,30 @@ test('pulse guide shape and tempo metadata are validated', () => {
   assert.equal(codes.includes('pulse-shape'), true);
   assert.equal(codes.includes('pulse-tempo'), true);
 });
+
+test('paired scores validate staff timing independently and reject malformed active or waiting staves', () => {
+  const fixture = catalogs();
+  fixture.music.P02.measures[0].staves.bass.events = [{ kind: 'rest', rhythm: 'quarter-rest', beats: 1 }];
+  fixture.music.P02.measures[1].staves.bass.events[0].beats = 3;
+  fixture.music.P02.measures[2].activeHand = 'XX';
+  delete fixture.music.P02.measures[3].staves.treble;
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('staff-total'), true);
+  assert.equal(codes.includes('inactive-staff-rest'), true);
+  assert.equal(codes.includes('rhythm-beats'), true);
+  assert.equal(codes.includes('active-hand'), true);
+  assert.equal(codes.includes('paired-staff'), true);
+});
+
+test('hand-pattern assignments and pitch-echo metadata are validated', () => {
+  const fixture = catalogs();
+  fixture.music.H001.measures[0].events[0].hand = 'both';
+  fixture.music.H001.measures[1].events.pop();
+  fixture.music.E002.echoes[0].directions = ['sideways'];
+  fixture.music.E002.echoes[1].audioRef = 'missing';
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('hand-assignment'), true);
+  assert.equal(codes.includes('measure-total'), true);
+  assert.equal(codes.includes('echo-directions'), true);
+  assert.equal(codes.includes('audio-reference'), true);
+});

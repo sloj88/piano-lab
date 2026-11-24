@@ -172,3 +172,62 @@ test('optional Echo D appears only in Session 006 Keep Playing', () => {
   assert.match(ending, /Rhythm echo D/);
   assert.match(ending, /r002-d-pattern\.wav/);
 });
+
+test('Session 011 introduces left-hand placement without premature bass notation', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const fingers = renderSessionStep(sessionCatalog[10], 1, progress.sessions['011'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const walk = renderSessionStep(sessionCatalog[10], 3, progress.sessions['011'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(fingers, /aria-label="Left hand finger numbers"/);
+  assert.match(fingers, /Pinky<strong>5/);
+  assert.equal((walk.match(/data-pulse-index=/g) ?? []).length, 9);
+  assert.doesNotMatch(`${fingers}${walk}`, /bass-clef/);
+});
+
+test('Session 012 renders user-initiated E002 echoes with optional contour reveals', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[11], 2, progress.sessions['012'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /assets\/audio\/e002-a\.wav/);
+  assert.equal((html.match(/Reveal contour and note names/g) ?? []).length, 3);
+  assert.match(html, /repeat · up/);
+  assert.doesNotMatch(html, /autoplay/);
+});
+
+test('Sessions 013 and 014 render bass-clef landmarks and no-label reading cards', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const landmarks = renderSessionStep(sessionCatalog[12], 0, progress.sessions['013'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const reading = renderSessionStep(sessionCatalog[13], 3, progress.sessions['014'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(landmarks, /class="bass-clef"/);
+  assert.match(landmarks, /data-pitch="C3"/);
+  assert.match(landmarks, /data-pitch="F3"/);
+  assert.match(reading, /class="bass-clef"/);
+  assert.doesNotMatch(reading, /class="pitch-label"/);
+});
+
+test('Session 015 begins with two explicit hand lanes and aligned beat columns', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[14], 1, progress.sessions['015'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /Measure 1 hand lanes/);
+  assert.match(html, /<strong>RH<\/strong>/);
+  assert.match(html, /<strong>LH<\/strong>/);
+  assert.equal((html.match(/data-pulse-index=/g) ?? []).length, 4);
+  assert.match(html, /C3 \(5\)/);
+  assert.match(html, /C4 \(1\)/);
+  assert.match(html, /Start beat guide/);
+});
+
+test('Session 016 shows practical waits, paired staves, entrance labels, and post-attempt audio', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const waits = renderSessionStep(sessionCatalog[15], 0, progress.sessions['016'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const score = renderSessionStep(sessionCatalog[15], 1, progress.sessions['016'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const ending = renderSessionStep(sessionCatalog[15], 3, progress.sessions['016'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(waits, /E4 begins \(3\)/);
+  assert.match(waits, /E4 continues/);
+  assert.equal((waits.match(/>wait<\/div>/g) ?? []).length, 8);
+  assert.match(score, /paired-music-score/);
+  assert.match(score, /class="bass-clef"/);
+  assert.match(score, /whole-measure-rest/);
+  assert.match(score, /active-hand-label/);
+  assert.match(ending, /<details class="audio-details"><summary>Hear after my try<\/summary>/);
+  assert.match(ending, /p02-practice\.wav/);
+  assert.match(ending, /p02-musical\.wav/);
+});

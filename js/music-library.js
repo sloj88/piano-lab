@@ -76,7 +76,43 @@ export const musicLibrary = {
     [['E4', 3, 'quarter'], ['D4', 2, 'quarter'], ['C4', 1, 'half']],
     [['C4', 1, 'quarter'], ['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['E4', 3, 'quarter']],
     [['D4', 2, 'quarter'], ['C4', 1, 'quarter'], ['C4', 1, 'half']]
-  ], { tempo: { min: 56, max: 64 }, audioRefs: ['p01-practice', 'p01-musical'], hand: 'RH', startingFinger: 1 })
+  ], { tempo: { min: 56, max: 64 }, audioRefs: ['p01-practice', 'p01-musical'], hand: 'RH', startingFinger: 1 }),
+  K002: {
+    id: 'K002', title: 'Left-hand five-note walk', meter: null,
+    events: [
+      ['C3', 5], ['D3', 4], ['E3', 3], ['F3', 2], ['G3', 1],
+      ['F3', 2], ['E3', 3], ['D3', 4], ['C3', 5]
+    ].map(([pitch, finger]) => ({ kind: 'note', pitch, finger, rhythm: 'pulse' }))
+  },
+  E002: {
+    id: 'E002', title: 'Left-hand pitch echoes', kind: 'pitch-echo-set',
+    echoes: [
+      { id: 'A', pitches: ['C3', 'D3', 'E3'], directions: ['up', 'up'], audioRef: 'e002-a' },
+      { id: 'B', pitches: ['E3', 'D3', 'C3'], directions: ['down', 'down'], audioRef: 'e002-b' },
+      { id: 'C', pitches: ['C3', 'C3', 'D3'], directions: ['repeat', 'up'], audioRef: 'e002-c' }
+    ]
+  },
+  N004: { id: 'N004', title: 'Bass landmarks', kind: 'reference-set', refs: ['N004-A', 'N004-B'] },
+  'N004-A': meteredExample('N004-A', 'Bass C and F', [[['C3', 5, 'quarter'], ['F3', 2, 'quarter'], ['C3', 5, 'half']]], { notation: { clef: 'bass' } }),
+  'N004-B': meteredExample('N004-B', 'Bass F and C', [[['F3', 2, 'quarter'], ['C3', 5, 'quarter'], ['F3', 2, 'half']]], { notation: { clef: 'bass' } }),
+  N005: { id: 'N005', title: 'Bass C–D–E reading cards', kind: 'reference-set', refs: ['N005-A', 'N005-B', 'N005-C', 'N005-D'] },
+  'N005-A': meteredExample('N005-A', 'Bass reading card A', [[['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'quarter'], ['D3', 4, 'quarter']]], { notation: { clef: 'bass' } }),
+  'N005-B': meteredExample('N005-B', 'Bass reading card B', [[['E3', 3, 'quarter'], ['E3', 3, 'quarter'], ['D3', 4, 'quarter'], ['C3', 5, 'quarter']]], { notation: { clef: 'bass' } }),
+  'N005-C': meteredExample('N005-C', 'Bass reading card C', [[['C3', 5, 'quarter'], ['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'quarter']]], { notation: { clef: 'bass' } }),
+  'N005-D': meteredExample('N005-D', 'Bass reading challenge D', [[['D3', 4, 'quarter'], ['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'quarter']]], { notation: { clef: 'bass' } }),
+  H001: {
+    id: 'H001', title: 'Hands take turns', kind: 'hand-pattern', meter: { beats: 4, beatValue: 4 }, tempo: { min: 48, max: 56 },
+    measures: [
+      { events: [['LH', 'C3', 5], ['RH', 'C4', 1], ['LH', 'C3', 5], ['RH', 'C4', 1]].map(([hand, pitch, finger]) => ({ kind: 'note', hand, pitch, finger, rhythm: 'quarter', beats: 1 })) },
+      { events: [['LH', 'D3', 4], ['RH', 'D4', 2], ['LH', 'E3', 3], ['RH', 'E4', 3]].map(([hand, pitch, finger]) => ({ kind: 'note', hand, pitch, finger, rhythm: 'quarter', beats: 1 })) }
+    ]
+  },
+  P02: pairedExample('P02', 'Hello, Down There', [
+    { activeHand: 'RH', treble: [['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['E4', 3, 'half']] },
+    { activeHand: 'LH', bass: [['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'half']] },
+    { activeHand: 'RH', treble: [['E4', 3, 'quarter'], ['D4', 2, 'quarter'], ['C4', 1, 'half']] },
+    { activeHand: 'LH', bass: [['E3', 3, 'quarter'], ['D3', 4, 'quarter'], ['C3', 5, 'half']] }
+  ], { tempo: { min: 52, max: 60 }, audioRefs: ['p02-practice', 'p02-musical'] })
 };
 
 function meteredExample(id, title, measures, extra = {}) {
@@ -84,5 +120,21 @@ function meteredExample(id, title, measures, extra = {}) {
     id, title, meter: { beats: 4, beatValue: 4 }, notation: { clef: 'treble', ...(extra.notation ?? {}) },
     measures: measures.map((events) => ({ events: events.map(([pitch, finger, rhythm]) => ({ kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1 })) })),
     ...Object.fromEntries(Object.entries(extra).filter(([key]) => key !== 'notation'))
+  };
+}
+
+function pairedExample(id, title, measures, extra = {}) {
+  const rest = () => ({ kind: 'rest', rhythm: 'whole-measure-rest', beats: 4 });
+  const notes = (events) => events.map(([pitch, finger, rhythm]) => ({ kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1 }));
+  return {
+    id, title, kind: 'paired-score', meter: { beats: 4, beatValue: 4 }, notation: { layout: 'paired', upperClef: 'treble', lowerClef: 'bass' },
+    measures: measures.map(({ activeHand, treble, bass }) => ({
+      activeHand,
+      staves: {
+        treble: { clef: 'treble', events: treble ? notes(treble) : [rest()] },
+        bass: { clef: 'bass', events: bass ? notes(bass) : [rest()] }
+      }
+    })),
+    ...extra
   };
 }

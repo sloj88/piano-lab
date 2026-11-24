@@ -98,3 +98,36 @@ test('pattern recordings place approved pitches at their musical onsets', () => 
 test('the offline generator includes all four local spoken-count source samples', () => {
   for (const number of [1, 2, 3, 4]) assert.equal(existsSync(new URL(`../scripts/audio-voice/count-${number}.wav`, import.meta.url)), true);
 });
+
+test('Session 012 and 016 audio assets are local PCM files with approved durations', () => {
+  for (const echo of musicLibrary.E002.echoes) {
+    const audio = readFileSync(new URL(`../${assetCatalog[echo.audioRef].src}`, import.meta.url));
+    assert.equal(audio.toString('ascii', 0, 4), 'RIFF');
+    assert.equal(wavDuration(audio), 7);
+  }
+  for (const [reference, bpm] of [['p02-practice', 52], ['p02-musical', 60]]) {
+    const audio = readFileSync(new URL(`../${assetCatalog[reference].src}`, import.meta.url));
+    assert.equal(audio.toString('ascii', 0, 4), 'RIFF');
+    assert.ok(Math.abs(wavDuration(audio) - (20 * 60 / bpm)) < 1 / SAMPLE_RATE);
+  }
+});
+
+test('E002 and P02 recordings place every approved pitch at its musical onset', () => {
+  for (const echo of musicLibrary.E002.echoes) {
+    const audio = readFileSync(new URL(`../${assetCatalog[echo.audioRef].src}`, import.meta.url));
+    echo.pitches.forEach((pitch, index) => assert.ok(Math.abs(estimateFrequency(audio, 4 + index) - pitchFrequency(pitch)) < 4, `${echo.audioRef} should sound ${pitch}`));
+  }
+  for (const [reference, bpm] of [['p02-practice', 52], ['p02-musical', 60]]) {
+    const audio = readFileSync(new URL(`../${assetCatalog[reference].src}`, import.meta.url));
+    const beatSeconds = 60 / bpm;
+    musicLibrary.P02.measures.forEach((measure, measureIndex) => {
+      const staff = measure.staves[measure.activeHand === 'RH' ? 'treble' : 'bass'];
+      let onset = 0;
+      staff.events.forEach((event) => {
+        const start = (4 + measureIndex * 4 + onset) * beatSeconds;
+        assert.ok(Math.abs(estimateFrequency(audio, start) - pitchFrequency(event.pitch)) < 4, `${reference} should sound ${event.pitch}`);
+        onset += event.beats;
+      });
+    });
+  }
+});

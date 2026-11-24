@@ -76,5 +76,47 @@ export const reinforcementCatalog = {
     prerequisite: 'Play only P01 Measures 1–2 after tracing their contour and tapping rhythm. Completion of the whole piece is not required.',
     readiness: 'You can use preview, complete attempt, named repair, and replay, and reach P01’s ending without restarting after every small error.',
     earlierSessionId: '009'
+  },
+  'RF-LH-1': {
+    id: 'RF-LH-1', title: 'Left-hand five-note setup', sessions: ['011', '012', '013', '014', '015', '016'],
+    repeat: 'Find C3 from middle C, place left-hand fingers 5–1 on C3–G3, play K002 once slowly, then release.',
+    prerequisite: 'Play C3 four relaxed times with left-hand finger 5, then add D3 with finger 4. Do not stretch to all five keys.',
+    readiness: 'You can find C3 and play K002 with the correct finger order, a freely moving wrist, and no pain or sustained tension.',
+    earlierSessionId: '011'
+  },
+  'RF-LH-2': {
+    id: 'RF-LH-2', title: 'Left-hand step and echo control', sessions: ['012', '014', '015', '016'],
+    repeat: 'Hear E002 A, trace its up/up shape, play C3–D3–E3, then hide the arrows and repeat.',
+    prerequisite: 'Alternate C3 and D3 with left-hand fingers 5 and 4 on four beats, first from a visible diagram and then by feel.',
+    readiness: 'You can keep an easy left-hand position through two short patterns and reproduce one three-note echo after optional replay.',
+    earlierSessionId: '011'
+  },
+  'RF-BASS-1': {
+    id: 'RF-BASS-1', title: 'Bass landmarks C and F', sessions: ['013', '014', '016'],
+    repeat: 'Shuffle four C3/F3 cards. Point, name, and play; then perform N004 A.',
+    prerequisite: 'Match only written C3 in the bass second space to left-hand C3. Add F3 after three accurate C3 matches.',
+    readiness: 'You can identify both written landmarks and play with left-hand fingers 5 and 2 without shifting the five-note position.',
+    earlierSessionId: '013'
+  },
+  'RF-BASS-2': {
+    id: 'RF-BASS-2', title: 'Bass C–D–E step reading', sessions: ['014', '016'],
+    repeat: 'Preview one N005 card from C3 and its direction, play after four counts, and reveal names after the attempt.',
+    prerequisite: 'Read only C3/D3 two-note cards with left-hand fingers 5 and 4. Reopen the bass-landmark support if C3 is not recognized.',
+    readiness: 'You can play a new four-note C3–E3 card without written letter names while maintaining the hand position.',
+    earlierSessionId: '013'
+  },
+  'RF-HANDS-1': {
+    id: 'RF-HANDS-1', title: 'Alternating hands on a pulse', sessions: ['015', '016'],
+    repeat: 'Tap LH–RH–LH–RH on the legs, then play C3–C4–C3–C4 on four beats with both hands prepared before starting.',
+    prerequisite: 'Use leg taps only while counting. Then play LH C3 on beat 1 and RH C4 on beat 3, leaving beats 2 and 4 as counted waits.',
+    readiness: 'You can switch hands on intended beats without an extra pause, simultaneous note, high lifted waiting hand, or shoulder bracing.',
+    earlierSessionId: '015'
+  },
+  'RF-HANDS-2': {
+    id: 'RF-HANDS-2', title: 'Paired-staff question and answer', sessions: ['016'],
+    repeat: 'Play P02 Measures 1–2 only: preview both entrances, perform the right-hand question, keep counting, and give the left-hand answer.',
+    prerequisite: 'Play P02 Measure 1, count a full silent four-beat measure with hands prepared, then play Measure 2. Use the active-hand labels.',
+    readiness: 'You can follow top/right and bottom/left lines and change hands by measure while the pulse continues.',
+    earlierSessionId: '015'
   }
 };

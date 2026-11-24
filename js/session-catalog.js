@@ -1,9 +1,10 @@
 export const SESSION_TYPES = ['Learn', 'Practice', 'Play', 'Review'];
-export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide', 'notation', 'rhythm-echo', 'audio-reference'];
+export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide', 'notation', 'rhythm-echo', 'audio-reference', 'pitch-echo', 'hand-lanes'];
 
 export const assetCatalog = {
   'keyboard-c3-c5': { id: 'keyboard-c3-c5', type: 'generated-diagram' },
   'right-hand-fingers': { id: 'right-hand-fingers', type: 'generated-diagram' },
+  'left-hand-fingers': { id: 'left-hand-fingers', type: 'generated-diagram' },
   'e001-pair-a': { id: 'e001-pair-a', type: 'audio', src: 'assets/audio/e001-pair-a.wav' },
   'e001-pair-b': { id: 'e001-pair-b', type: 'audio', src: 'assets/audio/e001-pair-b.wav' },
   'e001-pair-c': { id: 'e001-pair-c', type: 'audio', src: 'assets/audio/e001-pair-c.wav' },
@@ -12,7 +13,9 @@ export const assetCatalog = {
   'r002-c-pattern': audioAsset('r002-c-pattern'), 'r002-c-counted': audioAsset('r002-c-counted'),
   'r002-d-pattern': audioAsset('r002-d-pattern'), 'r002-d-counted': audioAsset('r002-d-counted'),
   'n001-a-shape': audioAsset('n001-a-shape'),
-  'p01-practice': audioAsset('p01-practice'), 'p01-musical': audioAsset('p01-musical')
+  'p01-practice': audioAsset('p01-practice'), 'p01-musical': audioAsset('p01-musical'),
+  'e002-a': audioAsset('e002-a'), 'e002-b': audioAsset('e002-b'), 'e002-c': audioAsset('e002-c'),
+  'p02-practice': audioAsset('p02-practice'), 'p02-musical': audioAsset('p02-musical')
 };
 
 function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }
@@ -593,6 +596,296 @@ const session010Steps = [
   }
 ];
 
+const session011Steps = [
+  {
+    id: 'find-lower-c', title: 'Find the C below middle C', kicker: 'Orient the left hand',
+    intro: 'Your left-hand home note is the next C to the left of middle C.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Find middle C, then move left to the next group of two black keys. The white key immediately to its left is <strong>C3</strong>, the C one octave below middle C.', 'Smaller keyboards may place these keys away from the visual center. Use the repeating black-key landmark, not the case of the instrument.'] },
+      { type: 'keyboard', labels: 'octave-c', highlights: ['C3', 'C4'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Find middle C, play it once with the right hand, then find and play the next C to the left with left-hand finger 5.', hint: 'Locate two black keys, then use the white key immediately to their left.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you travel from middle C to the next C left without counting every white key?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'left-finger-numbers', title: 'Number the left hand', kicker: 'Thumb is still 1',
+    intro: 'Finger numbers begin at the thumb on both hands, so they appear reversed across the keyboard.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['On the left hand, the thumb is 1, index 2, middle 3, ring 4, and little finger 5. From C3 to G3, the fingers are <strong>5–4–3–2–1</strong>.', 'Gently move each finger away from the keys once. Keep the shoulder loose and the wrist mobile.'] },
+      { type: 'finger-position', hand: 'left', assetRef: 'left-hand-fingers' },
+      { type: 'practice', phase: 'try', instruction: 'Away from the keyboard, name left-hand fingers 1–5. Then place finger 5 on C3 and let fingers 4–3–2–1 rest naturally toward G3.', hint: 'Do not force every fingertip into a rigid row. A comfortable curved hand can stay mobile.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you explain why the left little finger is 5?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'place-release-reset', title: 'Place, release, and reset', kicker: 'Comfort before movement',
+    intro: 'A clean reset teaches the position without holding tension.',
+    blocks: [
+      { type: 'keyboard', labels: 'left-fingers', highlights: ['C3', 'D3', 'E3', 'F3', 'G3'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Place left-hand fingers 5–1 on C3–G3. Let the arm feel supported, then release the hand completely. Reset once more without stretching.', hint: 'If the span feels forced, begin with only C3–D3–E3 under fingers 5–4–3.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can the wrist stay level and free while the fingertips rest near the keys?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'left-five-note-walk', title: 'Play the left-hand walk', kicker: 'K002 on a calm pulse',
+    intro: 'Move up and down one neighboring key at a time, pausing after the ascent if useful.',
+    blocks: [
+      { type: 'pulse-guide', musicRef: 'K002' },
+      { type: 'practice', phase: 'try', instruction: 'After four preparation counts, play C–D–E–F–G with left-hand fingers 5–4–3–2–1. Pause if needed, then return G–F–E–D–C with 1–2–3–4–5.', hint: 'Play only C–D–E and back if the five-note position feels tense. Stop if you feel pain.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you find the position and play K002 without forced stretching or held tension?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session012Steps = [
+  {
+    id: 'reset-left-walk', title: 'Reset the left-hand walk', kicker: 'Prepare, count, move',
+    intro: 'Release before each attempt so the hand begins easy rather than braced.',
+    blocks: [
+      { type: 'keyboard', labels: 'left-fingers', highlights: ['C3', 'D3', 'E3', 'F3', 'G3'], assetRef: 'keyboard-c3-c5' },
+      { type: 'pulse-guide', musicRef: 'K002' },
+      { type: 'practice', phase: 'try', instruction: 'Count four, then play K002 one note per beat twice. Release the hand fully between attempts.', hint: 'Use a slower self-count if the return from G to C becomes uneven.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can your left hand keep an easy shape while the pulse continues?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'left-step-shapes', title: 'Trace two step shapes', kicker: 'See movement before hearing it',
+    intro: 'A repeat stays on one key; up moves right; down moves left.',
+    blocks: [
+      { type: 'text', phase: 'demonstrate', paragraphs: ['Trace and play <strong>C3–D3–E3</strong>: up, up. Then trace and play <strong>E3–D3–C3</strong>: down, down. Use left-hand fingers 5–4–3 and 3–4–5.'] },
+      { type: 'practice', phase: 'try', instruction: 'Say each direction, then play both three-note shapes twice with clear releases.', hint: 'If three notes are too much, alternate only C3 and D3 with fingers 5 and 4.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you connect heard or seen up/down movement with right/left keyboard movement?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'left-pitch-echoes', title: 'Hear, trace, and play', kicker: 'E002 listening echoes',
+    intro: 'Listen to the whole three-note echo before moving, then trace its direction and play it.',
+    blocks: [
+      { type: 'pitch-echo', musicRef: 'E002', echoIds: ['A', 'B', 'C'] },
+      { type: 'practice', phase: 'try', instruction: 'For Echoes A–C: listen, trace the direction with one finger, then reproduce the notes in the left-hand C–E position. Reveal only after your first attempt.', hint: 'Replay is allowed. Begin with Echo A and visible arrows if the task feels crowded.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you reproduce at least one three-note echo after optional replay?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'release-and-repeat', title: 'Repeat one useful item', kicker: 'Target the least secure movement',
+    intro: 'A full release helps the repeat become easier instead of tighter.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Choose K002 or one E002 echo. Release the hand, prepare C3–E3 or C3–G3, and repeat that item once with a calm count.', hint: 'Return to Session 011 if locating or placing the left hand is still uncertain.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you keep clear releases and an easy hand through two short patterns?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session013Steps = [
+  {
+    id: 'meet-bass-landmarks', title: 'Meet bass C and bass F', kicker: 'Two lower-staff landmarks',
+    intro: 'The bass clef marks the staff used for these lower left-hand notes.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['C3 sits in the <strong>second space from the bottom</strong> of the bass staff. F3 sits on the <strong>fourth line from the bottom</strong>. They are already under left-hand fingers 5 and 2.', 'These two locations are landmarks. You do not need to memorize a sentence for every line and space.'] },
+      { type: 'notation', musicRefs: ['N004-A'], options: { showLabels: true, showAllFingers: true, showBeatGrid: true, enlarge: true } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you describe where written C3 and F3 sit?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'connect-bass-to-keys', title: 'Connect the staff to the keys', kicker: 'Point, name, play',
+    intro: 'Match each written landmark to the prepared key and finger.',
+    blocks: [
+      { type: 'keyboard', labels: 'left-fingers', highlights: ['C3', 'F3'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Point to written C3 and play it with left-hand finger 5. Point to F3 and play it with finger 2. Mix the order six times.', hint: 'Learn bass C alone first. Add F only after C feels dependable.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you match each landmark without shifting the five-note hand position?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'play-bass-landmarks', title: 'Play N004 A and B', kicker: 'Read after a four-count',
+    intro: 'Preview the first note and keep every measure to four beats.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N004-A', 'N004-B'], options: { showAllFingers: true, showBeatGrid: true, reveal: true, revealLabel: 'Reveal note names' } },
+      { type: 'practice', phase: 'try', instruction: 'Count four, play Pattern A, reset, then count four and play Pattern B. Hold each half note through its second beat.', hint: 'Prepare fingers 5 and 2 over C3 and F3 before counting.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you read both landmarks and keep the written durations?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'bass-without-labels', title: 'Retrieve one landmark pattern', kicker: 'No permanent note labels',
+    intro: 'Try one pattern from staff location alone before opening the hint.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N004-B'], options: { showStartingFinger: true } },
+      { type: 'practice', phase: 'try', instruction: 'Identify the first note, count four, and play Pattern B without printed note names.', hint: 'F3 is on the fourth line from the bottom and uses left-hand finger 2.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you identify both landmarks without a letter mnemonic?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session014Steps = [
+  {
+    id: 'map-bass-c-d-e', title: 'Map bass C, D, and E', kicker: 'Step upward from C',
+    intro: 'A landmark plus step direction reveals the nearby notes.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Begin from bass C in the second space. The next step up is D on the middle line; the next is E in the space above it.', 'On this keyboard area, a written step up still moves one white key to the right.'] },
+      { type: 'notation', musicRefs: ['N005-A'], options: { showStartingFinger: true, reveal: true, revealDirections: true, revealLabel: 'Reveal note names and directions' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you use bass C plus steps to find D3 and E3?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'read-bass-card-a', title: 'Preview and read Card A', kicker: 'Landmark, direction, rhythm',
+    intro: 'Preview before moving so the hand has a simple plan.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N005-A'], options: { showStartingFinger: true, showBeatGrid: true, reveal: true, revealDirections: true } },
+      { type: 'practice', phase: 'try', instruction: 'Find the first note, speak the directions, prepare left-hand fingers 5–4–3, count four, and play Card A.', hint: 'The shape is up, up, down from bass C.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you preview the shape before the fingers move?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'read-bass-cards-b-c', title: 'Read Cards B and C', kicker: 'Try before revealing names',
+    intro: 'Let the bass staff and contour lead the first attempt.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N005-B', 'N005-C'], options: { showStartingFinger: true, reveal: true, revealDirections: true, revealLabel: 'Reveal note names and directions' } },
+      { type: 'practice', phase: 'try', instruction: 'Preview and play Card B, then Card C, after separate four-counts. Reveal the names only after each attempt.', hint: 'If needed, read only C3–D3, D3–C3, or C3–C3.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can the hand stay easy while the eyes follow the bass staff?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'independent-bass-reading', title: 'Read one card independently', kicker: 'No labels, no cursor',
+    intro: 'Use a silent preview and one calm count-in.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N005-C'], options: { showStartingFinger: true } },
+      { type: 'practice', phase: 'try', instruction: 'Preview Card C silently, count four, and play it without note labels. Look toward the score instead of checking every key.', hint: 'Find bass C first, then follow repeat, up, up.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you read a new C3–E3 card without tightening or labeling every note?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session015Steps = [
+  {
+    id: 'prepare-both-hands', title: 'Prepare both hands', kicker: 'One shared pulse',
+    intro: 'Both hands wait near their keys, but only one plays at a time.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Prepare left-hand C3 and right-hand middle C before starting. One hand plays while the other waits easily near its keys. Do not lift the waiting hand high.', 'The count continues through every hand change. No notes sound at the same time in this session.'] },
+      { type: 'keyboard', labels: 'octave-c', highlights: ['C3', 'C4'], assetRef: 'keyboard-c3-c5' },
+      { type: 'practice', phase: 'try', instruction: 'Silently touch left-hand finger 5 to C3 and right-hand finger 1 to C4. Release, then prepare both again without bracing the shoulders.', hint: 'Locate each C from its two-black-key group before preparing both hands.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can both hands stay prepared without either hand pressing?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'first-hand-lane', title: 'Left, right, left, right', kicker: 'H001 Measure 1',
+    intro: 'The two labeled lanes show exactly which hand owns each beat.',
+    blocks: [
+      { type: 'hand-lanes', musicRef: 'H001', measureIndexes: [0], animated: true, bpm: 52 },
+      { type: 'practice', phase: 'try', instruction: 'Tap LH–RH–LH–RH on your legs for four beats. Then play C3–C4–C3–C4 with both hands prepared.', hint: 'If the switch adds a pause, use leg taps only while counting 1–4.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you switch hands without inserting an extra beat?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'second-hand-lane', title: 'Add the second measure', kicker: 'New keys, same alternation',
+    intro: 'Measure 2 keeps the same left-right order while each hand steps upward.',
+    blocks: [
+      { type: 'hand-lanes', musicRef: 'H001', measureIndexes: [1], animated: true, bpm: 52 },
+      { type: 'practice', phase: 'try', instruction: 'Prepare both hands, count four, and play Measure 2: LH D3, RH D4, LH E3, RH E4.', hint: 'Practice D3–D4 alone before adding E3–E4.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can the waiting hand remain near its keys while the other hand plays?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'connect-hand-lanes', title: 'Connect both measures', kicker: 'Keep counting across the change',
+    intro: 'The pattern lasts eight beats without any simultaneous notes.',
+    blocks: [
+      { type: 'hand-lanes', musicRef: 'H001', animated: true, bpm: 52 },
+      { type: 'practice', phase: 'try', instruction: 'Count four preparation beats, then play both H001 measures at a comfortable 48–56 bpm. Release both hands and check shoulders and wrists.', hint: 'Repeat only Measure 1 three times if the longer pattern feels crowded.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Do you know which hand owns each beat, and can you change hands while the count continues?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session016Steps = [
+  {
+    id: 'question-answer-waits', title: 'One hand plays, one hand waits', kicker: 'A practical full-measure rest',
+    intro: 'The top staff is right hand; the bottom staff is left hand. Only one hand plays in each measure.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['A centered rest sign in the inactive staff means <strong>this hand waits for all four beats</strong>. Keep counting 1, 2, 3, 4 while that hand stays relaxed near its keys.', 'This is a practical waiting sign. You do not need to compare it with a whole note or calculate a new note value.'] },
+      { type: 'hand-lanes', musicRef: 'P02', measureIndexes: [0, 1] },
+      { type: 'practice', phase: 'try', instruction: 'Point through Measure 1: RH C, D, E begins, E continues while LH waits on all four counts. Then point through Measure 2 with the roles reversed.', hint: 'Say “right hand plays” or “left hand plays” before each measure.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you explain what the inactive hand does for all four beats?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'preview-paired-score', title: 'Preview Hello, Down There', kicker: 'Follow top/right and bottom/left',
+    intro: 'Active-hand labels and aligned barlines show the conversation measure by measure.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P02'], options: { measureNumbers: true, showEntranceFingers: true, enlarge: true, caption: 'RH question, LH answer, RH question, LH answer. The inactive hand waits for all four beats.' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you point to each RH and LH entrance before playing?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'prepare-separate-parts', title: 'Prepare each hand separately', kicker: 'Measures 1 and 3, then 2 and 4',
+    intro: 'Learn each part before practicing the hand changes.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P02'], options: { measureNumbers: true, showEntranceFingers: true } },
+      { type: 'practice', phase: 'try', instruction: 'Play RH Measures 1 and 3 separately. Then play LH Measures 2 and 4 separately. Count four before every attempt and hold each half note for two beats.', hint: 'Use Session 009 for the RH notes or Session 014 for the LH notes if one staff is uncertain.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can each hand play its two measures without the other hand joining?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'play-two-hand-conversation', title: 'Play the complete conversation', kicker: 'Change hands by measure',
+    intro: 'Practice each hand change, then keep the musical thread through all four measures.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Practice the Measure 1→2 and Measure 3→4 changes. Then count four and play all of Hello, Down There at a comfortable 52–60 bpm. Repair one transition and replay.', hint: 'If needed, play Measure 1, count one full silent four-beat measure with both hands prepared, then play Measure 2.' },
+      { type: 'audio-reference', title: 'Reference performances', collapsed: true, summary: 'Hear after my try', tracks: [{ assetRef: 'p02-practice', label: 'Practice version at 52 bpm' }, { assetRef: 'p02-musical', label: 'Reference version at 60 bpm' }], transcript: 'Four-count, then RH Measure 1, LH Measure 2, RH Measure 3, and LH Measure 4. No notes sound simultaneously.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you follow top/right and bottom/left staves and change hands while the count continues?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const sliceCSessions = () => [
+  {
+    id: '011', title: 'Meet the Left Hand', summary: 'Find the lower C and establish a comfortable left-hand five-note position.', type: 'Learn', chapter: 1,
+    objective: 'Find C3, understand left-hand finger numbers, and play K002 without forced stretching.', prerequisites: ['001'], duration: { min: 10, max: 15 }, steps: session011Steps,
+    musicRefs: ['K002'], assetRefs: ['keyboard-c3-c5', 'left-hand-fingers'], outcome: 'Finds C3, names left-hand fingers, and plays K002 with a comfortable, mobile wrist.',
+    reflection: { understanding: 'I know why the left little finger is 5.', playing: 'I can place and move the left hand without pain or held tension.' },
+    keepPlaying: ['Play K002 softly and listen for an even, unforced tone.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or enjoy one soft K002 repeat.' }, practicing: { label: 'Practicing', guidance: 'Play only C3–D3–E3 and back with fingers 5–4–3.', reinforcementRefs: ['RF-LH-1'] }, stuck: { label: 'Stuck', guidance: 'Locate C3 and play it four relaxed times with finger 5.', reinforcementRefs: ['RF-LH-1'], earlierSessionId: '001' } },
+    reinforcementRefs: ['RF-LH-1'], pedagogicalReview: ['Session 011 left-hand placement, wrist guidance, and fingering require qualified piano-teacher review.']
+  },
+  {
+    id: '012', title: 'Left-Hand Steps and Echoes', summary: 'Keep a pulse with the left hand and reproduce three-note heard contours.', type: 'Practice', chapter: 1,
+    objective: 'Play left-hand step patterns evenly and reproduce E002 pitch echoes.', prerequisites: ['003', '011'], duration: { min: 10, max: 15 }, steps: session012Steps,
+    musicRefs: ['K002', 'E002'], assetRefs: ['keyboard-c3-c5', 'e002-a', 'e002-b', 'e002-c'], outcome: 'Plays two left-hand patterns evenly and reproduces at least one three-note echo.',
+    reflection: { understanding: 'I can connect heard up/down movement to the keyboard.', playing: 'My left hand can keep an easy shape and clear releases.' },
+    keepPlaying: ['Hear a C4–E4 right-hand pattern and copy its shape one octave lower with the left hand.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or copy one more echo.' }, practicing: { label: 'Practicing', guidance: 'Repeat E002 A with visible arrows, then hide them.', reinforcementRefs: ['RF-LH-2'] }, stuck: { label: 'Stuck', guidance: 'Alternate only C3 and D3, or revisit left-hand placement.', reinforcementRefs: ['RF-LH-1', 'RF-LH-2'], earlierSessionId: '011' } },
+    reinforcementRefs: ['RF-LH-1', 'RF-LH-2'], pedagogicalReview: ['Session 012 echo recordings, left-hand releases, and pacing require qualified piano-teacher review.']
+  },
+  {
+    id: '013', title: 'Bass C and Bass F', summary: 'Recognize C3 and F3 as bass-clef landmarks and connect them to the left hand.', type: 'Learn', chapter: 1,
+    objective: 'Recognize written C3 and F3 and play them with left-hand fingers 5 and 2.', prerequisites: ['007', '011'], duration: { min: 10, max: 15 }, steps: session013Steps,
+    musicRefs: ['N004', 'N004-A', 'N004-B'], assetRefs: ['keyboard-c3-c5'], outcome: 'Matches written C3 and F3 to the correct key and finger without a letter mnemonic.',
+    reflection: { understanding: 'I can describe both bass-clef landmarks.', playing: 'I can play them without moving out of the five-note position.' }, keepPlaying: ['Find C3 and F3 in two new short written repeat patterns.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or identify both landmarks once more.' }, practicing: { label: 'Practicing', guidance: 'Shuffle four C3/F3 cards and answer without a time limit.', reinforcementRefs: ['RF-BASS-1'] }, stuck: { label: 'Stuck', guidance: 'Learn written C3 alone, then add F3.', reinforcementRefs: ['RF-BASS-1'], earlierSessionId: '011' } },
+    reinforcementRefs: ['RF-LH-1', 'RF-READ-1', 'RF-BASS-1'], pedagogicalReview: ['Session 013 bass-clef symbol, staff placement, and landmark teaching require qualified piano-teacher review.']
+  },
+  {
+    id: '014', title: 'Read C, D, E with the Left Hand', summary: 'Read short bass-clef patterns from the C3 landmark.', type: 'Practice', chapter: 1,
+    objective: 'Read and play stepwise C3–D3–E3 patterns while keeping a comfortable left-hand position.', prerequisites: ['005', '013'], duration: { min: 10, max: 15 }, steps: session014Steps,
+    musicRefs: ['N005', 'N005-A', 'N005-B', 'N005-C', 'N005-D'], assetRefs: [], outcome: 'Reads a new four-note C3–E3 card without written letter names and maintains the hand position.',
+    reflection: { understanding: 'I can use bass C plus steps to find D and E.', playing: 'I can read without tightening or looking back and forth for every note.' }, keepPlaying: ['Read a short F3-starting step pattern using contour only, then reveal its letters.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or try one more no-label bass card.' }, practicing: { label: 'Practicing', guidance: 'Alternate Cards A and B with a silent preview.', reinforcementRefs: ['RF-BASS-2'] }, stuck: { label: 'Stuck', guidance: 'Read C3 and D3 only, or revisit the bass C landmark.', reinforcementRefs: ['RF-BASS-1', 'RF-BASS-2'], earlierSessionId: '013' } },
+    reinforcementRefs: ['RF-LH-2', 'RF-BASS-1', 'RF-BASS-2'], pedagogicalReview: ['Session 014 bass reading sequence, fingering cues, and gaze guidance require qualified piano-teacher review.']
+  },
+  {
+    id: '015', title: 'Hands Take Turns', summary: 'Keep one pulse while the left and right hands alternate one note at a time.', type: 'Learn', chapter: 1,
+    objective: 'Change active hands on a continuing pulse without simultaneous notes or an added pause.', prerequisites: ['003', '009', '014'], duration: { min: 10, max: 15 }, steps: session015Steps,
+    musicRefs: ['H001'], assetRefs: ['keyboard-c3-c5'], outcome: 'Changes hands on the intended beats without inserting an extra beat or lifting the shoulders.',
+    reflection: { understanding: 'I know which hand owns each beat.', playing: 'The waiting hand can stay prepared and easy while the count continues.' }, keepPlaying: ['Repeat H001 and say “left, right” instead of count numbers, then return to counting.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or repeat the two measures once.' }, practicing: { label: 'Practicing', guidance: 'Repeat only H001 Measure 1 three times.', reinforcementRefs: ['RF-HANDS-1'] }, stuck: { label: 'Stuck', guidance: 'Alternate hands on the legs, then on C3 and C4 only.', reinforcementRefs: ['RF-HANDS-1'], earlierSessionId: '014' } },
+    reinforcementRefs: ['RF-PULSE-1', 'RF-LH-1', 'RF-HANDS-1'], pedagogicalReview: ['Session 015 hand preparation, alternating movement, and target pulse require qualified piano-teacher review.']
+  },
+  {
+    id: '016', title: 'A Two-Hand Conversation', summary: 'Read and play Hello, Down There with the hands alternating by measure.', type: 'Play', chapter: 1,
+    objective: 'Perform P02 as a complete paired-staff question-and-answer piece with one active hand per measure.', prerequisites: ['005', '009', '014', '015'], duration: { min: 10, max: 15 }, steps: session016Steps,
+    musicRefs: ['P02'], assetRefs: ['p02-practice', 'p02-musical'], outcome: 'Performs all four measures with clear hand changes and an approximately steady pulse.',
+    reflection: { understanding: 'I can follow top/right and bottom/left staves.', playing: 'I can change hands by measure while the count continues.' }, keepPlaying: ['Replace Measure 4 with one C3–E3 answer choice, then return to the written score.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Finish here or enjoy one more complete conversation.' }, practicing: { label: 'Practicing', guidance: 'Loop one question-and-answer pair, then connect the second pair.', reinforcementRefs: ['RF-HANDS-2'] }, stuck: { label: 'Stuck', guidance: 'Play Measure 1, count four silent beats, then play Measure 2.', reinforcementRefs: ['RF-HANDS-1', 'RF-HANDS-2'], earlierSessionId: '015' } },
+    reinforcementRefs: ['RF-RHY-1', 'RF-BASS-1', 'RF-BASS-2', 'RF-HANDS-1', 'RF-HANDS-2'], pedagogicalReview: ['Hello, Down There notation, full-measure-rest explanation, hand changes, audio models, and tempos require qualified piano-teacher review.']
+  }
+];
+
 export const sessionCatalog = [
   {
     id: '001',
@@ -676,5 +969,6 @@ export const sessionCatalog = [
     reinforcementRefs: ['RF-RH-1', 'RF-PULSE-1'],
     pedagogicalReview: ['Session 004 hand-position language, fingering, and target pulse require qualified piano-teacher review.']
   },
-  ...sliceBSessions()
+  ...sliceBSessions(),
+  ...sliceCSessions()
 ];

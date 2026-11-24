@@ -6,7 +6,7 @@ import { sessionCatalog } from '../js/session-catalog.js';
 const sequence = (id) => musicLibrary[id].measures.map((measure) => measure.events.map(({ pitch, rhythm, finger }) => [pitch, rhythm, finger]));
 
 test('Sessions 005–010 are consecutive and use the approved types and prerequisites', () => {
-  const sessions = sessionCatalog.slice(4);
+  const sessions = sessionCatalog.slice(4, 10);
   assert.deepEqual(sessions.map(({ id }) => id), ['005', '006', '007', '008', '009', '010']);
   assert.deepEqual(sessions.map(({ type }) => type), ['Learn', 'Practice', 'Learn', 'Learn', 'Practice', 'Play']);
   assert.deepEqual(sessions.map(({ prerequisites }) => prerequisites), [

@@ -51,7 +51,11 @@ function synthesizeMetered(example, bpm, countSamples, spokenDuring = false) {
   for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
   example.measures.forEach((measure, measureIndex) => {
     let onset = 0;
-    measure.events.forEach((event) => {
+    const events = example.kind === 'paired-score'
+      ? measure.staves[measure.activeHand === 'RH' ? 'treble' : 'bass'].events
+      : measure.events;
+    events.forEach((event) => {
+      if (event.kind === 'rest') { onset += event.beats; return; }
       const startBeat = 4 + measureIndex * example.meter.beats + onset;
       addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, event.beats * beatSeconds - 0.12));
       onset += event.beats;
@@ -60,6 +64,14 @@ function synthesizeMetered(example, bpm, countSamples, spokenDuring = false) {
   if (spokenDuring) {
     for (let beat = 0; beat < musicBeats; beat += 1) mix(samples, countSamples[beat % 4], (4 + beat) * beatSeconds + 0.04, 0.82);
   }
+  return samples;
+}
+
+function synthesizePitchEcho(pitches, bpm, countSamples) {
+  const beatSeconds = 60 / bpm;
+  const samples = new Float32Array(Math.ceil((4 + pitches.length) * beatSeconds * SAMPLE_RATE));
+  for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
+  pitches.forEach((pitch, index) => addTone(samples, (4 + index) * beatSeconds, pitch, Math.max(0.2, beatSeconds - 0.12)));
   return samples;
 }
 
@@ -109,6 +121,9 @@ export function generateListeningAudio(outputDirectory, voiceDirectory = resolve
   writeFileSync(resolve(outputDirectory, 'n001-a-shape.wav'), encodeWav(synthesizeMetered(musicLibrary['N001-A'], 60, counts, false)));
   writeFileSync(resolve(outputDirectory, 'p01-practice.wav'), encodeWav(synthesizeMetered(musicLibrary.P01, 56, counts, false)));
   writeFileSync(resolve(outputDirectory, 'p01-musical.wav'), encodeWav(synthesizeMetered(musicLibrary.P01, 64, counts, false)));
+  for (const echo of musicLibrary.E002.echoes) writeFileSync(resolve(outputDirectory, `e002-${echo.id.toLowerCase()}.wav`), encodeWav(synthesizePitchEcho(echo.pitches, 60, counts)));
+  writeFileSync(resolve(outputDirectory, 'p02-practice.wav'), encodeWav(synthesizeMetered(musicLibrary.P02, 52, counts, false)));
+  writeFileSync(resolve(outputDirectory, 'p02-musical.wav'), encodeWav(synthesizeMetered(musicLibrary.P02, 60, counts, false)));
 }
 
 const scriptPath = fileURLToPath(import.meta.url);

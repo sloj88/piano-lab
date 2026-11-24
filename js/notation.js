@@ -3,6 +3,7 @@ const STAFF_GAP = 12;
 const STAFF_BOTTOM = STAFF_TOP + STAFF_GAP * 4;
 const MEASURE_WIDTH = 145;
 const TREBLE_LEAD = 88;
+const BASS_LEAD = 88;
 const NEUTRAL_LEAD = 24;
 const LETTER_INDEX = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
 
@@ -17,8 +18,20 @@ export function treblePitchY(pitch) {
   return STAFF_BOTTOM - (pitchIndex(pitch) - e4) * (STAFF_GAP / 2);
 }
 
+export function bassPitchY(pitch) {
+  const g2 = 2 * 7 + LETTER_INDEX.G;
+  return STAFF_BOTTOM - (pitchIndex(pitch) - g2) * (STAFF_GAP / 2);
+}
+
+function eventText(event) {
+  return event.kind === 'rest' ? 'waits for all four beats' : `${event.pitch} ${event.rhythm}`;
+}
+
 export function notationText(example) {
-  return example.measures.map((measure, index) => `Measure ${index + 1}: ${measure.events.map((event) => `${event.pitch} ${event.rhythm}`).join(', ')}`).join('. ');
+  if (example.kind === 'paired-score') {
+    return example.measures.map((measure, index) => `Measure ${index + 1}: RH ${measure.staves.treble.events.map(eventText).join(', ')}; LH ${measure.staves.bass.events.map(eventText).join(', ')}`).join('. ');
+  }
+  return example.measures.map((measure, index) => `Measure ${index + 1}: ${measure.events.map(eventText).join(', ')}`).join('. ');
 }
 
 export function beatGridMarkup(example) {
@@ -32,24 +45,30 @@ export function beatGridMarkup(example) {
   }).join('')}</div>`;
 }
 
-function staffLines(width) {
-  return Array.from({ length: 5 }, (_, index) => `<line x1="0" y1="${STAFF_TOP + index * STAFF_GAP}" x2="${width}" y2="${STAFF_TOP + index * STAFF_GAP}"/>`).join('');
+function staffLines(width, top = STAFF_TOP) {
+  return Array.from({ length: 5 }, (_, index) => `<line x1="0" y1="${top + index * STAFF_GAP}" x2="${width}" y2="${top + index * STAFF_GAP}"/>`).join('');
 }
 
-function noteMarkup(event, x, y, { label, finger, ledger }) {
+function noteMarkup(event, x, y, { label, finger, ledger, labelY = 112 }) {
   const half = event.rhythm === 'half';
   const ledgerMarkup = ledger ? `<line class="ledger-line" x1="${x - 11}" y1="${y}" x2="${x + 11}" y2="${y}"/>` : '';
   return `${ledgerMarkup}<g class="score-note" data-pitch="${event.pitch}" data-rhythm="${event.rhythm}">
     <ellipse class="notehead${half ? ' is-half' : ''}" cx="${x}" cy="${y}" rx="6.2" ry="4.3" transform="rotate(-16 ${x} ${y})"/>
     <line class="note-stem" x1="${x + 5}" y1="${y - 1}" x2="${x + 5}" y2="${y - 29}"/>
     ${finger ? `<text class="finger-label" x="${x}" y="${y - 34}">${finger}</text>` : ''}
-    ${label ? `<text class="pitch-label" x="${x}" y="112">${event.pitch.replace(/[0-9]$/, '')}</text>` : ''}
+    ${label ? `<text class="pitch-label" x="${x}" y="${labelY}">${event.pitch.replace(/[0-9]$/, '')}</text>` : ''}
   </g>`;
+}
+
+function clefMarkup(clef, top = 0) {
+  const symbol = clef === 'bass' ? '𝄢' : '𝄞';
+  const className = clef === 'bass' ? 'bass-clef' : 'treble-clef';
+  return `<text class="${className}" x="7" y="${top + 78}">${symbol}</text><g class="time-signature"><text x="62" y="${top + 48}">4</text><text x="62" y="${top + 72}">4</text></g>`;
 }
 
 export function scoreMarkup(example, options = {}) {
   const clef = example.notation?.clef ?? 'treble';
-  const lead = clef === 'treble' ? TREBLE_LEAD : NEUTRAL_LEAD;
+  const lead = clef === 'treble' ? TREBLE_LEAD : clef === 'bass' ? BASS_LEAD : NEUTRAL_LEAD;
   const measureWidth = options.enlarged ? 180 : MEASURE_WIDTH;
   const width = lead + example.measures.length * measureWidth + 12;
   const height = options.showLabels ? 126 : 108;
@@ -64,7 +83,7 @@ export function scoreMarkup(example, options = {}) {
       const x = startX + 18 + onset * ((measureWidth - 28) / example.meter.beats);
       const y = clef === 'neutral'
         ? STAFF_BOTTOM - (example.notation.staffSteps[flatIndex] * STAFF_GAP / 2)
-        : treblePitchY(event.pitch);
+        : clef === 'bass' ? bassPitchY(event.pitch) : treblePitchY(event.pitch);
       const showFinger = options.showAllFingers || (options.showStartingFinger && flatIndex === 0);
       notes += noteMarkup(event, x, y, { label: options.showLabels, finger: showFinger ? event.finger : null, ledger: clef === 'treble' && event.pitch === 'C4' });
       onset += event.beats;
@@ -73,15 +92,59 @@ export function scoreMarkup(example, options = {}) {
     const measureNumber = options.measureNumbers ? `<text class="measure-number" x="${startX + 5}" y="16">${measureIndex + 1}</text>` : '';
     measures += `${measureNumber}${notes}<line class="barline" x1="${startX + measureWidth}" y1="${STAFF_TOP}" x2="${startX + measureWidth}" y2="${STAFF_BOTTOM}"/>`;
   });
-  const clefMarkup = clef === 'treble'
-    ? `<text class="treble-clef" x="7" y="78">𝄞</text><g class="time-signature"><text x="62" y="48">4</text><text x="62" y="72">4</text></g>`
-    : '';
+  const clefSymbols = clef === 'neutral' ? '' : clefMarkup(clef);
   const direction = options.showDirections ? `<p class="score-directions">Shape: ${flatEvents.slice(1).map((event, index) => {
     const change = pitchIndex(event.pitch) - pitchIndex(flatEvents[index].pitch);
     return change === 0 ? 'repeat' : change > 0 ? 'up' : 'down';
   }).join(' · ')}</p>` : '';
   return `<figure class="score-figure${clef === 'neutral' ? ' is-neutral' : ''}">
-    <div class="score-scroll" tabindex="0" aria-label="Scrollable music notation"><svg class="music-score" viewBox="0 0 ${width} ${height}" role="img" aria-label="${example.title}. ${notationText(example)}" style="--score-width:${width}px"><g class="staff-lines">${staffLines(width)}</g>${clefMarkup}${measures}</svg></div>
+    <div class="score-scroll" tabindex="0" aria-label="Scrollable music notation"><svg class="music-score" viewBox="0 0 ${width} ${height}" role="img" aria-label="${example.title}. ${notationText(example)}" style="--score-width:${width}px"><g class="staff-lines">${staffLines(width)}</g>${clefSymbols}${measures}</svg></div>
     <figcaption>${example.title}. ${options.caption ?? notationText(example)}</figcaption>${direction}
+  </figure>`;
+}
+
+function pairedPitchY(pitch, clef, bottom) {
+  const reference = clef === 'treble' ? 4 * 7 + LETTER_INDEX.E : 2 * 7 + LETTER_INDEX.G;
+  return bottom - (pitchIndex(pitch) - reference) * (STAFF_GAP / 2);
+}
+
+function pairedStaffEvents(events, clef, startX, measureWidth, meter, top, options) {
+  if (events.length === 1 && events[0].kind === 'rest') {
+    const x = startX + measureWidth / 2;
+    return `<g class="whole-measure-rest" data-rhythm="whole-measure-rest" aria-label="wait for all four beats"><rect x="${x - 7}" y="${top + STAFF_GAP}" width="14" height="5"/></g>`;
+  }
+  let onset = 0;
+  return events.map((event, index) => {
+    const x = startX + 18 + onset * ((measureWidth - 28) / meter.beats);
+    const y = pairedPitchY(event.pitch, clef, top + STAFF_GAP * 4);
+    const showFinger = options.showEntranceFingers && index === 0;
+    onset += event.beats;
+    return noteMarkup(event, x, y, { label: options.showLabels, finger: showFinger ? event.finger : null, ledger: clef === 'treble' && event.pitch === 'C4', labelY: top + 84 });
+  }).join('');
+}
+
+export function pairedScoreMarkup(example, options = {}) {
+  const measureWidth = options.enlarged ? 180 : MEASURE_WIDTH;
+  const lead = TREBLE_LEAD;
+  const width = lead + example.measures.length * measureWidth + 12;
+  const trebleTop = 28;
+  const bassTop = 128;
+  const bassBottom = bassTop + STAFF_GAP * 4;
+  const height = options.showLabels ? 230 : 214;
+  const measures = example.measures.map((measure, index) => {
+    const startX = lead + index * measureWidth;
+    const activeLabelY = measure.activeHand === 'RH' ? trebleTop - 8 : bassTop - 8;
+    return `<text class="measure-number" x="${startX + 5}" y="15">${index + 1}</text>
+      <text class="active-hand-label" x="${startX + 18}" y="${activeLabelY}">${measure.activeHand}</text>
+      ${pairedStaffEvents(measure.staves.treble.events, 'treble', startX, measureWidth, example.meter, trebleTop, options)}
+      ${pairedStaffEvents(measure.staves.bass.events, 'bass', startX, measureWidth, example.meter, bassTop, options)}
+      <line class="barline paired-barline" x1="${startX + measureWidth}" y1="${trebleTop}" x2="${startX + measureWidth}" y2="${bassBottom}"/>`;
+  }).join('');
+  return `<figure class="score-figure paired-score-figure">
+    <div class="score-scroll" tabindex="0" aria-label="Scrollable paired-staff music notation"><svg class="music-score paired-music-score" viewBox="0 0 ${width} ${height}" role="img" aria-label="${example.title}. ${notationText(example)}" style="--score-width:${width}px">
+      <g class="staff-lines treble-staff">${staffLines(width, trebleTop)}</g><g class="staff-lines bass-staff">${staffLines(width, bassTop)}</g>
+      ${clefMarkup('treble', 0)}${clefMarkup('bass', bassTop - STAFF_TOP)}${measures}
+    </svg></div>
+    <figcaption>${example.title}. ${options.caption ?? notationText(example)}</figcaption>
   </figure>`;
 }
