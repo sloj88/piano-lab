@@ -43,7 +43,7 @@ export function beatGridMarkup(example) {
       beats.push(`<div${event.kind === 'rest' ? ' class="is-rest"' : ''}><strong>${beats.length + 1}</strong><span>${label}</span></div>`);
       for (let held = 1; held < event.beats; held += 1) beats.push(`<div class="is-held"><strong>${beats.length + 1}</strong><span>hold</span></div>`);
     }
-    return `<section aria-label="Measure ${measureIndex + 1} beat guide"><p>Measure ${measureIndex + 1}</p><div class="beat-grid">${beats.join('')}</div></section>`;
+    return `<section aria-label="Measure ${measureIndex + 1} beat guide"><p>Measure ${measureIndex + 1}</p><div class="beat-grid" style="--measure-beats:${example.meter.beats}">${beats.join('')}</div></section>`;
   }).join('')}</div>`;
 }
 
@@ -66,10 +66,22 @@ function noteMarkup(event, x, y, { label, finger, ledger, labelY = 112 }) {
   </g>`;
 }
 
-function clefMarkup(clef, top = 0) {
+function clefMarkup(clef, top = 0, { beats = 4, beatValue = 4 } = {}) {
   const symbol = clef === 'bass' ? '𝄢' : '𝄞';
   const className = clef === 'bass' ? 'bass-clef' : 'treble-clef';
-  return `<text class="${className}" x="7" y="${top + 78}">${symbol}</text><g class="time-signature"><text x="62" y="${top + 48}">4</text><text x="62" y="${top + 72}">4</text></g>`;
+  return `<text class="${className}" x="7" y="${top + 78}">${symbol}</text><g class="time-signature"><text x="62" y="${top + 48}">${beats}</text><text x="62" y="${top + 72}">${beatValue}</text></g>`;
+}
+
+function readingDescription(example, clef) {
+  const treble = ['ledger line below the staff', 'space below the staff', 'bottom line', 'first space', 'second line'];
+  const bass = ['second space', 'middle line', 'third space', 'fourth line', 'fourth space'];
+  const positions = clef === 'bass' ? bass : treble;
+  return example.measures.map(({ events }, index) => {
+    const notes = events.map((event) => event.kind === 'rest'
+      ? eventText(event)
+      : `${positions['CDEFG'.indexOf(event.pitch[0])]}, ${event.rhythm} note`);
+    return `Measure ${index + 1}: ${notes.join('; ')}`;
+  }).join('. ');
 }
 
 export function scoreMarkup(example, options = {}) {
@@ -104,14 +116,16 @@ export function scoreMarkup(example, options = {}) {
     const measureNumber = options.measureNumbers ? `<text class="measure-number" x="${startX + 5}" y="16">${measure.displayNumber ?? measureIndex + 1}</text>` : '';
     measures += `${measureNumber}${notes}<line class="barline" x1="${startX + measureWidth}" y1="${STAFF_TOP}" x2="${startX + measureWidth}" y2="${STAFF_BOTTOM}"/>`;
   });
-  const clefSymbols = clef === 'neutral' ? '' : clefMarkup(clef);
+  const clefSymbols = clef === 'neutral' ? '' : clefMarkup(clef, 0, example.meter);
+  const context = example.hand ? `${clef} clef, ${example.hand === 'LH' ? 'left' : 'right'} hand, ${example.meter.beats}/${example.meter.beatValue}. ` : '';
+  const description = options.readingChallenge ? readingDescription(example, clef) : notationText(example);
   const direction = options.showDirections ? `<p class="score-directions">Shape: ${flatEvents.slice(1).map((event, index) => {
     const change = pitchIndex(event.pitch) - pitchIndex(flatEvents[index].pitch);
     return change === 0 ? 'repeat' : change > 0 ? 'up' : 'down';
   }).join(' · ')}</p>` : '';
   return `<figure class="score-figure${clef === 'neutral' ? ' is-neutral' : ''}">
-    <div class="score-scroll" tabindex="0" aria-label="Scrollable music notation"><svg class="music-score" viewBox="0 0 ${width} ${height}" role="img" aria-label="${example.title}. ${notationText(example)}" style="--score-width:${width}px"><g class="staff-lines">${staffLines(width)}</g>${clefSymbols}${measures}</svg></div>
-    <figcaption>${example.title}. ${options.caption ?? notationText(example)}</figcaption>${direction}
+    <div class="score-scroll" tabindex="0" aria-label="Scrollable music notation"><svg class="music-score" viewBox="0 0 ${width} ${height}" role="img" aria-label="${example.title}. ${context}${description}" style="--score-width:${width}px"><g class="staff-lines">${staffLines(width)}</g>${clefSymbols}${measures}</svg></div>
+    <figcaption>${example.title}. ${options.caption ?? (options.readingChallenge ? context.trim() : description)}</figcaption>${direction}
   </figure>`;
 }
 

@@ -174,8 +174,50 @@ export const musicLibrary = {
   ], {
     alternatingHands: true, dynamics: { 1: 'p', 5: 'f' }, tempo: { practice: [52, 56], performance: [56, 66] },
     audioRefs: ['p03-rhythm-count', 'p03-sections', 'p03-performance']
-  })
+  }),
+  'C02-025': pairedExample('C02-025', 'Two staves, two entrances', [
+    { activeHand: 'RH', treble: [['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['E4', 3, 'half']] },
+    { activeHand: 'LH', bass: [['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'half']] }
+  ], { tempo: { min: 54, max: 60 } }),
+  'C02-026': chapterTwoExample('C02-026', 'Prepare two entrances', 'treble', 4, [
+    ['E4q', 'D4q', 'C4h'], ['C4q', 'D4q', 'E4h']
+  ]),
+  'C02-027': chapterTwoExample('C02-027', 'Treble steps and a repeat', 'treble', 4, [
+    ['G4q', 'F4q', 'E4h'], ['E4q', 'F4q', 'F4q', 'G4q']
+  ]),
+  'C02-028': chapterTwoExample('C02-028', 'Bass steps in both directions', 'bass', 4, [
+    ['F3q', 'G3q', 'F3h'], ['F3q', 'E3q', 'D3q', 'C3q']
+  ]),
+  'C02-029-T': chapterTwoExample('C02-029-T', 'Treble reading card', 'treble', 4, [
+    ['F4q', 'E4q', 'D4h'], ['C4q', 'D4q', 'E4h']
+  ]),
+  'C02-029-B': chapterTwoExample('C02-029-B', 'Bass reading card', 'bass', 4, [
+    ['E3q', 'F3q', 'G3h'], ['G3q', 'F3q', 'E3h']
+  ]),
+  'C02-030': chapterTwoExample('C02-030', 'Two beats in treble', 'treble', 2, [
+    ['C4q', 'D4q'], ['E4h'], ['E4q', 'D4q'], ['C4h']
+  ], 'c02-030-model'),
+  'C02-031': chapterTwoExample('C02-031', 'Two beats in bass', 'bass', 2, [
+    ['C3q', 'rq'], ['D3q', 'E3q'], ['D3q', 'rq'], ['C3h']
+  ]),
+  'C02-032': chapterTwoExample('C02-032', 'Three beats in treble', 'treble', 3, [
+    ['C4h', 'D4q'], ['E4q', 'D4q', 'C4q']
+  ], 'c02-032-model')
 };
+
+function chapterTwoExample(id, title, clef, beats, bars, audioRef) {
+  const fingers = clef === 'bass' ? [5, 4, 3, 2, 1] : [1, 2, 3, 4, 5];
+  const measures = bars.map((bar) => bar.map((token) => {
+    if (token === 'rq') return rest('quarter-rest');
+    const finger = fingers['CDEFG'.indexOf(token[0])];
+    return note(token.slice(0, 2), finger, token[2] === 'h' ? 'half' : 'quarter');
+  }));
+  return meteredExample(id, title, measures, {
+    meter: { beats, beatValue: 4 }, notation: { clef }, hand: clef === 'bass' ? 'LH' : 'RH',
+    tempo: { min: 52, max: 60, ...(audioRef ? { model: 56 } : {}) },
+    ...(audioRef ? { audioRef } : {})
+  });
+}
 
 function meteredExample(id, title, measures, extra = {}) {
   return {

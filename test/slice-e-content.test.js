@@ -13,7 +13,7 @@ test('Sessions 021–024 complete Chapter 01 with the approved types and timing'
   assert.deepEqual(sessions.map(({ type }) => type), ['Practice', 'Play', 'Review', 'Play']);
   assert.deepEqual(sessions[3].duration, { min: 14, max: 14 });
   assert.ok(sessions.every(({ chapter }) => chapter === 1));
-  assert.equal(sessionCatalog.length, 24);
+  assert.equal(sessionCatalog.filter(({ chapter }) => chapter === 1).length, 24);
 });
 
 test('P03 Across the Keys has the exact eight approved measures and dynamics', () => {

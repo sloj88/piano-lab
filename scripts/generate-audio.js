@@ -46,9 +46,10 @@ function mix(samples, source, startSeconds, gain = 0.72) {
 
 function synthesizeMetered(example, bpm, countSamples, spokenDuring = false, gains = []) {
   const beatSeconds = 60 / bpm;
+  const countInBeats = example.meter.beats;
   const musicBeats = example.measures.length * example.meter.beats;
-  const samples = new Float32Array(Math.ceil((4 + musicBeats) * beatSeconds * SAMPLE_RATE));
-  for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
+  const samples = new Float32Array(Math.ceil((countInBeats + musicBeats) * beatSeconds * SAMPLE_RATE));
+  for (let beat = 0; beat < countInBeats; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
   let noteIndex = 0;
   example.measures.forEach((measure, measureIndex) => {
     const timedEvents = [];
@@ -65,13 +66,13 @@ function synthesizeMetered(example, bpm, countSamples, spokenDuring = false, gai
       timedEvents.sort((a, b) => a.onset - b.onset);
     } else addTimeline(measure.events);
     timedEvents.forEach(({ event, onset }) => {
-      const startBeat = 4 + measureIndex * example.meter.beats + onset;
+      const startBeat = countInBeats + measureIndex * example.meter.beats + onset;
       addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, event.beats * beatSeconds - 0.12), gains[noteIndex] ?? 0.36);
       noteIndex += 1;
     });
   });
   if (spokenDuring) {
-    for (let beat = 0; beat < musicBeats; beat += 1) mix(samples, countSamples[beat % 4], (4 + beat) * beatSeconds + 0.04, 0.82);
+    for (let beat = 0; beat < musicBeats; beat += 1) mix(samples, countSamples[beat % countInBeats], (countInBeats + beat) * beatSeconds + 0.04, 0.82);
   }
   return samples;
 }
@@ -173,6 +174,10 @@ export function generateListeningAudio(outputDirectory, voiceDirectory = resolve
   writeFileSync(resolve(outputDirectory, 'p03-performance.wav'), encodeWav(synthesizeMetered(musicLibrary.P03, 62, counts, false, [
     ...Array(12).fill(0.23), ...Array(12).fill(0.46)
   ])));
+  for (const id of ['C02-030', 'C02-032']) {
+    const example = musicLibrary[id];
+    writeFileSync(resolve(outputDirectory, `${example.audioRef}.wav`), encodeWav(synthesizeMetered(example, example.tempo.model, counts)));
+  }
 }
 
 const scriptPath = fileURLToPath(import.meta.url);

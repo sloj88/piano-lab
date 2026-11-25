@@ -1,3 +1,5 @@
+import { chapterTwoSessions } from './chapter-02-sessions.js';
+
 export const SESSION_TYPES = ['Learn', 'Practice', 'Play', 'Review'];
 export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide', 'notation', 'rhythm-echo', 'audio-reference', 'pitch-echo', 'hand-lanes', 'dynamic-demo'];
 
@@ -21,7 +23,9 @@ export const assetCatalog = {
   'm001-even': audioAsset('m001-even'), 'm001-shaped': audioAsset('m001-shaped'),
   'c001-question-answer': audioAsset('c001-question-answer'),
   'p03-rhythm-count': audioAsset('p03-rhythm-count'), 'p03-sections': audioAsset('p03-sections'),
-  'p03-performance': audioAsset('p03-performance')
+  'p03-performance': audioAsset('p03-performance'),
+  'c02-030-model': audioAsset('c02-030-model'),
+  'c02-032-model': audioAsset('c02-032-model')
 };
 
 function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }
@@ -1399,5 +1403,6 @@ export const sessionCatalog = [
   ...sliceBSessions(),
   ...sliceCSessions(),
   ...sliceDSessions(),
-  ...sliceESessions()
+  ...sliceESessions(),
+  ...chapterTwoSessions
 ];
