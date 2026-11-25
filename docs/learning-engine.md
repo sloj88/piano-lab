@@ -57,6 +57,26 @@ The current renderer supports these minimal block types:
 
 Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. The notation renderer covers the supported beginner note and rest values in the implemented lessons.
 
+## Lesson design consistency standard
+
+**Keep the learning experience consistent while musical difficulty grows.** New chapters must not force beginners to relearn the interface.
+
+- **Explain → Demonstrate → Try → Reflect:** Display meaningful phase labels; never render an empty number or green marker. Consistency does not require every screen to look identical.
+- **Give every step a learner action:** Before Next, the beginner should know what to look at, say, count, tap, or play. First-step text alone is insufficient for concepts that need a visual or physical example. Pair brief explanations with a relevant score, keyboard diagram, beat guide, or audio as appropriate.
+- **Use existing teaching aids:** Reuse notation and interactions; add new UI only for new teaching needs. Respect the 10–15-minute core.
+- **Protect independent attempts:** Keep answer notes and finger labels hidden until the learner has tried an unfamiliar reading or listening task.
+- **Build skills progressively:** Introduce manageable new demands against familiar pitches, pulse, and hand positions; revisit for fluency without mandatory proficiency gates.
+- **Preserve state and navigation:** Sidebar follows viewed chapter; Home Continue Learning follows stored current session; revisits never erase earlier/later progress.
+- **Maintain physical comfort and accessibility:** Readable narrow-screen scores, labeled controls, user-started audio, and relaxed movement.
+
+### Checks before merging any future lesson slice
+
+1. Inspect the rendered opening, middle, and final steps. Every step must teach, demonstrate, or ask for an observable action; no orphan questions or unlabeled phase circles.
+2. Validate pitches, meter, timing, fingering, notation, and audio against the chapter music specification; avoid revealing independent-task answers.
+3. Test relevant progress and chapter navigation boundaries, full content validation, automated tests, and browser views at desktop and ~390px.
+4. For every **new chapter**, compare the first lesson with a previous-chapter lesson for consistent instructional language, presentation, check-in, help, and completion.
+5. Record what still needs qualified piano-teacher or adult-beginner review. Automated correctness does not establish pedagogical effectiveness.
+
 ## Progress model
 
 The engine stores v2 state under `piano-lab.progress.v2`. It keeps these concepts independent:
