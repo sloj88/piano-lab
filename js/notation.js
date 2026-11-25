@@ -24,7 +24,8 @@ export function bassPitchY(pitch) {
 }
 
 function eventText(event) {
-  return event.kind === 'rest' ? 'waits for all four beats' : `${event.pitch} ${event.rhythm}`;
+  if (event.kind !== 'rest') return `${event.pitch} ${event.rhythm}${event.hand ? ` ${event.hand}` : ''}`;
+  return event.rhythm === 'whole-measure-rest' ? 'waits for all four beats' : 'quarter rest, one silent beat';
 }
 
 export function notationText(example) {
@@ -38,11 +39,16 @@ export function beatGridMarkup(example) {
   return `<div class="beat-grids">${example.measures.map((measure, measureIndex) => {
     const beats = [];
     for (const event of measure.events) {
-      beats.push(`<div><strong>${beats.length + 1}</strong><span>${event.pitch.replace(/[0-9]$/, '')} begins</span></div>`);
+      const label = event.kind === 'rest' ? 'rest · silent' : `${event.pitch.replace(/[0-9]$/, '')} begins`;
+      beats.push(`<div${event.kind === 'rest' ? ' class="is-rest"' : ''}><strong>${beats.length + 1}</strong><span>${label}</span></div>`);
       for (let held = 1; held < event.beats; held += 1) beats.push(`<div class="is-held"><strong>${beats.length + 1}</strong><span>hold</span></div>`);
     }
     return `<section aria-label="Measure ${measureIndex + 1} beat guide"><p>Measure ${measureIndex + 1}</p><div class="beat-grid">${beats.join('')}</div></section>`;
   }).join('')}</div>`;
+}
+
+function quarterRestMarkup(x, top = STAFF_TOP) {
+  return `<g class="quarter-rest" data-rhythm="quarter-rest" aria-label="quarter rest, one silent beat"><text x="${x}" y="${top + 38}">𝄽</text></g>`;
 }
 
 function staffLines(width, top = STAFF_TOP) {
@@ -81,6 +87,12 @@ export function scoreMarkup(example, options = {}) {
     let notes = '';
     for (const event of measure.events) {
       const x = startX + 18 + onset * ((measureWidth - 28) / example.meter.beats);
+      if (event.kind === 'rest') {
+        notes += quarterRestMarkup(x);
+        onset += event.beats;
+        flatIndex += 1;
+        continue;
+      }
       const y = clef === 'neutral'
         ? STAFF_BOTTOM - (example.notation.staffSteps[flatIndex] * STAFF_GAP / 2)
         : clef === 'bass' ? bassPitchY(event.pitch) : treblePitchY(event.pitch);
@@ -116,6 +128,10 @@ function pairedStaffEvents(events, clef, startX, measureWidth, meter, top, optio
   let onset = 0;
   return events.map((event, index) => {
     const x = startX + 18 + onset * ((measureWidth - 28) / meter.beats);
+    if (event.kind === 'rest') {
+      onset += event.beats;
+      return quarterRestMarkup(x, top);
+    }
     const y = pairedPitchY(event.pitch, clef, top + STAFF_GAP * 4);
     const showFinger = options.showEntranceFingers && index === 0;
     onset += event.beats;

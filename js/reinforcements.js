@@ -118,5 +118,33 @@ export const reinforcementCatalog = {
     prerequisite: 'Play P02 Measure 1, count a full silent four-beat measure with hands prepared, then play Measure 2. Use the active-hand labels.',
     readiness: 'You can follow top/right and bottom/left lines and change hands by measure while the pulse continues.',
     earlierSessionId: '015'
+  },
+  'RF-REST-1': {
+    id: 'RF-REST-1', title: 'Quarter rest as counted time', sessions: ['017', '018'],
+    repeat: 'Speak, tap, and play R003 A. Keep saying “2” during its quarter rest and release C4 before that silent beat.',
+    prerequisite: 'Say 1–4 and clap only on 1 and 3. Point to the silent beat boxes on 2 and 4.',
+    readiness: 'You can leave exactly one silent beat and enter the next note without restarting or shortening the measure.',
+    earlierSessionId: '003'
+  },
+  'RF-RHY-3': {
+    id: 'RF-RHY-3', title: 'Mixed rhythm diagnosis', sessions: ['018'],
+    repeat: 'Name the troublesome element—quarter, half, rest, or count-in. Perform it on one key in two one-measure patterns, then restore the original card.',
+    prerequisite: 'Build four pulse boxes. Put one event in each, then join boxes 3–4 as a half note or replace box 2 with a rest.',
+    readiness: 'You can perform three mixed cards with four-beat totals and explain that pulse stays steady while rhythm changes.',
+    earlierSessionId: '005'
+  },
+  'RF-DYN-1': {
+    id: 'RF-DYN-1', title: 'Relaxed soft and strong contrast', sessions: ['019', '020'],
+    repeat: 'Listen to D001, play four comfortable soft C4 notes, fully reset, then four comfortably stronger notes. Stop after one contrast.',
+    prerequisite: 'Listen only and identify soft and strong. On a non-touch-sensitive keyboard, imitate free motion without demanding a volume change.',
+    readiness: 'You can produce or identify two levels while shoulder, jaw, fingers, and wrist stay comfortable.',
+    earlierSessionId: '001'
+  },
+  'RF-PHRASE-1': {
+    id: 'RF-PHRASE-1', title: 'Musical destination and ending', sessions: ['020'],
+    repeat: 'Play M001 evenly, then lead gently toward G4 and settle on C4 without changing its written rhythm.',
+    prerequisite: 'Play E4–G4–E4 slowly. Point to G4 as the destination; then add D4–C4 as the ending with dynamics even.',
+    readiness: 'You can identify G4 as the destination and C4 as the ending while keeping every written duration.',
+    earlierSessionId: '019'
   }
 };

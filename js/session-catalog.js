@@ -1,5 +1,5 @@
 export const SESSION_TYPES = ['Learn', 'Practice', 'Play', 'Review'];
-export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide', 'notation', 'rhythm-echo', 'audio-reference', 'pitch-echo', 'hand-lanes'];
+export const BLOCK_TYPES = ['text', 'keyboard', 'finger-position', 'musical-pattern', 'practice', 'reflection', 'audio-listening', 'pulse-guide', 'notation', 'rhythm-echo', 'audio-reference', 'pitch-echo', 'hand-lanes', 'dynamic-demo'];
 
 export const assetCatalog = {
   'keyboard-c3-c5': { id: 'keyboard-c3-c5', type: 'generated-diagram' },
@@ -8,6 +8,7 @@ export const assetCatalog = {
   'e001-pair-a': { id: 'e001-pair-a', type: 'audio', src: 'assets/audio/e001-pair-a.wav' },
   'e001-pair-b': { id: 'e001-pair-b', type: 'audio', src: 'assets/audio/e001-pair-b.wav' },
   'e001-pair-c': { id: 'e001-pair-c', type: 'audio', src: 'assets/audio/e001-pair-c.wav' },
+  'e001-pair-d': { id: 'e001-pair-d', type: 'audio', src: 'assets/audio/e001-pair-d.wav' },
   'r002-a-pattern': audioAsset('r002-a-pattern'), 'r002-a-counted': audioAsset('r002-a-counted'),
   'r002-b-pattern': audioAsset('r002-b-pattern'), 'r002-b-counted': audioAsset('r002-b-counted'),
   'r002-c-pattern': audioAsset('r002-c-pattern'), 'r002-c-counted': audioAsset('r002-c-counted'),
@@ -15,7 +16,10 @@ export const assetCatalog = {
   'n001-a-shape': audioAsset('n001-a-shape'),
   'p01-practice': audioAsset('p01-practice'), 'p01-musical': audioAsset('p01-musical'),
   'e002-a': audioAsset('e002-a'), 'e002-b': audioAsset('e002-b'), 'e002-c': audioAsset('e002-c'),
-  'p02-practice': audioAsset('p02-practice'), 'p02-musical': audioAsset('p02-musical')
+  'p02-practice': audioAsset('p02-practice'), 'p02-musical': audioAsset('p02-musical'),
+  'd001-soft-strong': audioAsset('d001-soft-strong'),
+  'm001-even': audioAsset('m001-even'), 'm001-shaped': audioAsset('m001-shaped'),
+  'c001-question-answer': audioAsset('c001-question-answer')
 };
 
 function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }
@@ -833,6 +837,201 @@ const session016Steps = [
   }
 ];
 
+const session017Steps = [
+  {
+    id: 'quarter-rest-meaning', title: 'Silence still has a beat', kicker: 'One counted quarter rest',
+    intro: 'A quarter rest is one beat with no note, but musical time keeps moving.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['A <strong>quarter rest</strong> means one beat of intentional silence. Keep counting so the next note arrives in the right place.', 'Release the previous note before the rest. The silent beat is not a pause button, and the pulse does not reset.'] },
+      { type: 'notation', musicRefs: ['R003-A'], options: { showLabels: true, showBeatGrid: true, enlarge: true, caption: 'Count 1: C. Count 2: quarter rest—silent. Count 3: D. Count 4: E.' } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you explain why the silent beat still receives a count?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'speak-tap-rest', title: 'Speak, then tap', kicker: 'Keep all four counts moving',
+    intro: 'Your voice and the moving beat cell continue even when your hands are silent.',
+    blocks: [
+      { type: 'text', phase: 'demonstrate', paragraphs: ['Say “play, rest, play, play.” Then say “1, 2, 3, 4” and tap on beats 1, 3, and 4. Beat 2 remains silent.'] },
+      { type: 'pulse-guide', musicRef: 'R003-A' },
+      { type: 'practice', phase: 'try', instruction: 'Start the guide. Say all four numbers, but tap only beats 1, 3, and 4. Repeat without the guide.', hint: 'Keep a small pointing motion through beat 2 even though you do not tap.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can the pulse continue through beat 2 without an extra wait?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'play-rest-patterns', title: 'Speak, tap, play', kicker: 'R003 A and B',
+    intro: 'Use the same three-part routine for two different rest placements.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R003-A', 'R003-B'], options: { showBeatGrid: true, showStartingFinger: true, reveal: true, revealLabel: 'Reveal note names and count guide' } },
+      { type: 'practice', phase: 'try', instruction: 'Speak and tap Pattern A, then play it on C–D–E. Reset. Speak, tap, and play Pattern B, holding C for two beats before its silent beat.', hint: 'For Pattern A say “C, rest, D, E.” For Pattern B say “C—hold, rest, C.”' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you release before each rest and enter afterward without shortening the measure?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'rest-without-cursor', title: 'Keep the silent beat yourself', kicker: 'Independent repeat',
+    intro: 'The count now comes from you rather than the moving guide.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R003-A'], options: { showStartingFinger: true } },
+      { type: 'practice', phase: 'try', instruction: 'Count four preparation beats, then play Pattern A without the cursor. Keep saying or thinking 2 during the rest.', hint: 'If the next note arrives early, clap beats 1 and 3 while saying all four counts.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Did one full silent beat fit between C and D?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session018Steps = [
+  {
+    id: 'pulse-versus-rhythm', title: 'Steady grid, changing pattern', kicker: 'Retrieve the difference',
+    intro: 'Pulse is the steady grid; rhythm is the pattern of sounds and silences on it.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['The four beat cells stay evenly spaced. Quarter notes, half notes, and rests arrange different actions inside that steady space.', 'For every card use the same routine: <strong>Speak → Tap → Play</strong>. Switching hands does not change what a rhythm means.'] },
+      { type: 'notation', musicRefs: ['R004-A'], options: { showLabels: true, showBeatGrid: true } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you point to the steady pulse and the changing rhythm as two related ideas?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'right-left-review', title: 'Review with each hand', kicker: 'R004 A and B',
+    intro: 'Keep the count-in consistent while the hand, pitches, and durations change.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R004-A', 'R004-B'], options: { showStartingFinger: true, showBeatGrid: true, reveal: true, revealLabel: 'Reveal notes and counts' } },
+      { type: 'practice', phase: 'try', instruction: 'Speak, tap, and play Card A with RH. Give a fresh four-count, then speak, tap, and play Card B with LH.', hint: 'Card A ends with a two-beat C. Card B begins with a two-beat C.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can both hands give the half note its full two beats?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'rest-and-middle-half', title: 'Mix the rest and half note', kicker: 'R004 C and D',
+    intro: 'These cards move the longer sound and the silence to new places.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R004-C', 'R004-D'], options: { showStartingFinger: true, showBeatGrid: true, reveal: true, revealLabel: 'Reveal notes and counts' } },
+      { type: 'practice', phase: 'try', instruction: 'Speak, tap, and play Card C with its silent beat. Reset and play Card D, pressing D only once for its two-beat half note.', hint: 'Keep pointing through every beat cell. A rest is silent; a half note continues sounding.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Which needs another repetition: the rest, the half note, the hand, or the count-in?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'random-no-hint-rhythm', title: 'Choose one without hints', kicker: 'Mixed retrieval',
+    intro: 'Pick A, B, C, or D before opening any count help.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R004-A', 'R004-B', 'R004-C', 'R004-D'], options: { hiddenUntilReveal: true, revealLabel: 'Reveal the four review cards after choosing' } },
+      { type: 'practice', phase: 'try', instruction: 'Name one card at random. Try its rhythm from memory or reopen its score without labels, then use the reveal only to check.', hint: 'Choose one element to repair rather than repeating all four cards.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you perform at least three cards with four complete beats and explain pulse versus rhythm?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session019Steps = [
+  {
+    id: 'meet-p-and-f', title: 'Meet soft and strong', kicker: 'p and f are relative',
+    intro: 'Dynamics describe levels of sound, not a test of strength.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['The symbol <strong><em>p</em></strong> means soft. The symbol <strong><em>f</em></strong> means strong. They are relative musical choices: strong means fuller than soft in this moment.', '<strong>Strong never means stiff, harsh, or forced.</strong> A freely moving key can travel a little faster while shoulder, jaw, fingers, and wrist stay easy.'] },
+      { type: 'dynamic-demo', musicRef: 'D001' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you explain p and f without calling f “hard”?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'identify-dynamics', title: 'Hear the contrast', kicker: 'Listen before moving',
+    intro: 'The local recording gives a clear relative contrast at a comfortable volume.',
+    blocks: [
+      { type: 'audio-reference', title: 'D001 dynamic contrast', tracks: [{ assetRef: 'd001-soft-strong', label: 'Hear soft, reset, then strong' }], transcript: 'A four-count is followed by four soft C4 quarter notes, one silent reset beat, and four stronger C4 quarter notes. Strong is fuller, not struck.' },
+      { type: 'practice', phase: 'try', instruction: 'Listen once. Point to p during the first group and f during the second. Replay once if useful.', hint: 'Listen for a clear level change, not for a different pitch or faster tempo.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you identify the soft and strong group by sound?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'play-dynamic-groups', title: 'Make two easy sound levels', kicker: 'Reset between groups',
+    intro: 'One comfortable note is enough for this movement experiment.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'On C4, play four relaxed p quarter notes. Release your hand and reset. Then play four comfortably stronger f notes without raising the shoulder or locking the wrist. Alternate only once more.', hint: 'If your keyboard is not touch-sensitive, practice the free motion without demanding a volume change. Stop for pain, numbness, or persistent tension.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can the sound change while your shoulder, jaw, and wrist remain easy?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'dynamic-melody-transfer', title: 'Bring the contrast to a melody', kicker: 'M001 at p, then comfortable f',
+    intro: 'Keep the notes and pulse the same while the relative sound level changes.',
+    blocks: [
+      { type: 'musical-pattern', musicRef: 'M001' },
+      { type: 'practice', phase: 'try', instruction: 'Play M001 once at p. Fully reset, then play it at a comfortable f. Do not chase maximum loudness.', hint: 'If tension appears, stop the playing task and use listening only. Persistent discomfort deserves qualified guidance.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you make or identify two levels without strain or force?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session020Steps = [
+  {
+    id: 'read-metered-melody', title: 'Read the musical sentence', kicker: 'M001 in 4/4',
+    intro: 'The familiar melody now has an exact two-measure rhythm on the treble staff.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['A <strong>phrase</strong> is a short musical thought. This one climbs toward G, its destination, then settles back to C.', 'Keep the written pulse and durations unchanged while the sound gently leads toward G and relaxes toward the ending.'] },
+      { type: 'notation', musicRefs: ['M001-METERED'], options: { showStartingFinger: true, showBeatGrid: true, enlarge: true, caption: 'Lead gently toward G4 at the start of Measure 2, then settle back to C4. No new articulation or expression symbols are needed.' } },
+      { type: 'practice', phase: 'try', instruction: 'Trace the notes, speak the counts, and tap the two-measure rhythm before playing.', hint: 'Measure 1 is quarter, quarter, half. Measure 2 has four quarter notes.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you identify G as the destination and C as the ending?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'hear-phrase-shape', title: 'Same notes, different shape', kicker: 'Even and gently directed',
+    intro: 'Notation stays visible while two local recordings reveal the musical difference.',
+    blocks: [
+      { type: 'notation', musicRefs: ['M001-METERED'], options: { showStartingFinger: true } },
+      { type: 'audio-reference', title: 'Compare the phrase', tracks: [{ assetRef: 'm001-even', label: 'Hear flat, even playing' }, { assetRef: 'm001-shaped', label: 'Hear a subtle destination and return' }], transcript: 'Both recordings use C4 quarter, D4 quarter, E4 half; then G4, E4, D4, C4 as quarter notes. The shaped version gently leads to G4 and settles on C4 without changing rhythm.' },
+      { type: 'practice', phase: 'try', instruction: 'Play the phrase evenly once. Then play it again with a subtle lead toward G and a relaxed return to C.', hint: 'Do not add pauses or change note lengths. The shape can be small.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you hear and make a destination without changing the written rhythm?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'choose-an-answer', title: 'Choose a musical answer', kicker: 'C001 A or B',
+    intro: 'Two short written choices make answering possible without improvisation expertise.',
+    blocks: [
+      { type: 'notation', musicRefs: ['C001-A', 'C001-B'], options: { showLabels: true, showBeatGrid: true, enlarge: true } },
+      { type: 'audio-reference', title: 'Question and Answer A', tracks: [{ assetRef: 'c001-question-answer', label: 'Hear the written question and Answer A' }], transcript: 'The two-measure M001 question is followed by Answer A: E4 quarter, D4 quarter, C4 half.' },
+      { type: 'practice', phase: 'try', instruction: 'Read and play Answer A, then Answer B. Choose one and play M001 followed by that answer.', hint: 'Both answers use two quarter notes and a half note and end on C4.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Which answer sounds more convincing to you, and where does it settle?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'return-to-written-model', title: 'Return to the written phrase', kicker: 'Separate choice from the model',
+    intro: 'Finish by playing M001 exactly as written, with its destination and return.',
+    blocks: [
+      { type: 'notation', musicRefs: ['M001-METERED'], options: { showStartingFinger: true } },
+      { type: 'practice', phase: 'try', instruction: 'Play M001 from the score with an audible destination at G4 and ending on C4. If you want a created answer, use any three C4–E4 notes in quarter, quarter, half rhythm and end on C4.', hint: 'Accuracy and steady rhythm come first. Keep the sound even if shaping makes the notes less secure.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you shape the phrase and perform one valid answer ending on C4?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const sliceDSessions = () => [
+  {
+    id: '017', title: 'A Beat of Silence', summary: 'Count a quarter rest as one silent beat while the pulse continues.', type: 'Learn', chapter: 1,
+    objective: 'Count and perform a quarter rest as one beat of intentional silence.', prerequisites: ['003', '005'], duration: { min: 10, max: 15 }, steps: session017Steps,
+    musicRefs: ['R003', 'R003-A', 'R003-B'], assetRefs: [], outcome: 'Leaves one full silent beat and enters the following note without losing the measure.',
+    reflection: { understanding: 'I can explain why silence still receives a count.', playing: 'I can release before the rest and enter afterward.' }, keepPlaying: ['Insert one quarter rest into M001’s pitches, choose its exact beat, and repeat the result consistently.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or repeat Pattern A once without the guide.' }, practicing: { label: 'Practicing', guidance: 'Repeat C4, rest, C4, rest on four counted beats.', reinforcementRefs: ['RF-REST-1'] }, stuck: { label: 'Stuck', guidance: 'Clap only beats 1 and 3 while saying all four numbers.', reinforcementRefs: ['RF-REST-1'], earlierSessionId: '003' } },
+    reinforcementRefs: ['RF-PULSE-1', 'RF-REST-1'], pedagogicalReview: ['Quarter-rest engraving, silent-beat pacing, and release guidance require qualified piano-teacher review.']
+  },
+  {
+    id: '018', title: 'Mix the First Rhythms', summary: 'Retrieve quarter notes, half notes, rests, and count-ins with both hands.', type: 'Review', chapter: 1,
+    objective: 'Retrieve the first note values and quarter rest in varied right- and left-hand contexts.', prerequisites: ['005', '006', '014', '017'], duration: { min: 10, max: 15 }, steps: session018Steps,
+    musicRefs: ['R004', 'R004-A', 'R004-B', 'R004-C', 'R004-D', 'R004-E'], assetRefs: [], outcome: 'Performs at least three mixed cards with correct four-beat totals and explains pulse versus rhythm.',
+    reflection: { understanding: 'I can tell the steady pulse from a changing rhythm.', playing: 'I can identify the value, rest, hand, or count-in that needs another repeat.' }, keepPlaying: ['Try optional R004 E.', 'Create a two-measure rhythm for the other hand to answer one octave away.'],
+    keepPlayingBlocks: [{ type: 'notation', musicRefs: ['R004-E'], options: { showBeatGrid: true, showStartingFinger: true } }],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or replay one mixed card.' }, practicing: { label: 'Practicing', guidance: 'Repair only the quarter, half, rest, or count-in that was least secure.', reinforcementRefs: ['RF-RHY-3'] }, stuck: { label: 'Stuck', guidance: 'Return to four pulse boxes and replace only one event.', reinforcementRefs: ['RF-RHY-3'], earlierSessionId: '005' } },
+    reinforcementRefs: ['RF-RHY-1', 'RF-REST-1', 'RF-RHY-3'], pedagogicalReview: ['Mixed-rhythm sequence, hand assignments, and count-in pacing require qualified piano-teacher review.']
+  },
+  {
+    id: '019', title: 'Soft and Strong, Never Forced', summary: 'Hear and make a relative dynamic contrast with relaxed, safe movement.', type: 'Learn', chapter: 1,
+    objective: 'Produce or identify p and f as distinct relative dynamics while retaining physical ease.', prerequisites: ['001', '005'], duration: { min: 10, max: 15 }, steps: session019Steps,
+    musicRefs: ['D001', 'M001'], assetRefs: ['d001-soft-strong'], outcome: 'Produces or correctly identifies two sound levels without visible strain or discomfort.',
+    reflection: { understanding: 'I can explain p and f without treating loudness as strength.', playing: 'I can change the sound while my body stays easy.' }, keepPlaying: ['Choose soft or strong for M001, play it, and explain why the choice suits the melody.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose; one clear, comfortable contrast is enough.' }, practicing: { label: 'Practicing', guidance: 'Use one note and reset fully between the soft and strong groups.', reinforcementRefs: ['RF-DYN-1'] }, stuck: { label: 'Stuck', guidance: 'Use listening only. Stop rather than repeat an uncomfortable movement.', reinforcementRefs: ['RF-DYN-1'], earlierSessionId: '001' } },
+    reinforcementRefs: ['RF-DYN-1'], pedagogicalReview: ['Dynamic-production wording, motion schematic, audio contrast, and safety guidance require qualified piano-teacher and accessibility review.']
+  },
+  {
+    id: '020', title: 'Make a Musical Sentence', summary: 'Shape M001 toward its destination and choose a constrained musical answer.', type: 'Learn', chapter: 1,
+    objective: 'Shape a written phrase toward G4 and back to C4, then choose a valid three-note answer.', prerequisites: ['009', '019'], duration: { min: 10, max: 15 }, steps: session020Steps,
+    musicRefs: ['M001-METERED', 'C001', 'C001-A', 'C001-B'], assetRefs: ['m001-even', 'm001-shaped', 'c001-question-answer'], outcome: 'Plays M001 with an audible destination and ending and performs one answer ending on C4.',
+    reflection: { understanding: 'I can identify the phrase’s destination and ending.', playing: 'I can shape the phrase without changing its written rhythm.' }, keepPlaying: ['Try the other answer and explain which sounds more convincing in everyday language.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose, or play your preferred question-and-answer once.' }, practicing: { label: 'Practicing', guidance: 'Play M001 evenly, then gently shaped, without changing rhythm.', reinforcementRefs: ['RF-PHRASE-1'] }, stuck: { label: 'Stuck', guidance: 'Keep dynamics even and complete M001 accurately before adding shape.', reinforcementRefs: ['RF-PHRASE-1'], earlierSessionId: '019' } },
+    reinforcementRefs: ['RF-DYN-1', 'RF-PHRASE-1'], pedagogicalReview: ['Metered M001, phrase-shape recordings, constrained answers, and expressive wording require qualified piano-teacher review.']
+  }
+];
+
 const sliceCSessions = () => [
   {
     id: '011', title: 'Meet the Left Hand', summary: 'Find the lower C and establish a comfortable left-hand five-note position.', type: 'Learn', chapter: 1,
@@ -970,5 +1169,6 @@ export const sessionCatalog = [
     pedagogicalReview: ['Session 004 hand-position language, fingering, and target pulse require qualified piano-teacher review.']
   },
   ...sliceBSessions(),
-  ...sliceCSessions()
+  ...sliceCSessions(),
+  ...sliceDSessions()
 ];

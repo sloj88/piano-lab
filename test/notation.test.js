@@ -66,3 +66,13 @@ test('paired P02 notation aligns two staves, barlines, hand labels, and whole-me
   assert.match(notationText(musicLibrary.P02), /LH waits for all four beats/);
   assert.match(notationText(musicLibrary.P02), /RH waits for all four beats/);
 });
+
+test('quarter rests occupy one beat in notation, count guides, and accessible text', () => {
+  const html = scoreMarkup(musicLibrary['R003-A']);
+  const grid = beatGridMarkup(musicLibrary['R003-A']);
+  assert.equal((html.match(/class="quarter-rest"/g) ?? []).length, 1);
+  assert.match(html, /quarter rest, one silent beat/);
+  assert.match(html, /𝄽/);
+  assert.equal((grid.match(/<strong>[1-4]<\/strong>/g) ?? []).length, 4);
+  assert.match(grid, /rest · silent/);
+});

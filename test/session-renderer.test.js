@@ -231,3 +231,45 @@ test('Session 016 shows practical waits, paired staves, entrance labels, and pos
   assert.match(ending, /p02-practice\.wav/);
   assert.match(ending, /p02-musical\.wav/);
 });
+
+test('Session 017 keeps the silent beat visible and moving', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const meaning = renderSessionStep(sessionCatalog[16], 0, progress.sessions['017'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const guide = renderSessionStep(sessionCatalog[16], 1, progress.sessions['017'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(meaning, /class="quarter-rest"/);
+  assert.match(meaning, /rest · silent/);
+  assert.equal((guide.match(/data-pulse-index=/g) ?? []).length, 4);
+  assert.match(guide, /<span>rest<\/span>/);
+});
+
+test('Session 018 renders all four core review cards and optional R004 E', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const core = sessionCatalog[17].steps.map((_, index) => renderSessionStep(sessionCatalog[17], index, progress.sessions['018'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog })).join('');
+  assert.match(core, /Mixed rhythm A/);
+  assert.match(core, /Mixed rhythm B/);
+  assert.match(core, /Mixed rhythm C/);
+  assert.match(core, /Mixed rhythm D/);
+  assert.match(core, /Mixed rhythm E · Keep Playing/);
+});
+
+test('Session 019 provides local dynamic audio and a safe reduced-motion-aware model', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[18], 0, progress.sessions['019'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /d001-soft-strong\.wav/);
+  assert.match(html, />p<\/strong><span>soft/);
+  assert.match(html, />f<\/strong><span>strong, never forced/);
+  assert.match(html, /Easy, free descent/);
+  assert.match(html, /Stop for pain, numbness, or persistent tension/);
+});
+
+test('Session 020 keeps metered notation visible with phrase and answer audio', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const phrase = renderSessionStep(sessionCatalog[19], 1, progress.sessions['020'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const answers = renderSessionStep(sessionCatalog[19], 2, progress.sessions['020'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(phrase, /First melody as a musical sentence/);
+  assert.match(phrase, /m001-even\.wav/);
+  assert.match(phrase, /m001-shaped\.wav/);
+  assert.match(answers, /Answer A/);
+  assert.match(answers, /Answer B/);
+  assert.match(answers, /c001-question-answer\.wav/);
+});

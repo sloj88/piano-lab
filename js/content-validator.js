@@ -115,6 +115,19 @@ function validateMusic(music, assets, errors) {
       }
       continue;
     }
+    if (example.kind === 'dynamic-model') {
+      if (!example.meter || example.meter.beats !== 4 || example.meter.beatValue !== 4) errors.push(issue('meter', `${path}.meter`, 'The dynamic model requires 4/4.'));
+      if (!Array.isArray(example.groups) || example.groups.length !== 2 || example.groups.map(({ dynamic }) => dynamic).join(',') !== 'p,f') errors.push(issue('dynamic-groups', `${path}.groups`, 'The dynamic model requires p then f groups.'));
+      for (const [groupIndex, group] of (example.groups ?? []).entries()) {
+        const groupPath = `${path}.groups.${groupIndex}`;
+        if (!Array.isArray(group.events) || group.events.length === 0) errors.push(issue('measure-events', `${groupPath}.events`, 'A dynamic group requires events.'));
+        for (const [eventIndex, event] of (group.events ?? []).entries()) validateMusicEvent(event, `${groupPath}.events.${eventIndex}`, example.meter, errors);
+        const total = (group.events ?? []).reduce((sum, event) => sum + (Number.isFinite(event?.beats) ? event.beats : 0), 0);
+        if (total !== 4) errors.push(issue('measure-total', groupPath, `Dynamic group totals ${total} beats; expected 4.`));
+      }
+      if (!example.audioRef || assets[example.audioRef]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.audioRef`, `Unknown audio asset ${example.audioRef ?? 'none'}.`));
+      continue;
+    }
     if (example.kind === 'hand-pattern') {
       if (!example.meter || example.meter.beats !== 4 || example.meter.beatValue !== 4) errors.push(issue('meter', `${path}.meter`, 'The hand-pattern schema currently requires 4/4.'));
       if (!Array.isArray(example.measures) || example.measures.length === 0) errors.push(issue('measure-events', `${path}.measures`, 'A hand pattern needs at least one measure.'));
@@ -268,7 +281,7 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
           if (!Array.isArray(block.pairIds) || block.pairIds.length === 0) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, 'An audio-listening block needs at least one pair reference.'));
           for (const pairId of block.pairIds ?? []) if (!availablePairs.has(pairId)) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, `Unknown listening pair ${pairId}.`));
         }
-        if (block.type === 'pulse-guide' && music[block.musicRef]?.kind !== 'pulse-guide' && !Array.isArray(music[block.musicRef]?.events)) errors.push(issue('block-music-type', blockPath, 'A pulse-guide block requires pulse-guide data or sequential music events.'));
+        if (block.type === 'pulse-guide' && music[block.musicRef]?.kind !== 'pulse-guide' && !Array.isArray(music[block.musicRef]?.events) && !Array.isArray(music[block.musicRef]?.measures)) errors.push(issue('block-music-type', blockPath, 'A pulse-guide block requires pulse-guide data or sequential music events.'));
         if (block.type === 'notation') {
           if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('notation-reference', `${blockPath}.musicRefs`, 'A notation block needs at least one music reference.'));
           for (const reference of block.musicRefs ?? []) if (!music[reference]?.notation || !Array.isArray(music[reference]?.measures)) errors.push(issue('block-music-type', blockPath, `Notation reference ${reference} must contain notated measures.`));
@@ -280,6 +293,7 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
           for (const echoId of block.echoIds ?? []) if (!availableEchoes.has(echoId)) errors.push(issue('echo-reference', `${blockPath}.echoIds`, `Unknown pitch echo ${echoId}.`));
         }
         if (block.type === 'hand-lanes' && !['hand-pattern', 'paired-score'].includes(music[block.musicRef]?.kind)) errors.push(issue('block-music-type', blockPath, 'A hand-lanes block requires a hand-pattern or paired-score reference.'));
+        if (block.type === 'dynamic-demo' && music[block.musicRef]?.kind !== 'dynamic-model') errors.push(issue('block-music-type', blockPath, 'A dynamic-demo block requires a dynamic-model reference.'));
         if (block.type === 'rhythm-echo') {
           if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('echo-reference', `${blockPath}.musicRefs`, 'A rhythm-echo block needs at least one music reference.'));
           for (const reference of block.musicRefs ?? []) if (!music[reference]?.audioRef || !music[reference]?.countedAudioRef) errors.push(issue('block-music-type', blockPath, `Rhythm echo ${reference} requires pattern and counted audio.`));

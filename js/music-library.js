@@ -16,6 +16,10 @@ export const musicLibrary = {
       ['C4', 1], ['D4', 2], ['E4', 3], ['G4', 5], ['E4', 3], ['D4', 2], ['C4', 1]
     ].map(([pitch, finger]) => ({ kind: 'note', pitch, finger, rhythm: 'pulse' }))
   },
+  'M001-METERED': meteredExample('M001-METERED', 'First melody as a musical sentence', [
+    [['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['E4', 3, 'half']],
+    [['G4', 5, 'quarter'], ['E4', 3, 'quarter'], ['D4', 2, 'quarter'], ['C4', 1, 'quarter']]
+  ], { tempo: { min: 56, max: 66 }, audioRefs: ['m001-even', 'm001-shaped'], destination: { pitch: 'G4', measure: 2, beat: 1 } }),
   E001: {
     id: 'E001',
     title: 'Same or different pitch pairs',
@@ -35,6 +39,11 @@ export const musicLibrary = {
         id: 'C', answer: 'same', audioRef: 'e001-pair-c',
         first: ['G4', 'E4', 'C4'], second: ['G4', 'E4', 'C4'],
         directions: 'down, down / down, down'
+      },
+      {
+        id: 'D', answer: 'different', audioRef: 'e001-pair-d',
+        first: ['C3', 'D3', 'E3'], second: ['C3', 'E3', 'D3'],
+        directions: 'up, up / up, down'
       }
     ]
   },
@@ -107,6 +116,30 @@ export const musicLibrary = {
       { events: [['LH', 'D3', 4], ['RH', 'D4', 2], ['LH', 'E3', 3], ['RH', 'E4', 3]].map(([hand, pitch, finger]) => ({ kind: 'note', hand, pitch, finger, rhythm: 'quarter', beats: 1 })) }
     ]
   },
+  R003: { id: 'R003', title: 'Quarter-rest patterns', kind: 'reference-set', refs: ['R003-A', 'R003-B', 'R003-C'] },
+  'R003-A': meteredEvents('R003-A', 'Rest pattern A', [note('C4', 1), rest('quarter-rest'), note('D4', 2), note('E4', 3)]),
+  'R003-B': meteredEvents('R003-B', 'Rest pattern B', [note('C4', 1, 'half'), rest('quarter-rest'), note('C4', 1)]),
+  'R003-C': meteredEvents('R003-C', 'Rest challenge C', [note('C3', 5), note('D3', 4), rest('quarter-rest'), note('E3', 3)], { notation: { clef: 'bass' } }),
+  R004: { id: 'R004', title: 'Mixed-rhythm review cards', kind: 'reference-set', refs: ['R004-A', 'R004-B', 'R004-C', 'R004-D', 'R004-E'] },
+  'R004-A': meteredEvents('R004-A', 'Mixed rhythm A · RH', [note('C4', 1), note('C4', 1), note('C4', 1, 'half')], { hand: 'RH' }),
+  'R004-B': meteredEvents('R004-B', 'Mixed rhythm B · LH', [note('C3', 5, 'half'), note('D3', 4), note('E3', 3)], { notation: { clef: 'bass' }, hand: 'LH' }),
+  'R004-C': meteredEvents('R004-C', 'Mixed rhythm C · RH', [note('C4', 1), rest('quarter-rest'), note('D4', 2), note('E4', 3)], { hand: 'RH' }),
+  'R004-D': meteredEvents('R004-D', 'Mixed rhythm D · LH', [note('C3', 5), note('D3', 4, 'half'), note('C3', 5)], { notation: { clef: 'bass' }, hand: 'LH' }),
+  'R004-E': meteredExample('R004-E', 'Mixed rhythm E · Keep Playing', [
+    [['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['E4', 3, 'quarter'], ['D4', 2, 'quarter']],
+    [note('C4', 1, 'half'), rest('quarter-rest'), note('C4', 1)]
+  ], { hand: 'RH' }),
+  D001: {
+    id: 'D001', title: 'Soft and strong groups', kind: 'dynamic-model', meter: { beats: 4, beatValue: 4 },
+    groups: [
+      { dynamic: 'p', word: 'soft', events: [note('C4', 1), note('C4', 1), note('C4', 1), note('C4', 1)] },
+      { dynamic: 'f', word: 'strong, never forced', events: [note('C4', 1), note('C4', 1), note('C4', 1), note('C4', 1)] }
+    ],
+    audioRef: 'd001-soft-strong'
+  },
+  C001: { id: 'C001', title: 'Constrained musical answers', kind: 'reference-set', refs: ['C001-A', 'C001-B'] },
+  'C001-A': meteredExample('C001-A', 'Answer A', [[['E4', 3, 'quarter'], ['D4', 2, 'quarter'], ['C4', 1, 'half']]]),
+  'C001-B': meteredExample('C001-B', 'Answer B', [[['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['C4', 1, 'half']]]),
   P02: pairedExample('P02', 'Hello, Down There', [
     { activeHand: 'RH', treble: [['C4', 1, 'quarter'], ['D4', 2, 'quarter'], ['E4', 3, 'half']] },
     { activeHand: 'LH', bass: [['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'half']] },
@@ -118,7 +151,23 @@ export const musicLibrary = {
 function meteredExample(id, title, measures, extra = {}) {
   return {
     id, title, meter: { beats: 4, beatValue: 4 }, notation: { clef: 'treble', ...(extra.notation ?? {}) },
-    measures: measures.map((events) => ({ events: events.map(([pitch, finger, rhythm]) => ({ kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1 })) })),
+    measures: measures.map((events) => ({ events: events.map((event) => Array.isArray(event) ? note(...event) : event) })),
+    ...Object.fromEntries(Object.entries(extra).filter(([key]) => key !== 'notation'))
+  };
+}
+
+function note(pitch, finger, rhythm = 'quarter') {
+  return { kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1 };
+}
+
+function rest(rhythm) {
+  return { kind: 'rest', rhythm, beats: rhythm === 'whole-measure-rest' ? 4 : 1 };
+}
+
+function meteredEvents(id, title, events, extra = {}) {
+  return {
+    id, title, meter: { beats: 4, beatValue: 4 }, notation: { clef: 'treble', ...(extra.notation ?? {}) },
+    measures: [{ events }],
     ...Object.fromEntries(Object.entries(extra).filter(([key]) => key !== 'notation'))
   };
 }
