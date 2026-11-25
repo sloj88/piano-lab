@@ -77,7 +77,7 @@ function notationMarkup(block, context) {
     const score = renderScore(example, { ...(block.options ?? {}), showDirections: false });
     const beatGrid = block.options?.showBeatGrid ? beatGridMarkup(example) : '';
     const reveal = block.options?.reveal
-      ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal notes and reading help'}</summary>${renderScore(example, { ...block.options, showLabels: block.options.revealLabels ?? true, showDirections: block.options.revealDirections })}${beatGrid}</details>`
+      ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal notes and reading help'}</summary>${renderScore(example, { ...block.options, readingChallenge: false, showLabels: block.options.revealLabels ?? true, showDirections: block.options.revealDirections })}${beatGrid}</details>`
       : beatGrid;
     const visible = block.options?.hiddenUntilReveal ? '' : score;
     const hiddenScore = block.options?.hiddenUntilReveal ? `<details class="score-reveal"><summary>${block.options.revealLabel ?? 'Reveal the score and counts'}</summary>${score}${beatGrid}</details>` : reveal;

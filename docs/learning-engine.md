@@ -1,7 +1,7 @@
 # Shared Learning Engine
 
 Status: v0.2 Slice A reference implementation
-Implemented learner catalog: Sessions 001–024
+Implemented learner catalog: Sessions 001–032
 
 ## Purpose
 
@@ -55,7 +55,7 @@ The current renderer supports these minimal block types:
 | `hand-lanes` | Aligned RH/LH beat columns for alternating-hand preparation and full-measure waits |
 | `dynamic-demo` | Local p/f audio plus a lightweight, reduced-motion-safe movement schematic |
 
-Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. The notation renderer intentionally supports only the Chapter 01 monophonic quarter/half-note requirements; it is not a general engraving engine.
+Future blocks should be added only with real session content, a renderer, accessibility behavior, and validator tests. The notation renderer covers the supported beginner note and rest values in the implemented lessons.
 
 ## Progress model
 
@@ -90,7 +90,7 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 ## Navigation and reinforcement
 
-Only implemented sessions at or before `currentSessionId` are available. Sessions 001–024 complete Chapter 01; no Chapter 02 placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
+Only implemented sessions at or before `currentSessionId` are available. Sessions 001–024 complete Chapter 01 and Sessions 025–032 begin Chapter 02. An earlier session can be revisited, repeated, and left without changing the main position.
 
 The lesson sidebar filters those available sessions by the chapter of the viewed session. Home offers cross-chapter revisits and Continue Learning opens the saved current session. Continuing from the end of a chapter follows ordinary catalog order.
 
@@ -136,9 +136,9 @@ Arbitrary `voices` or unrecognized `staves` still fail with `polyphony-unsupport
 
 ## Deliberate limitations
 
-- Sessions 001–024 are learner-facing; Chapter 02 remains absent until implemented.
+- Sessions 001–032 are learner-facing.
 - Listening and reference demonstrations use locally bundled spoken counts and compact synthesized tones, not teacher-performed piano recordings. Their pitch, timing, file format, and references are tested, but timbre, balance, and learning effectiveness still require human and teacher review.
-- The current score renderer covers neutral, treble, and bass staffs; quarter and half notes; quarter and whole-measure rests; 4/4; dynamics; labels; finger cues; and aligned paired staffs. Beaming, accidentals, chords, and simultaneous voices remain outside this implementation.
+- Single-staff scores support 2/4, 3/4, and 4/4, with meter-aware beat grids and one spoken count-in bar in generated models. Paired scores use 4/4. The renderer covers quarter and half notes, quarter rests, and the paired-staff waiting sign.
 - The v2 migration supports the existing v1 shape; future schema versions need explicit migration functions rather than silent coercion.
 - localStorage remains browser/device-local with no account or cloud synchronization.
 - The engine records self-report and completion; it does not verify playing.

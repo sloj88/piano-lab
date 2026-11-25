@@ -87,9 +87,10 @@ test('choosing stuck does not prevent an explicit continue to the next session',
   assert.equal(continued.currentSessionId, '002');
 });
 
-test('the implemented catalog advances consecutively through Sessions 001–024', () => {
+test('the implemented catalog advances consecutively through Sessions 001–032', () => {
   const store = createSessionProgressStore(null, sessionCatalog);
-  for (const expected of ['002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024']) {
+  for (let number = 2; number <= 32; number += 1) {
+    const expected = String(number).padStart(3, '0');
     const current = store.load().currentSessionId;
     const target = continueTarget(current, sessionCatalog, store.load());
     assert.deepEqual(target, { sessionId: expected, advancesCurrent: true });
@@ -97,5 +98,40 @@ test('the implemented catalog advances consecutively through Sessions 001–024'
     store.setCurrentSession(expected);
   }
   assert.deepEqual(availableSessionIds(sessionCatalog, store.load()), sessionCatalog.map(({ id }) => id));
-  assert.equal(continueTarget('024', sessionCatalog, store.load()), null);
+  assert.equal(continueTarget('032', sessionCatalog, store.load()), null);
+});
+
+test('a Chapter 01 save continues into the real Chapter 02 catalog and revisits preserve progress', () => {
+  const records = new Map();
+  const storage = { getItem: (key) => records.get(key), setItem: (key, value) => records.set(key, value) };
+  const priorStore = createSessionProgressStore(storage, sessionCatalog.slice(0, 24));
+  priorStore.setCurrentSession('024');
+  priorStore.completeSession('016');
+  priorStore.setStepIndex('024', 2);
+  priorStore.setSessionAssessment('024', 'understanding', true);
+  priorStore.setSessionAssessment('024', 'playing', true);
+  priorStore.setReadiness('024', 'practicing');
+  const original = priorStore.load();
+
+  const store = createSessionProgressStore(storage, sessionCatalog);
+  const before = store.load();
+  assert.deepEqual(before.sessions['024'], original.sessions['024']);
+  assert.match(renderSessionNavigation(sessionCatalog, before, '024'), /Chapter 01 · Available Sessions/);
+  const target = continueTarget('024', sessionCatalog, before);
+  assert.deepEqual(target, { sessionId: '025', advancesCurrent: true });
+  const after = continueSession(store, '024', target.sessionId, target.advancesCurrent);
+  const sidebar = renderSessionNavigation(sessionCatalog, after, '025');
+  assert.match(sidebar, /Chapter 02 · Available Sessions/);
+  assert.deepEqual([...sidebar.matchAll(/data-session="(\d+)"/g)].map((match) => match[1]), ['025']);
+  assert.match(sidebar, /data-session="025" aria-current="page"/);
+
+  const revisit = revisitSession('024', sessionCatalog, after, createNavigation(after));
+  const earlierSidebar = renderSessionNavigation(sessionCatalog, after, revisit.viewingSessionId);
+  assert.match(earlierSidebar, /Chapter 01 · Available Sessions/);
+  assert.match(earlierSidebar, /data-session="024" aria-current="page"><span>✓/);
+  assert.doesNotMatch(earlierSidebar, /data-session="025"/);
+  assert.match(renderHome(sessionCatalog, after), /data-continue-learning="025"/);
+  assert.deepEqual(store.load(), after);
+  assert.deepEqual(after.sessions['024'], { ...original.sessions['024'], completed: true });
+  assert.deepEqual(after.sessions['016'], original.sessions['016']);
 });

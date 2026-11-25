@@ -210,8 +210,8 @@ function validateMusic(music, assets, errors) {
     const hasMeasures = Array.isArray(example.measures);
     if (hasEvents === hasMeasures) errors.push(issue('music-structure', path, 'Music must define either an unmetered events array or a measures array, but not both.'));
     if (example.meter !== null && example.meter !== undefined) {
-      if (!example.meter || !Number.isFinite(example.meter.beats) || example.meter.beats <= 0 || !Number.isInteger(example.meter.beatValue) || example.meter.beatValue <= 0) {
-        errors.push(issue('meter', `${path}.meter`, 'Meter requires positive beats and an integer beatValue.'));
+      if (![2, 3, 4].includes(example.meter.beats) || example.meter.beatValue !== 4) {
+        errors.push(issue('meter', `${path}.meter`, 'Single-staff meter must be 2/4, 3/4, or 4/4.'));
       }
       if (!hasMeasures) errors.push(issue('meter-structure', path, 'Metered music must use measures.'));
     } else if (hasMeasures) {

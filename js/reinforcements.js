@@ -160,5 +160,41 @@ export const reinforcementCatalog = {
     prerequisite: 'Perform only one four-measure phrase with its setup, count-in, and ending. Return to the section-building support for an isolated transition.',
     readiness: 'You can complete all eight measures with recognizable pulse, hand order, ending, and planned contrast while continuing through a small error when possible.',
     earlierSessionId: '021'
+  },
+  'RF02-MAP': {
+    id: 'RF02-MAP', title: 'Find the C for each staff', sessions: ['025', '026', '028', '029'], earlierSessionId: '016',
+    repeat: 'Point to the active staff in each bar of C02-025. Place the correct hand silently on its C and play each entrance separately.',
+    prerequisite: 'Find middle C and the C one octave lower using their two-black-key groups.',
+    readiness: 'Finds both Cs and connects each to the correct staff.'
+  },
+  'RF02-START': {
+    id: 'RF02-START', title: 'Prepare a silent start', sessions: ['026', '029'], earlierSessionId: '025',
+    repeat: 'Restart each bar of C02-026 with a silent touch, eyes back to the score, and one fresh count-in.',
+    prerequisite: 'Prepare and sound only the first note after counting.',
+    readiness: 'Begins on time after silent preparation and returns to a marked barline.'
+  },
+  'RF02-TREBLE': {
+    id: 'RF02-TREBLE', title: 'Read from treble G', sessions: ['027', '029'], earlierSessionId: '008',
+    repeat: 'In C02-027 bar 2, say “step, repeat, step,” count in, and play.',
+    prerequisite: 'Locate written treble G and move one step down to F using bar 1.',
+    readiness: 'Finds F from G and gives the repeated note a new attack.'
+  },
+  'RF02-BASS': {
+    id: 'RF02-BASS', title: 'Read around bass F', sessions: ['028', '029'], earlierSessionId: '013',
+    repeat: 'Locate F3 in C02-028, read up one step and back, then read down in bar 2.',
+    prerequisite: 'Start on bass F alone. Add the space above it when the F feels familiar.',
+    readiness: 'Follows bass steps in either direction while staying in position.'
+  },
+  'RF02-TWO': {
+    id: 'RF02-TWO', title: 'Keep two beats in a bar', sessions: ['030', '031', '032'], earlierSessionId: '003',
+    repeat: 'Count and play bars 1–2 of the current 2/4 card. Keep counting if beat 2 is held or silent.',
+    prerequisite: 'Speak two steady beats per bar away from the keys, then tap only the written attacks.',
+    readiness: 'Begins after two counts and starts each next bar on time.'
+  },
+  'RF02-THREE': {
+    id: 'RF02-THREE', title: 'Keep three beats in a bar', sessions: ['032'], earlierSessionId: '030',
+    repeat: 'Say and tap C02-032 separately from the two-beat card, then play C02-032 without the model.',
+    prerequisite: 'Count three evenly, point to the start, and play only the first bar.',
+    readiness: 'Counts to three, holds across beats 1 and 2, and starts the next bar on time.'
   }
 };

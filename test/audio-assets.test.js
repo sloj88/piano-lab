@@ -14,6 +14,38 @@ function estimateFrequency(buffer, startSeconds) {
   return crossings / 0.5;
 }
 
+test('Chapter 02 models have exactly one spoken bar and the approved pitches and lengths at 56 bpm', () => {
+  const beat = 60 / 56;
+  for (const [id, count, musicBeats, notes] of [
+    ['c02-030-model', 2, 8, [[0, 'C4', 1], [1, 'D4', 1], [2, 'E4', 2], [4, 'E4', 1], [5, 'D4', 1], [6, 'C4', 2]]],
+    ['c02-032-model', 3, 6, [[0, 'C4', 2], [2, 'D4', 1], [3, 'E4', 1], [4, 'D4', 1], [5, 'C4', 1]]]
+  ]) {
+    const asset = assetCatalog[id];
+    assert.equal(asset.src, `assets/audio/${id}.wav`);
+    const audio = readFileSync(new URL(`../${asset.src}`, import.meta.url));
+    const sample = (index) => audio.readInt16LE(44 + index * 2);
+    assert.equal(audio.toString('ascii', 0, 4), 'RIFF');
+    assert.equal(audio.readUInt32LE(24), SAMPLE_RATE);
+    assert.equal(audio.readUInt32LE(40) / 2, Math.ceil((count + musicBeats) * beat * SAMPLE_RATE));
+    for (let index = 0; index < count; index += 1) {
+      const voice = readFileSync(new URL(`../scripts/audio-voice/count-${index + 1}.wav`, import.meta.url));
+      const offset = Math.round((index * beat + 0.04) * SAMPLE_RATE);
+      const voiceLength = voice.readUInt32LE(40) / 2;
+      assert.ok(voiceLength > 0);
+      for (let frame = 0; frame < voiceLength; frame += 29) {
+        assert.ok(Math.abs(sample(offset + frame) - voice.readInt16LE(44 + frame * 2) * 0.72) <= 1);
+      }
+    }
+    for (const [onset, pitch, duration] of notes) {
+      const start = (count + onset) * beat;
+      const frequency = pitchFrequency(pitch);
+      assert.ok(Math.abs(estimateFrequency(audio, start) - frequency) <= 3);
+      if (duration === 2) assert.ok(Math.abs(estimateFrequency(audio, start + beat) - frequency) <= 3);
+      assert.equal(sample(Math.round((start + duration * beat - 0.05) * SAMPLE_RATE)), 0);
+    }
+  }
+});
+
 test('all E001 recordings are local PCM audio with the approved seven-second timing', () => {
   for (const pair of musicLibrary.E001.pairs) {
     const asset = assetCatalog[pair.audioRef];

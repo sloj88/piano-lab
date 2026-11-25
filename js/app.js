@@ -68,6 +68,10 @@ function renderNavigation(session, state) {
   if (active && list.scrollWidth > list.clientWidth) {
     list.scrollLeft += active.getBoundingClientRect().left - list.getBoundingClientRect().left;
   }
+  if (active && list.scrollHeight > list.clientHeight) {
+    const offset = active.getBoundingClientRect().bottom - list.getBoundingClientRect().bottom;
+    if (offset > 0) list.scrollTop += offset;
+  }
   elements.stepList.innerHTML = renderStepNavigation(session, state);
 }
 
