@@ -22,7 +22,7 @@ let pulseTimer = null;
 let activeAudio = null;
 const $ = (selector) => document.querySelector(selector);
 const elements = {
-  step: $('#lesson-step'), stepList: $('#step-list'), sessionList: $('#session-list'), previous: $('#previous-step'), next: $('#next-step'),
+  step: $('#lesson-step'), stepList: $('#step-list'), chapterNavigation: $('#chapter-session-navigation'), previous: $('#previous-step'), next: $('#next-step'),
   repeat: $('#repeat-session'), position: $('#step-position'), percent: $('#progress-percent'), fill: $('#progress-fill'),
   progressbar: $('[role="progressbar"]'), reset: $('#reset-progress'), toast: $('#toast'), release: $('#release-label'),
   positionSummary: $('#session-position-summary'), completionSummary: $('#session-completion-summary'),
@@ -62,7 +62,12 @@ function updateProgress(session, state) {
 }
 
 function renderNavigation(session, state) {
-  elements.sessionList.innerHTML = renderSessionNavigation(sessionCatalog, progress, navigation.viewingSessionId);
+  elements.chapterNavigation.innerHTML = renderSessionNavigation(sessionCatalog, progress, session.id);
+  const list = elements.chapterNavigation.querySelector('.session-list');
+  const active = list.querySelector('[aria-current="page"]');
+  if (active && list.scrollWidth > list.clientWidth) {
+    list.scrollLeft += active.getBoundingClientRect().left - list.getBoundingClientRect().left;
+  }
   elements.stepList.innerHTML = renderStepNavigation(session, state);
 }
 
@@ -157,7 +162,7 @@ function goToStep(index) {
   render({ focus: true });
 }
 
-elements.sessionList.addEventListener('click', (event) => {
+elements.chapterNavigation.addEventListener('click', (event) => {
   const button = event.target.closest('[data-session]');
   if (!button) return;
   navigation = revisitSession(button.dataset.session, sessionCatalog, progress, navigation);
