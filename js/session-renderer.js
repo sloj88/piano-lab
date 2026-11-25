@@ -62,7 +62,15 @@ function listeningMarkup(block, context) {
 }
 
 function notationMarkup(block, context) {
-  const examples = block.musicRefs.map((reference) => context.music[reference]);
+  const examples = block.musicRefs.map((reference) => {
+    const example = context.music[reference];
+    if (!Array.isArray(block.options?.measureIndexes)) return example;
+    return {
+      ...example,
+      title: block.options.sectionTitle ?? example.title,
+      measures: block.options.measureIndexes.map((index) => ({ ...example.measures[index], displayNumber: index + 1 }))
+    };
+  });
   return `<section class="notation-set" aria-label="Music notation">${examples.map((example) => {
     const renderScore = example.kind === 'paired-score' ? pairedScoreMarkup : scoreMarkup;
     const score = renderScore(example, { ...(block.options ?? {}), showDirections: false });

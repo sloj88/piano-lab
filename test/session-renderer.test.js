@@ -273,3 +273,52 @@ test('Session 020 keeps metered notation visible with phrase and answer audio', 
   assert.match(answers, /Answer B/);
   assert.match(answers, /c001-question-answer\.wav/);
 });
+
+test('Session 021 separates both P03 sections and isolates the Measure 6–7 hand change', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const rhythm = renderSessionStep(sessionCatalog[20], 1, progress.sessions['021'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const transition = renderSessionStep(sessionCatalog[20], 3, progress.sessions['021'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(rhythm, /Across the Keys · Measures 1–4/);
+  assert.match(rhythm, /Across the Keys · Measures 5–8/);
+  assert.match(rhythm, /p03-rhythm-count\.wav/);
+  assert.match(transition, /Across the Keys · Measures 6–7/);
+  assert.match(transition, /Measure 7 hand lanes/);
+  assert.equal((transition.match(/data-pulse-index=/g) ?? []).length, 8);
+  assert.match(transition, /C3 \(5\)/);
+  assert.match(transition, /C4 \(1\)/);
+});
+
+test('Session 022 keeps the full P03 score primary and reference performance optional', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const html = renderSessionStep(sessionCatalog[21], 0, progress.sessions['022'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(html, /paired-music-score/);
+  assert.equal((html.match(/paired-barline/g) ?? []).length >= 8, true);
+  assert.match(html, /<details class="audio-details"><summary>Hear after previewing the notation—before or after my first run<\/summary>/);
+  assert.match(html, /p03-performance\.wav/);
+});
+
+test('Session 023 hides listening and M001 answers until learner-controlled reveal', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const listening = renderSessionStep(sessionCatalog[22], 2, progress.sessions['023'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  const melody = renderSessionStep(sessionCatalog[22], 3, progress.sessions['023'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  assert.match(listening, /data-listening-reveal hidden/);
+  assert.match(listening, /Reveal notes and answer/);
+  assert.match(melody, /<details class="score-reveal"><summary>Reveal M001 after my memory attempt<\/summary>/);
+  assert.match(melody, /Across the Keys · challenge excerpt/);
+  assert.doesNotMatch(`${listening}${melody}`, /data-score|points earned|percent correct/i);
+});
+
+test('Session 024 renders all milestone areas, full P03, and separate completion reflections', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const rendered = sessionCatalog[23].steps.map((_, index) => renderSessionStep(sessionCatalog[23], index, progress.sessions['024'], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog })).join('');
+  assert.match(rendered, /Find landmarks and play both patterns/);
+  assert.match(rendered, /Read treble and bass/);
+  assert.match(rendered, /Count and play a mixed rhythm/);
+  assert.match(rendered, /Respond to a short listening task/);
+  assert.match(rendered, /Perform Across the Keys/);
+  assert.match(rendered, /Understanding and playing can develop at different speeds/);
+  assert.match(rendered, /What would help next/);
+  assert.match(rendered, /three-piece mini-recital/);
+  assert.doesNotMatch(rendered, /data-score|pass mark|points earned/i);
+  assert.match(rendered, /No percentage, streak, calendar rule, or forced threshold controls completion/);
+});

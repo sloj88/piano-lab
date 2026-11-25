@@ -5,17 +5,17 @@ import { groupSessionsByChapter, homeSessionState, renderHome } from '../js/home
 import { sessionCatalog } from '../js/session-catalog.js';
 import { createEmptySessionProgress } from '../js/session-progress.js';
 
-test('home shows only the twenty implemented sessions with current and future availability', () => {
+test('home shows all twenty-four Chapter 01 sessions with current and future availability', () => {
   const progress = createEmptySessionProgress(sessionCatalog);
   const html = renderHome(sessionCatalog, progress);
-  assert.equal((html.match(/class="home-session-card/g) ?? []).length, 20);
+  assert.equal((html.match(/class="home-session-card/g) ?? []).length, 24);
   assert.match(html, /Continue Learning · Session 001/);
   assert.match(html, /Current/);
   assert.match(html, /Up next/);
   assert.match(html, /data-chapter-toggle aria-expanded="true"/);
   assert.match(html, /aria-controls="chapter-1-sessions"/);
-  assert.match(html, /Session 020/);
-  assert.doesNotMatch(html, /Session 021/);
+  assert.match(html, /Session 024/);
+  assert.doesNotMatch(html, /Session 025/);
   assert.deepEqual(homeSessionState(sessionCatalog[1], 1, sessionCatalog, progress), { available: false, current: false, completed: false, label: 'Up next' });
 });
 
@@ -42,15 +42,15 @@ test('the page shell provides persistent home and lesson help actions', () => {
 test('chapter grouping scales from metadata and expands only the current chapter by default', () => {
   const sessions = structuredClone(sessionCatalog);
   const nextSession = structuredClone(sessionCatalog[0]);
-  nextSession.id = '021';
+  nextSession.id = '025';
   nextSession.title = 'Second Chapter Session';
   nextSession.chapter = 2;
   sessions.push(nextSession);
   const progress = createEmptySessionProgress(sessions);
-  progress.currentSessionId = '021';
+  progress.currentSessionId = '025';
   const groups = groupSessionsByChapter(sessions);
   const html = renderHome(sessions, progress);
-  assert.deepEqual(groups.map(({ chapter, entries }) => [chapter, entries.length]), [[1, 20], [2, 1]]);
+  assert.deepEqual(groups.map(({ chapter, entries }) => [chapter, entries.length]), [[1, 24], [2, 1]]);
   assert.match(html, /id="chapter-1-toggle"[^>]*aria-expanded="false"/);
   assert.match(html, /id="chapter-2-toggle"[^>]*aria-expanded="true"/);
   assert.match(html, /id="chapter-1-sessions"[^>]*hidden/);

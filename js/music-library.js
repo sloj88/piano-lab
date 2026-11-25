@@ -145,7 +145,36 @@ export const musicLibrary = {
     { activeHand: 'LH', bass: [['C3', 5, 'quarter'], ['D3', 4, 'quarter'], ['E3', 3, 'half']] },
     { activeHand: 'RH', treble: [['E4', 3, 'quarter'], ['D4', 2, 'quarter'], ['C4', 1, 'half']] },
     { activeHand: 'LH', bass: [['E3', 3, 'quarter'], ['D3', 4, 'quarter'], ['C3', 5, 'half']] }
-  ], { tempo: { min: 52, max: 60 }, audioRefs: ['p02-practice', 'p02-musical'] })
+  ], { tempo: { min: 52, max: 60 }, audioRefs: ['p02-practice', 'p02-musical'] }),
+  P03: pairedTimelineExample('P03', 'Across the Keys', [
+    pairedMeasure({
+      activeHand: 'RH', dynamic: 'p', handEntrances: [entrance('RH', 1, 1)],
+      treble: [note('C4', 1, 'quarter', true), note('D4', 2), note('E4', 3, 'half')]
+    }),
+    pairedMeasure({ activeHand: 'RH', treble: [note('E4', 3), note('D4', 2), note('C4', 1, 'half')] }),
+    pairedMeasure({
+      activeHand: 'LH', handEntrances: [entrance('LH', 1, 5)],
+      bass: [note('C3', 5, 'quarter', true), note('D3', 4), note('E3', 3, 'half')]
+    }),
+    pairedMeasure({ activeHand: 'LH', bass: [note('E3', 3), note('D3', 4), note('C3', 5, 'half')] }),
+    pairedMeasure({
+      activeHand: 'RH', dynamic: 'f', handEntrances: [entrance('RH', 1, 1)],
+      treble: [note('C4', 1, 'quarter', true), note('E4', 3), note('G4', 5, 'half')]
+    }),
+    pairedMeasure({
+      activeHand: 'LH', handEntrances: [entrance('LH', 1, 5)],
+      bass: [note('C3', 5, 'quarter', true), note('E3', 3), note('G3', 1, 'half')]
+    }),
+    pairedMeasure({
+      activeHands: ['LH', 'RH'], handEntrances: [entrance('LH', 1, 5), entrance('RH', 3, 1)],
+      treble: [rest('quarter-rest'), rest('quarter-rest'), note('C4', 1, 'quarter', true), note('D4', 2)],
+      bass: [note('C3', 5, 'quarter', true), rest('quarter-rest'), rest('quarter-rest'), rest('quarter-rest')]
+    }),
+    pairedMeasure({ activeHand: 'RH', treble: [note('E4', 3), note('D4', 2), note('C4', 1, 'half')] })
+  ], {
+    alternatingHands: true, dynamics: { 1: 'p', 5: 'f' }, tempo: { practice: [52, 56], performance: [56, 66] },
+    audioRefs: ['p03-rhythm-count', 'p03-sections', 'p03-performance']
+  })
 };
 
 function meteredExample(id, title, measures, extra = {}) {
@@ -156,8 +185,8 @@ function meteredExample(id, title, measures, extra = {}) {
   };
 }
 
-function note(pitch, finger, rhythm = 'quarter') {
-  return { kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1 };
+function note(pitch, finger, rhythm = 'quarter', showFinger = false) {
+  return { kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1, ...(showFinger ? { showFinger: true } : {}) };
 }
 
 function rest(rhythm) {
@@ -185,5 +214,24 @@ function pairedExample(id, title, measures, extra = {}) {
       }
     })),
     ...extra
+  };
+}
+
+function entrance(hand, beat, finger) { return { hand, beat, finger }; }
+
+function pairedMeasure({ activeHand, activeHands, treble, bass, dynamic, handEntrances = [] }) {
+  return {
+    ...(activeHand ? { activeHand } : {}), ...(activeHands ? { activeHands } : {}), ...(dynamic ? { dynamic } : {}), handEntrances,
+    staves: {
+      treble: { clef: 'treble', events: treble ?? [rest('whole-measure-rest')] },
+      bass: { clef: 'bass', events: bass ?? [rest('whole-measure-rest')] }
+    }
+  };
+}
+
+function pairedTimelineExample(id, title, measures, extra = {}) {
+  return {
+    id, title, kind: 'paired-score', meter: { beats: 4, beatValue: 4 },
+    notation: { layout: 'paired', upperClef: 'treble', lowerClef: 'bass' }, measures, ...extra
   };
 }

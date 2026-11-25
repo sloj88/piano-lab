@@ -19,7 +19,9 @@ export const assetCatalog = {
   'p02-practice': audioAsset('p02-practice'), 'p02-musical': audioAsset('p02-musical'),
   'd001-soft-strong': audioAsset('d001-soft-strong'),
   'm001-even': audioAsset('m001-even'), 'm001-shaped': audioAsset('m001-shaped'),
-  'c001-question-answer': audioAsset('c001-question-answer')
+  'c001-question-answer': audioAsset('c001-question-answer'),
+  'p03-rhythm-count': audioAsset('p03-rhythm-count'), 'p03-sections': audioAsset('p03-sections'),
+  'p03-performance': audioAsset('p03-performance')
 };
 
 function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }
@@ -996,6 +998,232 @@ const session020Steps = [
   }
 ];
 
+const session021Steps = [
+  {
+    id: 'preview-across-keys', title: 'Preview Across the Keys', kicker: 'Eight measures, two four-measure sections',
+    intro: 'Read the plan before hearing a complete performance: one hand sounds at a time, with one within-measure change in Measure 7.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Building a piece means solving small parts before asking for a full performance. Preview the score, tap its rhythm, prepare each hand, and isolate the hand change.', 'Measures 1–4 are soft (<em>p</em>). Measures 5–8 are strong (<em>f</em>), warm and never forced. No notes sound simultaneously.'] },
+      { type: 'notation', musicRefs: ['P03'], options: { measureNumbers: true, showEntranceFingers: true, enlarge: true, caption: 'Measures 1–4 form the first section; Measures 5–8 form the second. RH and LH labels mark every approved entrance.' } },
+      { type: 'practice', phase: 'try', instruction: 'Point to every RH and LH entrance, the quarter rest in Measure 7, and the p/f plan before playing.', hint: 'Entrances appear in Measures 1, 3, 5, 6, and twice in Measure 7.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you explain the hand order and where the two sections divide?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'tap-piece-rhythm', title: 'Count the two sections', kicker: 'Rhythm before pitch',
+    intro: 'Tap Measures 1–4, reset, then tap Measures 5–8 while every sounding and silent beat keeps its place.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P03'], options: { measureIndexes: [0, 1, 2, 3], sectionTitle: 'Across the Keys · Measures 1–4', measureNumbers: true, showEntranceFingers: true } },
+      { type: 'notation', musicRefs: ['P03'], options: { measureIndexes: [4, 5, 6, 7], sectionTitle: 'Across the Keys · Measures 5–8', measureNumbers: true, showEntranceFingers: true } },
+      { type: 'audio-reference', title: 'Rhythm and count at 52 bpm', tracks: [{ assetRef: 'p03-rhythm-count', label: 'Hear four-count plus every piece count' }], transcript: 'Four preparatory counts, then all eight measures at 52 bpm. Counts continue through held notes, inactive-hand waits, and the silent beat 2 in Measure 7.' },
+      { type: 'practice', phase: 'try', instruction: 'Tap the first section while counting all beats. Reset, then tap the second. Say “rest” on Measure 7 beat 2 without stopping the pulse.', hint: 'Keep the temporary Measure 7 cue: left, rest, right, right.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can both sections keep four beats in every measure?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'prepare-each-hand', title: 'Prepare RH, then LH', kicker: 'Hands separately within the piece',
+    intro: 'Practice only the measures assigned to one hand before reconnecting the conversation.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Play RH Measures 1–2 and 5. Then play RH beats 3–4 of Measure 7 through Measure 8. Reset and play LH Measures 3–4 and 6, then only beat 1 of Measure 7.', hint: 'Use the visible entrance fingers. The waiting hand stays easy near its keys and never joins.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can each hand find all of its notes without the other hand sounding?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'isolate-six-seven', title: 'Isolate Measures 6–7', kicker: 'The chapter’s key hand change',
+    intro: 'Move slowly enough that the rest and the new right-hand entrance remain separate events.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P03'], options: { measureIndexes: [5, 6], sectionTitle: 'Across the Keys · Measures 6–7', measureNumbers: true, showEntranceFingers: true, enlarge: true, caption: 'Measure 6: LH C–E–G. Measure 7: LH C on beat 1, silence on beat 2, RH C and D on beats 3 and 4.' } },
+      { type: 'hand-lanes', musicRef: 'P03', measureIndexes: [5, 6], animated: true, bpm: 50 },
+      { type: 'practice', phase: 'try', instruction: 'Loop Measures 6–7 three calm times around 48–52 bpm. Say “left, hold; left, rest; right, right.” Stop and simplify if tension appears.', hint: 'Remove pitch first: tap the hand labels. Then play only C3 on Measure 7 beat 1 and C4/D4 on beats 3/4.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can beat 2 remain silent while the right hand prepares for beat 3?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'connect-piece-sections', title: 'Connect each four-measure section', kicker: 'No full run required',
+    intro: 'Complete the first section, reset, then complete the second and name one specific place to revisit.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Count four and play Measures 1–4 at p. Reset. Count four and play Measures 5–8 at a comfortable f. Add contrast only if the hand changes and durations remain dependable.', hint: 'Practice starting from Measure 5 and from Measure 7 so the piece does not depend on always starting at the beginning.' },
+      { type: 'audio-reference', title: 'Separate phrase references at 52 bpm', collapsed: true, summary: 'Hear after preparing both sections', tracks: [{ assetRef: 'p03-sections', label: 'Hear Measures 1–4, reset, then 5–8' }], transcript: 'A four-count and Measures 1–4 are followed by a short reset, another four-count, and Measures 5–8. The second section includes the Measure 7 LH-to-RH change.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Which measure is ready, practicing, or stuck, and why?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session022Steps = [
+  {
+    id: 'performance-preview', title: 'Prepare a complete attempt', kicker: 'Score first, reference by choice',
+    intro: 'Set up silently, preview the complete score, and choose a comfortable pulse before listening or playing.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['A performance attempt keeps the musical thread from beginning to end. If a small error happens, continue when you can.', 'The goal is recognizable continuity, hand order, and an intentional p/f contrast—not flawless playing.'] },
+      { type: 'notation', musicRefs: ['P03'], options: { measureNumbers: true, showEntranceFingers: true, enlarge: true } },
+      { type: 'audio-reference', title: 'Reference performance at 62 bpm', collapsed: true, summary: 'Hear after previewing the notation—before or after my first run', tracks: [{ assetRef: 'p03-performance', label: 'Hear the complete reference performance' }], transcript: 'Four-count, then all eight measures. Measures 1–4 are soft; Measures 5–8 are stronger but unforced. Measure 7 changes from LH on beat 1 to RH on beats 3 and 4 after a silent beat 2.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you point to the first notes, hand changes, rest, and dynamic plan before starting?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'first-complete-run', title: 'Play from beginning to end', kicker: 'Keep the musical thread',
+    intro: 'One complete attempt gives useful information that isolated practice cannot.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Check bench and keyboard stability, prepare both five-note positions, count four, and perform all eight measures. Continue through a small error when possible.', hint: 'Choose 52–56 bpm if the hand change needs space. The performance range is guidance, not a gate.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'What happened with continuity, comfort, pulse, notes/rhythm, and the p/f plan?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'one-targeted-repair', title: 'Repair exactly one place', kicker: 'Specific beats beat general judgment',
+    intro: 'Choose one measure, transition, rhythm, or sound level rather than judging the whole run.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Name one precise target. Work on it for no more than two minutes: twice alone, then once with one neighboring measure.', hint: 'If Measure 7 is the target, return to “LH, rest, RH, RH.” If the whole piece felt crowded, repair only one four-measure section.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Did the chosen place become clearer, easier, or more dependable?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'second-complete-run', title: 'Try the complete piece again', kicker: 'Accept small errors and preserve the ending',
+    intro: 'Carry the one repair back into the full musical context.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P03'], options: { measureNumbers: true, showEntranceFingers: true, enlarge: true } },
+      { type: 'practice', phase: 'try', instruction: 'Count four and perform once more. Keep moving toward the final C even if one detail is imperfect, and stop if discomfort appears.', hint: 'A partial piece can remain completed-in-progress. Return to Session 021’s sections without losing history.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you finish with recognizable hand order, ending, and intentional soft/strong contrast?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session023Steps = [
+  {
+    id: 'challenge-format', title: 'Try first, reveal second', kicker: 'A memory check, not an exam',
+    intro: 'Each card offers optional help after your attempt. A missed item identifies useful practice; it does not erase progress.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['There is no timer, grade, score, or mastery gate. Choose accuracy, pulse, and comfort over speed.', 'Find C4 and prepare the RH C4–G4 and LH C3–G3 positions before opening the hint.'] },
+      { type: 'practice', phase: 'try', instruction: 'Without a diagram, find C4 and both five-note positions. Then identify written C4/G4 and C3/F3 from mixed landmark cards.', hint: 'C sits immediately left of a two-black-key group. Reopen Sessions 008 and 013 only after the first attempt.' },
+      { type: 'notation', musicRefs: ['N002-B', 'N004-B'], options: { reveal: true, revealLabel: 'Reveal landmark note names after my attempt', revealLabels: true } },
+      { type: 'reflection', phase: 'reflect', prompt: 'Which keyboard or staff landmark needed a hint?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'rhythm-reading-challenges', title: 'Retrieve rhythm and reading', kicker: 'R003 C, N003 D, N005 D',
+    intro: 'Preview each score silently, attempt it, and open its reading help only afterward.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R003-C'], options: { showStartingFinger: true, reveal: true, revealLabel: 'Reveal R003 C notes and counts after my attempt', showBeatGrid: true } },
+      { type: 'practice', phase: 'try', instruction: 'Speak, tap, and play R003 C, including its silent beat 3.', hint: 'Count 1 D? Check only after trying: the score begins on C3 and the rest is beat 3.' },
+      { type: 'notation', musicRefs: ['N003-D', 'N005-D'], options: { showStartingFinger: true, reveal: true, revealLabel: 'Reveal note names after both first attempts', revealDirections: true } },
+      { type: 'practice', phase: 'try', instruction: 'After a silent preview, sight-read treble Challenge D and bass Challenge D with separate four-counts.', hint: 'Find the first staff note and follow contour before naming every letter.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Which was least secure: the rest, treble steps, or bass steps?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'listening-challenge', title: 'Compare the left-hand patterns', kicker: 'E001 Pair D',
+    intro: 'Listen before revealing notes or direction.',
+    blocks: [
+      { type: 'audio-listening', musicRef: 'E001', pairIds: ['D'] },
+      { type: 'practice', phase: 'try', instruction: 'Choose Same or Different after one or two listens. Reveal only after choosing, then play both patterns with LH.', hint: 'Listen for whether the middle and final directions match.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you hear the changed order and reconnect it to the physical keys?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'melody-piece-challenge', title: 'Retrieve the melody and piece excerpt', kicker: 'M001 and P03 Measures 5–8',
+    intro: 'Recall the first melody before opening its score, then read the final-piece excerpt directly.',
+    blocks: [
+      { type: 'practice', phase: 'try', instruction: 'Play M001 from memory. Only after the attempt, open its metered score below.', hint: 'The pitch sequence begins C–D–E and reaches G before returning to C.' },
+      { type: 'notation', musicRefs: ['M001-METERED'], options: { hiddenUntilReveal: true, revealLabel: 'Reveal M001 after my memory attempt', showStartingFinger: true } },
+      { type: 'notation', musicRefs: ['P03'], options: { measureIndexes: [4, 5, 6, 7], sectionTitle: 'Across the Keys · challenge excerpt', measureNumbers: true, showEntranceFingers: true, enlarge: true } },
+      { type: 'practice', phase: 'try', instruction: 'Play Measures 5–8 from the score, or choose the full piece if desired. Keep f comfortable and preserve the Measure 7 silence.', hint: 'Use Session 021’s section support only after this first attempt.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Name one understanding target and one physical playing target for later reinforcement.', legacySelfCheck: true }
+    ]
+  }
+];
+
+const session024Steps = [
+  {
+    id: 'milestone-setup-patterns', title: 'Find landmarks and play both patterns', kicker: 'Part 1 of 6',
+    intro: 'Begin independently at a comfortable pace; help remains optional after the first attempt.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['This milestone asks, “What can I do now?” It is not a perfect-performance test.', 'You may complete the chapter and still name one skill to revisit. No percentage, streak, calendar rule, or forced threshold controls completion.'] },
+      { type: 'practice', phase: 'try', instruction: 'Find C4 from the black-key landmark. Prepare RH and play K001, then prepare LH and play K002 with an approximately steady pulse.', hint: 'If needed after trying, find C beside two black keys and reopen the finger diagrams from Sessions 001 and 011.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you find the positions and keep each five-note walk moving comfortably?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'milestone-reading', title: 'Read treble and bass', kicker: 'Parts 2 and 3 of 6',
+    intro: 'Identify the landmarks, then read one short line in each clef.',
+    blocks: [
+      { type: 'notation', musicRefs: ['N002-A', 'N004-A', 'N003-D', 'N005-D'], options: { showStartingFinger: true, reveal: true, revealLabel: 'Reveal note names after my first attempts' } },
+      { type: 'practice', phase: 'try', instruction: 'Identify C4/G4 and C3/F3. Then give separate four-counts and play the short treble and bass reading lines.', hint: 'Use the landmark plus repeat/up/down movement; do not label every note in advance.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Which clef can you read with less help, and which one deserves a later revisit?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'milestone-rhythm', title: 'Count and play a mixed rhythm', kicker: 'Part 4 of 6',
+    intro: 'This two-measure card includes quarters, a half note, and a quarter rest.',
+    blocks: [
+      { type: 'notation', musicRefs: ['R004-E'], options: { showStartingFinger: true, showBeatGrid: true, reveal: true, revealLabel: 'Reveal note names and count guide after my attempt' } },
+      { type: 'practice', phase: 'try', instruction: 'Speak and tap both measures, then play them after a four-count. Keep the rest silent without resetting the pulse.', hint: 'Measure 2 is C half, rest on beat 3, C on beat 4.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you distinguish continuing sound, silence, and a new note inside the pulse?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'milestone-listening', title: 'Respond to a short listening task', kicker: 'Part 5 of 6',
+    intro: 'Use one replay if useful, then reconnect the heard contour to the keyboard.',
+    blocks: [
+      { type: 'audio-listening', musicRef: 'E001', pairIds: ['D'] },
+      { type: 'practice', phase: 'try', instruction: 'Choose Same or Different, reveal after choosing, and reproduce either three-note group with LH.', hint: 'Listen for the order of C3, D3, and E3 rather than trying to name the notes during playback.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you respond by ear and then connect the result to keys or contour?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'milestone-performance', title: 'Perform Across the Keys', kicker: 'Part 6 of 6',
+    intro: 'Use the full score, one silent preview, and the intentional p/f plan.',
+    blocks: [
+      { type: 'notation', musicRefs: ['P03'], options: { measureNumbers: true, showEntranceFingers: true, enlarge: true } },
+      { type: 'audio-reference', title: 'Optional reference replay', collapsed: true, summary: 'Replay only if useful after previewing the score', tracks: [{ assetRef: 'p03-performance', label: 'Hear Across the Keys at 62 bpm' }], transcript: 'Four-count and the complete eight-measure piece with soft Measures 1–4, stronger Measures 5–8, and no simultaneous notes.' },
+      { type: 'practice', phase: 'try', instruction: 'Prepare, count four, and perform the piece with intentional contrast. Continue through small errors when comfortable.', hint: 'If the full piece is not ready, perform one four-measure section and name the exact skill to revisit. You can still complete the chapter.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'What musical behavior can you demonstrate now, and what one skill will you revisit?', legacySelfCheck: true }
+    ]
+  },
+  {
+    id: 'milestone-reflection', title: 'Choose the next useful focus', kicker: 'Understanding, playing, and readiness stay separate',
+    intro: 'Finish with evidence rather than a grade.',
+    blocks: [
+      { type: 'text', phase: 'explain', paragraphs: ['Name one idea you can explain without help and one musical behavior you can demonstrate consistently.', 'Choose Ready, Practicing, or Stuck separately from chapter completion. Completing Chapter 01 never removes your option to revisit a specific skill.'] },
+      { type: 'practice', phase: 'try', instruction: 'Choose exactly one revisit target: landmarks, RH/LH patterns, treble/bass reading, mixed rhythm, listening, or expressive piece performance.', hint: 'Choose the earliest missing prerequisite if several tasks felt uncertain.' },
+      { type: 'reflection', phase: 'reflect', prompt: 'Can you finish the milestone while naming a specific, kind, useful next step?', legacySelfCheck: true }
+    ]
+  }
+];
+
+const sliceESessions = () => [
+  {
+    id: '021', title: 'Build the Chapter Piece', summary: 'Prepare Across the Keys in sections and isolate its Measure 6–7 hand change.', type: 'Practice', chapter: 1,
+    objective: 'Prepare P03 in two four-measure sections and improve the Measure 6–7 transition.', prerequisites: ['017', '018', '019', '020'], duration: { min: 10, max: 15 }, steps: session021Steps,
+    musicRefs: ['P03'], assetRefs: ['p03-rhythm-count', 'p03-sections'], outcome: 'Plays both four-measure sections separately and improves a specifically identified transition.',
+    reflection: { understanding: 'I can explain why isolating a difficult place helps.', playing: 'I can name which measure is ready, practicing, or stuck.' }, keepPlaying: ['Practice starting from Measure 5.', 'Practice starting from Measure 7 so the piece does not depend on its beginning.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose after both sections have had a calm attempt.' }, practicing: { label: 'Practicing', guidance: 'Repeat only the named measure plus one neighbor.', reinforcementRefs: ['RF-FINAL-1'] }, stuck: { label: 'Stuck', guidance: 'Remove pitch and tap Measures 6–7 with hand labels.', reinforcementRefs: ['RF-FINAL-1'], earlierSessionId: '017' } },
+    reinforcementRefs: ['RF-RHY-3', 'RF-HANDS-1', 'RF-REST-1', 'RF-DYN-1', 'RF-PHRASE-1', 'RF-FINAL-1'], pedagogicalReview: ['P03 engraving, fingerings, dynamics, target tempos, section plan, and Measure 6–7 transition require qualified piano-teacher review.']
+  },
+  {
+    id: '022', title: 'Play the Complete Piece', summary: 'Perform Across the Keys, repair one target, and try the complete piece again.', type: 'Play', chapter: 1,
+    objective: 'Perform all eight P03 measures with continuity and an intentional dynamic plan.', prerequisites: ['021'], duration: { min: 10, max: 15 }, steps: session022Steps,
+    musicRefs: ['P03'], assetRefs: ['p03-performance'], outcome: 'Completes P03 with recognizable beginning, ending, hand sequence, and intended soft/strong contrast.',
+    reflection: { understanding: 'I can name one useful repair without judging the whole performance.', playing: 'I can continue through a small error and finish comfortably.' }, keepPlaying: ['Give the piece a title of your own.', 'Perform once for a trusted listener or private recording only if desired.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Finish here or enjoy one more performance later.' }, practicing: { label: 'Practicing', guidance: 'Repair exactly one selected place, then repeat it once in context.', reinforcementRefs: ['RF-FINAL-2'] }, stuck: { label: 'Stuck', guidance: 'Return to one four-measure section without losing completion history.', reinforcementRefs: ['RF-FINAL-1'], earlierSessionId: '021' } },
+    reinforcementRefs: ['RF-FINAL-1', 'RF-FINAL-2'], pedagogicalReview: ['P03 reference performance, continuity guidance, and expressive expectations require qualified piano-teacher review.']
+  },
+  {
+    id: '023', title: 'No-Hints Challenge', summary: 'Retrieve Chapter 01 foundations before revealing optional help.', type: 'Review', chapter: 1,
+    objective: 'Retrieve landmarks, rhythm, reading, listening, M001, and a P03 excerpt before prompts appear.', prerequisites: ['022'], duration: { min: 10, max: 15 }, steps: session023Steps,
+    musicRefs: ['E001', 'N002-B', 'N004-B', 'R003-C', 'N003-D', 'N005-D', 'M001-METERED', 'P03'], assetRefs: ['e001-pair-d'], outcome: 'Demonstrates retained foundations and names one specific reinforcement target with evidence.',
+    reflection: { understanding: 'I can name the least secure idea without turning it into a grade.', playing: 'I can name the least secure physical task and its short repair.' }, keepPlaying: ['Shuffle the challenge order and try again later.', 'Play P01 and P02 as a mini-review.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Continue when you choose; hints used are information, not failure.' }, practicing: { label: 'Practicing', guidance: 'Use the linked support for one selected skill, not the whole challenge again.', reinforcementRefs: ['RF-FINAL-2'] }, stuck: { label: 'Stuck', guidance: 'Reveal answers and revisit the earliest missing prerequisite.', reinforcementRefs: ['RF-READ-1'], earlierSessionId: '007' } },
+    reinforcementRefs: ['RF-KG-1', 'RF-READ-2', 'RF-BASS-1', 'RF-REST-1', 'RF-TREBLE-1', 'RF-BASS-2', 'RF-EAR-1', 'RF-PHRASE-1', 'RF-FINAL-2'], pedagogicalReview: ['Challenge difficulty, reveal timing, and selected P03 excerpt require qualified piano-teacher and accessibility review.']
+  },
+  {
+    id: '024', title: 'Chapter 01 Milestone', summary: 'Integrate keyboard, reading, rhythm, listening, and expressive performance without a grade.', type: 'Play', chapter: 1,
+    objective: 'Demonstrate integrated Chapter 01 musicianship and make an evidence-based next-step choice.', prerequisites: ['001'], duration: { min: 14, max: 14 }, steps: session024Steps,
+    musicRefs: ['K001', 'K002', 'E001', 'N002-A', 'N004-A', 'N003-D', 'N005-D', 'R004-E', 'P03'], assetRefs: ['e001-pair-d', 'p03-performance'], outcome: 'Demonstrates the integrated milestone or identifies one specific reinforcement next step for an unfinished behavior.',
+    reflection: { understanding: 'I can name an idea I explain without help.', playing: 'I can name a musical behavior I demonstrate consistently.' }, keepPlaying: ['Perform P01, P02, and P03 as a three-piece mini-recital, pausing to reset between pieces.'],
+    readiness: { ready: { label: 'Ready', guidance: 'Complete Chapter 01 and continue when you choose.' }, practicing: { label: 'Practicing', guidance: 'Complete the chapter while choosing one skill for a later revisit.', reinforcementRefs: ['RF-FINAL-2'] }, stuck: { label: 'Stuck', guidance: 'Complete the chapter if you choose and revisit the earliest missing prerequisite.', reinforcementRefs: ['RF-READ-1'], earlierSessionId: '007' } },
+    reinforcementRefs: ['RF-KG-1', 'RF-RH-1', 'RF-LH-1', 'RF-READ-2', 'RF-BASS-1', 'RF-RHY-3', 'RF-EAR-1', 'RF-FINAL-2'], pedagogicalReview: ['The integrated milestone, approximately 14-minute pacing, accessibility, and all performance expectations require qualified piano-teacher and accessibility review.']
+  }
+];
+
 const sliceDSessions = () => [
   {
     id: '017', title: 'A Beat of Silence', summary: 'Count a quarter rest as one silent beat while the pulse continues.', type: 'Learn', chapter: 1,
@@ -1170,5 +1398,6 @@ export const sessionCatalog = [
   },
   ...sliceBSessions(),
   ...sliceCSessions(),
-  ...sliceDSessions()
+  ...sliceDSessions(),
+  ...sliceESessions()
 ];

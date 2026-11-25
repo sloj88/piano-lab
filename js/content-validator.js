@@ -66,6 +66,15 @@ function staffIndex(pitch) {
   return match ? Number(match[2]) * 7 + STAFF_LETTERS[match[1]] : null;
 }
 
+function eventTimeline(events) {
+  let onset = 0;
+  return events.map((event) => {
+    const entry = { event, onset, end: onset + (Number.isFinite(event?.beats) ? event.beats : 0) };
+    onset = entry.end;
+    return entry;
+  });
+}
+
 function validateMusic(music, assets, errors) {
   for (const [id, example] of Object.entries(music)) {
     const path = `music.${id}`;
@@ -152,7 +161,12 @@ function validateMusic(music, assets, errors) {
       if (!Array.isArray(example.measures) || example.measures.length === 0) errors.push(issue('paired-measures', `${path}.measures`, 'A paired score needs at least one measure.'));
       for (const [measureIndex, measure] of (example.measures ?? []).entries()) {
         const measurePath = `${path}.measures.${measureIndex}`;
-        if (!['RH', 'LH'].includes(measure?.activeHand)) errors.push(issue('active-hand', `${measurePath}.activeHand`, 'A paired measure requires activeHand RH or LH.'));
+        const isAlternatingMeasure = Array.isArray(measure?.activeHands);
+        if (isAlternatingMeasure) {
+          if (!example.alternatingHands) errors.push(issue('alternating-hands-unsupported', `${measurePath}.activeHands`, 'Alternating hands require the bounded alternatingHands score flag.'));
+          if (measure.activeHands.length !== 2 || new Set(measure.activeHands).size !== 2 || !measure.activeHands.includes('RH') || !measure.activeHands.includes('LH')) errors.push(issue('active-hands', `${measurePath}.activeHands`, 'An alternating measure requires exactly LH and RH.'));
+          if (measure.activeHand !== undefined) errors.push(issue('active-hand-shape', measurePath, 'Use activeHands, not activeHand, for an alternating measure.'));
+        } else if (!['RH', 'LH'].includes(measure?.activeHand)) errors.push(issue('active-hand', `${measurePath}.activeHand`, 'A paired measure requires activeHand RH or LH.'));
         for (const [staffName, expectedClef] of [['treble', 'treble'], ['bass', 'bass']]) {
           const staff = measure?.staves?.[staffName];
           const staffPath = `${measurePath}.staves.${staffName}`;
@@ -163,9 +177,30 @@ function validateMusic(music, assets, errors) {
           staff.events.forEach((event, eventIndex) => validateMusicEvent(event, `${staffPath}.events.${eventIndex}`, example.meter, errors));
           const total = staff.events.reduce((sum, event) => sum + (Number.isFinite(event?.beats) ? event.beats : 0), 0);
           if (total !== example.meter.beats) errors.push(issue('staff-total', staffPath, `${staffName} staff totals ${total} beats; expected ${example.meter.beats}.`));
-          const activeStaff = measure.activeHand === 'RH' ? 'treble' : 'bass';
-          if (staffName === activeStaff && staff.events.some((event) => event.kind !== 'note')) errors.push(issue('active-staff-rest', staffPath, 'The active staff in this bounded schema must contain only notes.'));
-          if (staffName !== activeStaff && !(staff.events.length === 1 && staff.events[0].kind === 'rest' && staff.events[0].rhythm === 'whole-measure-rest')) errors.push(issue('inactive-staff-rest', staffPath, 'The inactive staff must contain exactly one whole-measure rest.'));
+          if (isAlternatingMeasure) {
+            if (!staff.events.some((event) => event.kind === 'note')) errors.push(issue('alternating-staff-note', staffPath, 'Each staff in the bounded alternating measure requires a note entrance.'));
+            if (staff.events.some((event) => event.kind === 'rest' && event.rhythm !== 'quarter-rest')) errors.push(issue('alternating-staff-rest', staffPath, 'Gaps in the alternating measure must use explicit quarter rests.'));
+          } else {
+            const activeStaff = measure.activeHand === 'RH' ? 'treble' : 'bass';
+            if (staffName === activeStaff && staff.events.some((event) => event.kind !== 'note')) errors.push(issue('active-staff-rest', staffPath, 'The active staff in this bounded schema must contain only notes.'));
+            if (staffName !== activeStaff && !(staff.events.length === 1 && staff.events[0].kind === 'rest' && staff.events[0].rhythm === 'whole-measure-rest')) errors.push(issue('inactive-staff-rest', staffPath, 'The inactive staff must contain exactly one whole-measure rest.'));
+          }
+        }
+        if (isAlternatingMeasure && measure.staves?.treble?.events && measure.staves?.bass?.events) {
+          const sounding = [
+            ...eventTimeline(measure.staves.treble.events).filter(({ event }) => event.kind === 'note').map((entry) => ({ ...entry, hand: 'RH' })),
+            ...eventTimeline(measure.staves.bass.events).filter(({ event }) => event.kind === 'note').map((entry) => ({ ...entry, hand: 'LH' }))
+          ].sort((a, b) => a.onset - b.onset);
+          for (let index = 1; index < sounding.length; index += 1) if (sounding[index].onset < sounding[index - 1].end) errors.push(issue('paired-note-overlap', measurePath, 'The bounded alternating-hand measure cannot contain overlapping notes.'));
+          const entrances = measure.handEntrances ?? [];
+          if (entrances.length !== 2) errors.push(issue('hand-entrances', `${measurePath}.handEntrances`, 'The alternating measure requires explicit LH and RH entrances.'));
+          for (const [entranceIndex, entrance] of entrances.entries()) {
+            const entrancePath = `${measurePath}.handEntrances.${entranceIndex}`;
+            const staffName = entrance.hand === 'RH' ? 'treble' : entrance.hand === 'LH' ? 'bass' : null;
+            const matching = staffName && eventTimeline(measure.staves[staffName].events).find(({ event, onset }) => event.kind === 'note' && onset === entrance.beat - 1);
+            if (!staffName || !Number.isInteger(entrance.beat) || entrance.beat < 1 || entrance.beat > 4 || !matching) errors.push(issue('hand-entrance-timing', entrancePath, 'Each hand entrance must identify a sounding note on its exact beat.'));
+            else if (matching.event.finger !== entrance.finger) errors.push(issue('hand-entrance-finger', entrancePath, 'Entrance fingering must match the sounding note.'));
+          }
         }
       }
       for (const reference of example.audioRefs ?? []) if (assets[reference]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.audioRefs`, `Unknown audio asset ${reference}.`));

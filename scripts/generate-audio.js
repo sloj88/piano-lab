@@ -51,16 +51,23 @@ function synthesizeMetered(example, bpm, countSamples, spokenDuring = false, gai
   for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
   let noteIndex = 0;
   example.measures.forEach((measure, measureIndex) => {
-    let onset = 0;
-    const events = example.kind === 'paired-score'
-      ? measure.staves[measure.activeHand === 'RH' ? 'treble' : 'bass'].events
-      : measure.events;
-    events.forEach((event) => {
-      if (event.kind === 'rest') { onset += event.beats; return; }
+    const timedEvents = [];
+    const addTimeline = (events) => {
+      let onset = 0;
+      for (const event of events) {
+        if (event.kind === 'note') timedEvents.push({ event, onset });
+        onset += event.beats;
+      }
+    };
+    if (example.kind === 'paired-score') {
+      addTimeline(measure.staves.treble.events);
+      addTimeline(measure.staves.bass.events);
+      timedEvents.sort((a, b) => a.onset - b.onset);
+    } else addTimeline(measure.events);
+    timedEvents.forEach(({ event, onset }) => {
       const startBeat = 4 + measureIndex * example.meter.beats + onset;
       addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, event.beats * beatSeconds - 0.12), gains[noteIndex] ?? 0.36);
       noteIndex += 1;
-      onset += event.beats;
     });
   });
   if (spokenDuring) {
@@ -77,6 +84,18 @@ function synthesizeDynamics(countSamples) {
   for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
   for (let beat = 0; beat < 4; beat += 1) addTone(samples, (4 + beat) * beatSeconds, 'C4', beatSeconds - 0.12, 0.19);
   for (let beat = 0; beat < 4; beat += 1) addTone(samples, (9 + beat) * beatSeconds, 'C4', beatSeconds - 0.12, 0.48);
+  return samples;
+}
+
+function concatenateSamples(parts, silenceSeconds = 0) {
+  const gap = Math.round(silenceSeconds * SAMPLE_RATE);
+  const length = parts.reduce((sum, part) => sum + part.length, 0) + gap * Math.max(0, parts.length - 1);
+  const samples = new Float32Array(length);
+  let offset = 0;
+  parts.forEach((part, index) => {
+    samples.set(part, offset);
+    offset += part.length + (index < parts.length - 1 ? gap : 0);
+  });
   return samples;
 }
 
@@ -145,6 +164,15 @@ export function generateListeningAudio(outputDirectory, voiceDirectory = resolve
     measures: [...musicLibrary['M001-METERED'].measures, ...musicLibrary['C001-A'].measures]
   };
   writeFileSync(resolve(outputDirectory, 'c001-question-answer.wav'), encodeWav(synthesizeMetered(questionAnswer, 60, counts, false, [0.24, 0.29, 0.34, 0.44, 0.34, 0.28, 0.22, 0.31, 0.27, 0.2])));
+  writeFileSync(resolve(outputDirectory, 'p03-rhythm-count.wav'), encodeWav(synthesizeMetered(musicLibrary.P03, 52, counts, true)));
+  const p03First = { ...musicLibrary.P03, measures: musicLibrary.P03.measures.slice(0, 4) };
+  const p03Second = { ...musicLibrary.P03, measures: musicLibrary.P03.measures.slice(4) };
+  writeFileSync(resolve(outputDirectory, 'p03-sections.wav'), encodeWav(concatenateSamples([
+    synthesizeMetered(p03First, 52, counts, false), synthesizeMetered(p03Second, 52, counts, false)
+  ], 2 * 60 / 52)));
+  writeFileSync(resolve(outputDirectory, 'p03-performance.wav'), encodeWav(synthesizeMetered(musicLibrary.P03, 62, counts, false, [
+    ...Array(12).fill(0.23), ...Array(12).fill(0.46)
+  ])));
 }
 
 const scriptPath = fileURLToPath(import.meta.url);

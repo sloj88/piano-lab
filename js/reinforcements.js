@@ -146,5 +146,19 @@ export const reinforcementCatalog = {
     prerequisite: 'Play E4–G4–E4 slowly. Point to G4 as the destination; then add D4–C4 as the ending with dynamics even.',
     readiness: 'You can identify G4 as the destination and C4 as the ending while keeping every written duration.',
     earlierSessionId: '019'
+  },
+  'RF-FINAL-1': {
+    id: 'RF-FINAL-1', title: 'Build Across the Keys in sections', sessions: ['021', '022', '023', '024'],
+    repeat: 'Choose one two-measure unit from P03. Tap and count it, play each involved hand alone, then play the unit once in context.',
+    prerequisite: 'For Measures 6–7, tap hand labels only: LH on beat 1 of Measure 7, wait on beat 2, RH on beats 3 and 4. Then use only C3, C4, and D4.',
+    readiness: 'You can play Measures 1–4 and 5–8 separately and name the specific measure or transition needing work.',
+    earlierSessionId: '021'
+  },
+  'RF-FINAL-2': {
+    id: 'RF-FINAL-2', title: 'Continue, repair, and replay Across the Keys', sessions: ['022', '023', '024'],
+    repeat: 'After one complete attempt, select exactly one measure or transition, practice it twice, connect one neighboring measure, and make one more full attempt.',
+    prerequisite: 'Perform only one four-measure phrase with its setup, count-in, and ending. Return to the section-building support for an isolated transition.',
+    readiness: 'You can complete all eight measures with recognizable pulse, hand order, ending, and planned contrast while continuing through a small error when possible.',
+    earlierSessionId: '021'
   }
 };

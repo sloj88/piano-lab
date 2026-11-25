@@ -76,3 +76,18 @@ test('quarter rests occupy one beat in notation, count guides, and accessible te
   assert.equal((grid.match(/<strong>[1-4]<\/strong>/g) ?? []).length, 4);
   assert.match(grid, /rest · silent/);
 });
+
+test('P03 renders aligned eight-measure staves, approved entrances, dynamics, and the Measure 7 timeline', () => {
+  const html = pairedScoreMarkup(musicLibrary.P03, { showEntranceFingers: true });
+  assert.equal((html.match(/paired-barline/g) ?? []).length, 8);
+  assert.equal((html.match(/class="active-hand-label"/g) ?? []).length, 6);
+  assert.equal((html.match(/class="dynamic-label"/g) ?? []).length, 2);
+  assert.equal((html.match(/class="quarter-rest"/g) ?? []).length, 5);
+  assert.equal((html.match(/whole-measure-rest/g) ?? []).length, 14);
+  assert.match(html, />p<\/text>/);
+  assert.match(html, />f<\/text>/);
+  assert.match(html, /<em>p<\/em> = soft; <em>f<\/em> = strong, never forced/);
+  const text = notationText(musicLibrary.P03);
+  assert.match(text, /Measure 7: RH quarter rest, one silent beat, quarter rest, one silent beat, C4 quarter, D4 quarter/);
+  assert.match(text, /LH C3 quarter, quarter rest, one silent beat, quarter rest, one silent beat, quarter rest, one silent beat/);
+});
