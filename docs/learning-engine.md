@@ -92,6 +92,8 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 Only implemented sessions at or before `currentSessionId` are available. Sessions 001–024 complete Chapter 01; no Chapter 02 placeholder is exposed. An earlier session can be revisited, repeated, and left without changing the main position.
 
+The lesson sidebar filters those available sessions by the chapter of the viewed session. Home offers cross-chapter revisits and Continue Learning opens the saved current session. Continuing from the end of a chapter follows ordinary catalog order.
+
 Practicing shows one short repeat. Stuck shows one simpler prerequisite and may link to an earlier implemented session. Recording a reinforcement attempt only increments supportive history; it cannot complete, lock, reset, or advance a numbered session.
 
 ## Automated validation boundaries
