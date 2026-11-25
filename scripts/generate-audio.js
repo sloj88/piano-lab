@@ -16,7 +16,7 @@ export function pitchFrequency(pitch) {
   return 440 * (2 ** (distanceFromA4 / 12));
 }
 
-function addTone(samples, startSeconds, pitch, toneSeconds = TONE_SECONDS) {
+function addTone(samples, startSeconds, pitch, toneSeconds = TONE_SECONDS, gain = 0.36) {
   const start = Math.round(startSeconds * SAMPLE_RATE);
   const length = Math.round(toneSeconds * SAMPLE_RATE);
   const frequency = pitchFrequency(pitch);
@@ -27,7 +27,7 @@ function addTone(samples, startSeconds, pitch, toneSeconds = TONE_SECONDS) {
     const envelope = Math.max(0, attack * release) * Math.exp(-1.4 * time);
     const fundamental = Math.sin(2 * Math.PI * frequency * time);
     const harmonic = 0.16 * Math.sin(2 * Math.PI * frequency * 2 * time);
-    samples[start + index] = (fundamental + harmonic) * envelope * 0.36;
+    samples[start + index] += (fundamental + harmonic) * envelope * gain;
   }
 }
 
@@ -44,26 +44,58 @@ function mix(samples, source, startSeconds, gain = 0.72) {
   for (let index = 0; index < source.length && start + index < samples.length; index += 1) samples[start + index] += source[index] * gain;
 }
 
-function synthesizeMetered(example, bpm, countSamples, spokenDuring = false) {
+function synthesizeMetered(example, bpm, countSamples, spokenDuring = false, gains = []) {
   const beatSeconds = 60 / bpm;
   const musicBeats = example.measures.length * example.meter.beats;
   const samples = new Float32Array(Math.ceil((4 + musicBeats) * beatSeconds * SAMPLE_RATE));
   for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
+  let noteIndex = 0;
   example.measures.forEach((measure, measureIndex) => {
-    let onset = 0;
-    const events = example.kind === 'paired-score'
-      ? measure.staves[measure.activeHand === 'RH' ? 'treble' : 'bass'].events
-      : measure.events;
-    events.forEach((event) => {
-      if (event.kind === 'rest') { onset += event.beats; return; }
+    const timedEvents = [];
+    const addTimeline = (events) => {
+      let onset = 0;
+      for (const event of events) {
+        if (event.kind === 'note') timedEvents.push({ event, onset });
+        onset += event.beats;
+      }
+    };
+    if (example.kind === 'paired-score') {
+      addTimeline(measure.staves.treble.events);
+      addTimeline(measure.staves.bass.events);
+      timedEvents.sort((a, b) => a.onset - b.onset);
+    } else addTimeline(measure.events);
+    timedEvents.forEach(({ event, onset }) => {
       const startBeat = 4 + measureIndex * example.meter.beats + onset;
-      addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, event.beats * beatSeconds - 0.12));
-      onset += event.beats;
+      addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, event.beats * beatSeconds - 0.12), gains[noteIndex] ?? 0.36);
+      noteIndex += 1;
     });
   });
   if (spokenDuring) {
     for (let beat = 0; beat < musicBeats; beat += 1) mix(samples, countSamples[beat % 4], (4 + beat) * beatSeconds + 0.04, 0.82);
   }
+  return samples;
+}
+
+function synthesizeDynamics(countSamples) {
+  const bpm = 56;
+  const beatSeconds = 60 / bpm;
+  const totalBeats = 13;
+  const samples = new Float32Array(Math.ceil(totalBeats * beatSeconds * SAMPLE_RATE));
+  for (let beat = 0; beat < 4; beat += 1) mix(samples, countSamples[beat], beat * beatSeconds + 0.04);
+  for (let beat = 0; beat < 4; beat += 1) addTone(samples, (4 + beat) * beatSeconds, 'C4', beatSeconds - 0.12, 0.19);
+  for (let beat = 0; beat < 4; beat += 1) addTone(samples, (9 + beat) * beatSeconds, 'C4', beatSeconds - 0.12, 0.48);
+  return samples;
+}
+
+function concatenateSamples(parts, silenceSeconds = 0) {
+  const gap = Math.round(silenceSeconds * SAMPLE_RATE);
+  const length = parts.reduce((sum, part) => sum + part.length, 0) + gap * Math.max(0, parts.length - 1);
+  const samples = new Float32Array(length);
+  let offset = 0;
+  parts.forEach((part, index) => {
+    samples.set(part, offset);
+    offset += part.length + (index < parts.length - 1 ? gap : 0);
+  });
   return samples;
 }
 
@@ -124,6 +156,23 @@ export function generateListeningAudio(outputDirectory, voiceDirectory = resolve
   for (const echo of musicLibrary.E002.echoes) writeFileSync(resolve(outputDirectory, `e002-${echo.id.toLowerCase()}.wav`), encodeWav(synthesizePitchEcho(echo.pitches, 60, counts)));
   writeFileSync(resolve(outputDirectory, 'p02-practice.wav'), encodeWav(synthesizeMetered(musicLibrary.P02, 52, counts, false)));
   writeFileSync(resolve(outputDirectory, 'p02-musical.wav'), encodeWav(synthesizeMetered(musicLibrary.P02, 60, counts, false)));
+  writeFileSync(resolve(outputDirectory, 'd001-soft-strong.wav'), encodeWav(synthesizeDynamics(counts)));
+  writeFileSync(resolve(outputDirectory, 'm001-even.wav'), encodeWav(synthesizeMetered(musicLibrary['M001-METERED'], 60, counts, false)));
+  writeFileSync(resolve(outputDirectory, 'm001-shaped.wav'), encodeWav(synthesizeMetered(musicLibrary['M001-METERED'], 60, counts, false, [0.24, 0.29, 0.34, 0.44, 0.34, 0.28, 0.22])));
+  const questionAnswer = {
+    ...musicLibrary['M001-METERED'],
+    measures: [...musicLibrary['M001-METERED'].measures, ...musicLibrary['C001-A'].measures]
+  };
+  writeFileSync(resolve(outputDirectory, 'c001-question-answer.wav'), encodeWav(synthesizeMetered(questionAnswer, 60, counts, false, [0.24, 0.29, 0.34, 0.44, 0.34, 0.28, 0.22, 0.31, 0.27, 0.2])));
+  writeFileSync(resolve(outputDirectory, 'p03-rhythm-count.wav'), encodeWav(synthesizeMetered(musicLibrary.P03, 52, counts, true)));
+  const p03First = { ...musicLibrary.P03, measures: musicLibrary.P03.measures.slice(0, 4) };
+  const p03Second = { ...musicLibrary.P03, measures: musicLibrary.P03.measures.slice(4) };
+  writeFileSync(resolve(outputDirectory, 'p03-sections.wav'), encodeWav(concatenateSamples([
+    synthesizeMetered(p03First, 52, counts, false), synthesizeMetered(p03Second, 52, counts, false)
+  ], 2 * 60 / 52)));
+  writeFileSync(resolve(outputDirectory, 'p03-performance.wav'), encodeWav(synthesizeMetered(musicLibrary.P03, 62, counts, false, [
+    ...Array(12).fill(0.23), ...Array(12).fill(0.46)
+  ])));
 }
 
 const scriptPath = fileURLToPath(import.meta.url);

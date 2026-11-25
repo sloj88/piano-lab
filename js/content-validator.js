@@ -66,6 +66,15 @@ function staffIndex(pitch) {
   return match ? Number(match[2]) * 7 + STAFF_LETTERS[match[1]] : null;
 }
 
+function eventTimeline(events) {
+  let onset = 0;
+  return events.map((event) => {
+    const entry = { event, onset, end: onset + (Number.isFinite(event?.beats) ? event.beats : 0) };
+    onset = entry.end;
+    return entry;
+  });
+}
+
 function validateMusic(music, assets, errors) {
   for (const [id, example] of Object.entries(music)) {
     const path = `music.${id}`;
@@ -115,6 +124,19 @@ function validateMusic(music, assets, errors) {
       }
       continue;
     }
+    if (example.kind === 'dynamic-model') {
+      if (!example.meter || example.meter.beats !== 4 || example.meter.beatValue !== 4) errors.push(issue('meter', `${path}.meter`, 'The dynamic model requires 4/4.'));
+      if (!Array.isArray(example.groups) || example.groups.length !== 2 || example.groups.map(({ dynamic }) => dynamic).join(',') !== 'p,f') errors.push(issue('dynamic-groups', `${path}.groups`, 'The dynamic model requires p then f groups.'));
+      for (const [groupIndex, group] of (example.groups ?? []).entries()) {
+        const groupPath = `${path}.groups.${groupIndex}`;
+        if (!Array.isArray(group.events) || group.events.length === 0) errors.push(issue('measure-events', `${groupPath}.events`, 'A dynamic group requires events.'));
+        for (const [eventIndex, event] of (group.events ?? []).entries()) validateMusicEvent(event, `${groupPath}.events.${eventIndex}`, example.meter, errors);
+        const total = (group.events ?? []).reduce((sum, event) => sum + (Number.isFinite(event?.beats) ? event.beats : 0), 0);
+        if (total !== 4) errors.push(issue('measure-total', groupPath, `Dynamic group totals ${total} beats; expected 4.`));
+      }
+      if (!example.audioRef || assets[example.audioRef]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.audioRef`, `Unknown audio asset ${example.audioRef ?? 'none'}.`));
+      continue;
+    }
     if (example.kind === 'hand-pattern') {
       if (!example.meter || example.meter.beats !== 4 || example.meter.beatValue !== 4) errors.push(issue('meter', `${path}.meter`, 'The hand-pattern schema currently requires 4/4.'));
       if (!Array.isArray(example.measures) || example.measures.length === 0) errors.push(issue('measure-events', `${path}.measures`, 'A hand pattern needs at least one measure.'));
@@ -139,7 +161,12 @@ function validateMusic(music, assets, errors) {
       if (!Array.isArray(example.measures) || example.measures.length === 0) errors.push(issue('paired-measures', `${path}.measures`, 'A paired score needs at least one measure.'));
       for (const [measureIndex, measure] of (example.measures ?? []).entries()) {
         const measurePath = `${path}.measures.${measureIndex}`;
-        if (!['RH', 'LH'].includes(measure?.activeHand)) errors.push(issue('active-hand', `${measurePath}.activeHand`, 'A paired measure requires activeHand RH or LH.'));
+        const isAlternatingMeasure = Array.isArray(measure?.activeHands);
+        if (isAlternatingMeasure) {
+          if (!example.alternatingHands) errors.push(issue('alternating-hands-unsupported', `${measurePath}.activeHands`, 'Alternating hands require the bounded alternatingHands score flag.'));
+          if (measure.activeHands.length !== 2 || new Set(measure.activeHands).size !== 2 || !measure.activeHands.includes('RH') || !measure.activeHands.includes('LH')) errors.push(issue('active-hands', `${measurePath}.activeHands`, 'An alternating measure requires exactly LH and RH.'));
+          if (measure.activeHand !== undefined) errors.push(issue('active-hand-shape', measurePath, 'Use activeHands, not activeHand, for an alternating measure.'));
+        } else if (!['RH', 'LH'].includes(measure?.activeHand)) errors.push(issue('active-hand', `${measurePath}.activeHand`, 'A paired measure requires activeHand RH or LH.'));
         for (const [staffName, expectedClef] of [['treble', 'treble'], ['bass', 'bass']]) {
           const staff = measure?.staves?.[staffName];
           const staffPath = `${measurePath}.staves.${staffName}`;
@@ -150,9 +177,30 @@ function validateMusic(music, assets, errors) {
           staff.events.forEach((event, eventIndex) => validateMusicEvent(event, `${staffPath}.events.${eventIndex}`, example.meter, errors));
           const total = staff.events.reduce((sum, event) => sum + (Number.isFinite(event?.beats) ? event.beats : 0), 0);
           if (total !== example.meter.beats) errors.push(issue('staff-total', staffPath, `${staffName} staff totals ${total} beats; expected ${example.meter.beats}.`));
-          const activeStaff = measure.activeHand === 'RH' ? 'treble' : 'bass';
-          if (staffName === activeStaff && staff.events.some((event) => event.kind !== 'note')) errors.push(issue('active-staff-rest', staffPath, 'The active staff in this bounded schema must contain only notes.'));
-          if (staffName !== activeStaff && !(staff.events.length === 1 && staff.events[0].kind === 'rest' && staff.events[0].rhythm === 'whole-measure-rest')) errors.push(issue('inactive-staff-rest', staffPath, 'The inactive staff must contain exactly one whole-measure rest.'));
+          if (isAlternatingMeasure) {
+            if (!staff.events.some((event) => event.kind === 'note')) errors.push(issue('alternating-staff-note', staffPath, 'Each staff in the bounded alternating measure requires a note entrance.'));
+            if (staff.events.some((event) => event.kind === 'rest' && event.rhythm !== 'quarter-rest')) errors.push(issue('alternating-staff-rest', staffPath, 'Gaps in the alternating measure must use explicit quarter rests.'));
+          } else {
+            const activeStaff = measure.activeHand === 'RH' ? 'treble' : 'bass';
+            if (staffName === activeStaff && staff.events.some((event) => event.kind !== 'note')) errors.push(issue('active-staff-rest', staffPath, 'The active staff in this bounded schema must contain only notes.'));
+            if (staffName !== activeStaff && !(staff.events.length === 1 && staff.events[0].kind === 'rest' && staff.events[0].rhythm === 'whole-measure-rest')) errors.push(issue('inactive-staff-rest', staffPath, 'The inactive staff must contain exactly one whole-measure rest.'));
+          }
+        }
+        if (isAlternatingMeasure && measure.staves?.treble?.events && measure.staves?.bass?.events) {
+          const sounding = [
+            ...eventTimeline(measure.staves.treble.events).filter(({ event }) => event.kind === 'note').map((entry) => ({ ...entry, hand: 'RH' })),
+            ...eventTimeline(measure.staves.bass.events).filter(({ event }) => event.kind === 'note').map((entry) => ({ ...entry, hand: 'LH' }))
+          ].sort((a, b) => a.onset - b.onset);
+          for (let index = 1; index < sounding.length; index += 1) if (sounding[index].onset < sounding[index - 1].end) errors.push(issue('paired-note-overlap', measurePath, 'The bounded alternating-hand measure cannot contain overlapping notes.'));
+          const entrances = measure.handEntrances ?? [];
+          if (entrances.length !== 2) errors.push(issue('hand-entrances', `${measurePath}.handEntrances`, 'The alternating measure requires explicit LH and RH entrances.'));
+          for (const [entranceIndex, entrance] of entrances.entries()) {
+            const entrancePath = `${measurePath}.handEntrances.${entranceIndex}`;
+            const staffName = entrance.hand === 'RH' ? 'treble' : entrance.hand === 'LH' ? 'bass' : null;
+            const matching = staffName && eventTimeline(measure.staves[staffName].events).find(({ event, onset }) => event.kind === 'note' && onset === entrance.beat - 1);
+            if (!staffName || !Number.isInteger(entrance.beat) || entrance.beat < 1 || entrance.beat > 4 || !matching) errors.push(issue('hand-entrance-timing', entrancePath, 'Each hand entrance must identify a sounding note on its exact beat.'));
+            else if (matching.event.finger !== entrance.finger) errors.push(issue('hand-entrance-finger', entrancePath, 'Entrance fingering must match the sounding note.'));
+          }
         }
       }
       for (const reference of example.audioRefs ?? []) if (assets[reference]?.type !== 'audio') errors.push(issue('audio-reference', `${path}.audioRefs`, `Unknown audio asset ${reference}.`));
@@ -268,7 +316,7 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
           if (!Array.isArray(block.pairIds) || block.pairIds.length === 0) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, 'An audio-listening block needs at least one pair reference.'));
           for (const pairId of block.pairIds ?? []) if (!availablePairs.has(pairId)) errors.push(issue('listening-pair-reference', `${blockPath}.pairIds`, `Unknown listening pair ${pairId}.`));
         }
-        if (block.type === 'pulse-guide' && music[block.musicRef]?.kind !== 'pulse-guide' && !Array.isArray(music[block.musicRef]?.events)) errors.push(issue('block-music-type', blockPath, 'A pulse-guide block requires pulse-guide data or sequential music events.'));
+        if (block.type === 'pulse-guide' && music[block.musicRef]?.kind !== 'pulse-guide' && !Array.isArray(music[block.musicRef]?.events) && !Array.isArray(music[block.musicRef]?.measures)) errors.push(issue('block-music-type', blockPath, 'A pulse-guide block requires pulse-guide data or sequential music events.'));
         if (block.type === 'notation') {
           if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('notation-reference', `${blockPath}.musicRefs`, 'A notation block needs at least one music reference.'));
           for (const reference of block.musicRefs ?? []) if (!music[reference]?.notation || !Array.isArray(music[reference]?.measures)) errors.push(issue('block-music-type', blockPath, `Notation reference ${reference} must contain notated measures.`));
@@ -280,6 +328,7 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
           for (const echoId of block.echoIds ?? []) if (!availableEchoes.has(echoId)) errors.push(issue('echo-reference', `${blockPath}.echoIds`, `Unknown pitch echo ${echoId}.`));
         }
         if (block.type === 'hand-lanes' && !['hand-pattern', 'paired-score'].includes(music[block.musicRef]?.kind)) errors.push(issue('block-music-type', blockPath, 'A hand-lanes block requires a hand-pattern or paired-score reference.'));
+        if (block.type === 'dynamic-demo' && music[block.musicRef]?.kind !== 'dynamic-model') errors.push(issue('block-music-type', blockPath, 'A dynamic-demo block requires a dynamic-model reference.'));
         if (block.type === 'rhythm-echo') {
           if (!Array.isArray(block.musicRefs) || block.musicRefs.length === 0) errors.push(issue('echo-reference', `${blockPath}.musicRefs`, 'A rhythm-echo block needs at least one music reference.'));
           for (const reference of block.musicRefs ?? []) if (!music[reference]?.audioRef || !music[reference]?.countedAudioRef) errors.push(issue('block-music-type', blockPath, `Rhythm echo ${reference} requires pattern and counted audio.`));

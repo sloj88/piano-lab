@@ -181,6 +181,22 @@ test('paired scores validate staff timing independently and reject malformed act
   assert.equal(codes.includes('paired-staff'), true);
 });
 
+test('P03 bounded alternating-hand validation rejects wrong totals, rests, hands, entrances, and overlap', () => {
+  const fixture = catalogs();
+  const measure7 = fixture.music.P03.measures[6];
+  measure7.activeHands = ['LH', 'LH'];
+  measure7.handEntrances[1].beat = 2;
+  measure7.staves.treble.events[0] = { kind: 'note', pitch: 'C4', finger: 1, rhythm: 'quarter', beats: 1 };
+  measure7.staves.bass.events[1].rhythm = 'whole-measure-rest';
+  measure7.staves.bass.events[1].beats = 4;
+  const codes = errorCodes(validateCurriculum(fixture));
+  assert.equal(codes.includes('active-hands'), true);
+  assert.equal(codes.includes('hand-entrance-timing'), true);
+  assert.equal(codes.includes('paired-note-overlap'), true);
+  assert.equal(codes.includes('alternating-staff-rest'), true);
+  assert.equal(codes.includes('staff-total'), true);
+});
+
 test('hand-pattern assignments and pitch-echo metadata are validated', () => {
   const fixture = catalogs();
   fixture.music.H001.measures[0].events[0].hand = 'both';

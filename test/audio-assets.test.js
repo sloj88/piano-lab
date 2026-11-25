@@ -131,3 +131,78 @@ test('E002 and P02 recordings place every approved pitch at its musical onset', 
     });
   }
 });
+
+test('Sessions 019–020 audio is local, timed, pitched, and carries the specified relative contrast', () => {
+  for (const reference of ['d001-soft-strong', 'm001-even', 'm001-shaped', 'c001-question-answer']) {
+    const audio = readFileSync(new URL(`../${assetCatalog[reference].src}`, import.meta.url));
+    assert.equal(audio.toString('ascii', 0, 4), 'RIFF');
+    assert.equal(audio.readUInt32LE(24), SAMPLE_RATE);
+  }
+
+  for (const reference of ['m001-even', 'm001-shaped']) {
+    const audio = readFileSync(new URL(`../${assetCatalog[reference].src}`, import.meta.url));
+    assert.equal(wavDuration(audio), 12);
+    const starts = [4, 5, 6, 8, 9, 10, 11];
+    const pitches = ['C4', 'D4', 'E4', 'G4', 'E4', 'D4', 'C4'];
+    pitches.forEach((pitch, index) => assert.ok(Math.abs(estimateFrequency(audio, starts[index]) - pitchFrequency(pitch)) < 4, `${reference} should sound ${pitch}`));
+  }
+
+  const dynamic = readFileSync(new URL(`../${assetCatalog['d001-soft-strong'].src}`, import.meta.url));
+  assert.ok(Math.abs(wavDuration(dynamic) - (13 * 60 / 56)) < 1 / SAMPLE_RATE);
+  const rms = (start, end) => {
+    let total = 0;
+    let count = 0;
+    for (let index = Math.round(start * SAMPLE_RATE); index < Math.round(end * SAMPLE_RATE); index += 1) {
+      const sample = dynamic.readInt16LE(44 + index * 2) / 32768;
+      total += sample * sample;
+      count += 1;
+    }
+    return Math.sqrt(total / count);
+  };
+  const beatSeconds = 60 / 56;
+  assert.ok(rms(9 * beatSeconds, 13 * beatSeconds) > rms(4 * beatSeconds, 8 * beatSeconds) * 1.8, 'f group should be clearly stronger than p without asserting musical quality');
+
+  const answer = readFileSync(new URL(`../${assetCatalog['c001-question-answer'].src}`, import.meta.url));
+  assert.equal(wavDuration(answer), 16);
+  [['E4', 12], ['D4', 13], ['C4', 14]].forEach(([pitch, start]) => assert.ok(Math.abs(estimateFrequency(answer, start) - pitchFrequency(pitch)) < 4));
+});
+
+test('P03 practice and performance audio preserves count-ins, tempo, rests, hand sequence, and contrast', () => {
+  const durations = {
+    'p03-rhythm-count': 36 * 60 / 52,
+    'p03-sections': 42 * 60 / 52,
+    'p03-performance': 36 * 60 / 62
+  };
+  for (const [reference, duration] of Object.entries(durations)) {
+    const audio = readFileSync(new URL(`../${assetCatalog[reference].src}`, import.meta.url));
+    assert.equal(audio.toString('ascii', 0, 4), 'RIFF');
+    assert.ok(Math.abs(wavDuration(audio) - duration) < 1 / SAMPLE_RATE, reference);
+  }
+
+  const performance = readFileSync(new URL(`../${assetCatalog['p03-performance'].src}`, import.meta.url));
+  const beatSeconds = 60 / 62;
+  musicLibrary.P03.measures.forEach((measure, measureIndex) => {
+    for (const staffName of ['treble', 'bass']) {
+      let onset = 0;
+      for (const event of measure.staves[staffName].events) {
+        if (event.kind === 'note') {
+          const start = (4 + measureIndex * 4 + onset) * beatSeconds;
+          assert.ok(Math.abs(estimateFrequency(performance, start) - pitchFrequency(event.pitch)) < 4, `Measure ${measureIndex + 1} ${staffName} should sound ${event.pitch}`);
+        }
+        onset += event.beats;
+      }
+    }
+  });
+
+  const rms = (startBeat, endBeat) => {
+    let total = 0;
+    let count = 0;
+    for (let index = Math.round(startBeat * beatSeconds * SAMPLE_RATE); index < Math.round(endBeat * beatSeconds * SAMPLE_RATE); index += 1) {
+      const sample = performance.readInt16LE(44 + index * 2) / 32768;
+      total += sample * sample;
+      count += 1;
+    }
+    return Math.sqrt(total / count);
+  };
+  assert.ok(rms(20, 36) > rms(4, 20) * 1.6, 'Measures 5–8 should be clearly stronger than Measures 1–4 without asserting expressive quality');
+});

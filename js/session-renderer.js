@@ -62,7 +62,15 @@ function listeningMarkup(block, context) {
 }
 
 function notationMarkup(block, context) {
-  const examples = block.musicRefs.map((reference) => context.music[reference]);
+  const examples = block.musicRefs.map((reference) => {
+    const example = context.music[reference];
+    if (!Array.isArray(block.options?.measureIndexes)) return example;
+    return {
+      ...example,
+      title: block.options.sectionTitle ?? example.title,
+      measures: block.options.measureIndexes.map((index) => ({ ...example.measures[index], displayNumber: index + 1 }))
+    };
+  });
   return `<section class="notation-set" aria-label="Music notation">${examples.map((example) => {
     const renderScore = example.kind === 'paired-score' ? pairedScoreMarkup : scoreMarkup;
     const score = renderScore(example, { ...(block.options ?? {}), showDirections: false });
@@ -133,6 +141,22 @@ function audioTracksMarkup(block, context) {
   return block.collapsed ? `<details class="audio-details"><summary>${block.summary ?? 'Hear after my try'}</summary>${content}</details>` : content;
 }
 
+function dynamicDemoMarkup(block, context) {
+  const example = context.music[block.musicRef];
+  const asset = context.assets[example.audioRef];
+  return `<section class="dynamic-demo" aria-label="Soft and strong sound and movement demonstration">
+    <div class="dynamic-sounds" data-audio-card><div><strong>p</strong><span>soft</span></div><div><strong>f</strong><span>strong, never forced</span></div>
+      <audio preload="metadata" src="${asset.src}" data-audio-id="${example.audioRef}"></audio>
+      <button class="button button-secondary audio-button" type="button" data-audio-control="${example.audioRef}" data-audio-label="soft then strong dynamics">▶ Hear soft, reset, then strong</button>
+      <p class="audio-status" role="status" aria-live="polite">Four soft C notes, a silent reset, then four stronger C notes.</p>
+    </div>
+    <div class="motion-model"><div><h4>Easy, free descent</h4><svg viewBox="0 0 260 115" role="img" aria-label="Side-view diagram of a relaxed hand moving a key down with a small free motion"><rect class="motion-key" x="42" y="78" width="176" height="19" rx="3"/><path class="motion-arm" d="M18 37 C72 39 94 48 130 53 C156 57 176 59 202 66"/><circle class="motion-joint" cx="130" cy="53" r="5"/><path class="motion-arrow" d="M206 48 v22 m-7-7 7 7 7-7"/></svg><p>Let the key move a little faster for the fuller sound while shoulder, jaw, and wrist stay easy.</p></div>
+      <div class="avoid-motion"><h4>Avoid bracing or striking</h4><p aria-hidden="true" class="avoid-symbol">×</p><p>Do not raise, lock, or drive the hand into the key. Stop for pain, numbness, or persistent tension.</p></div>
+    </div>
+    <p class="motion-note">On a non-touch-sensitive keyboard, listen for the contrast and rehearse only the relaxed motion. Do not force the instrument to become louder.</p>
+  </section>`;
+}
+
 function rhythmEchoMarkup(block, context) {
   return `<section class="echo-set" aria-label="Rhythm echo exercises">${block.musicRefs.map((reference) => {
     const example = context.music[reference];
@@ -148,13 +172,13 @@ function rhythmEchoMarkup(block, context) {
 
 function pulseMarkup(block, context) {
   const example = context.music[block.musicRef];
-  const events = Array.isArray(example.events) ? example.events : null;
+  const events = Array.isArray(example.events) ? example.events : Array.isArray(example.measures) ? example.measures.flatMap((measure) => measure.events) : null;
   const beats = events?.length ?? example.beats;
   const groupSize = example.groupSize ?? 4;
   const bpm = example.bpm ?? 56;
   const cells = Array.from({ length: beats }, (_, index) => {
     const event = events?.[index];
-    const label = event ? event.pitch.replace(/[0-9]$/, '') : String((index % groupSize) + 1);
+    const label = event ? event.kind === 'rest' ? 'rest' : event.pitch.replace(/[0-9]$/, '') : String((index % groupSize) + 1);
     const detail = event?.finger ? `<small>finger ${event.finger}</small>` : '';
     return `<li data-pulse-index="${index}"><span>${label}</span>${detail}</li>`;
   }).join('');
@@ -186,6 +210,7 @@ export function renderBlock(block, context) {
     case 'audio-reference': return audioTracksMarkup(block, context);
     case 'pitch-echo': return pitchEchoMarkup(block, context);
     case 'hand-lanes': return handLanesMarkup(block, context);
+    case 'dynamic-demo': return dynamicDemoMarkup(block, context);
     case 'practice':
       return `<section class="learning-block try-block" aria-label="Try it on your piano">${phaseMarkup(block.phase)}<p>${block.instruction}</p><details><summary>Need a hint?</summary><p>${block.hint}</p>${block.hintVisual?.type === 'keyboard' ? keyboardMarkup(block.hintVisual) : ''}</details></section>`;
     case 'reflection':

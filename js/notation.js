@@ -24,7 +24,8 @@ export function bassPitchY(pitch) {
 }
 
 function eventText(event) {
-  return event.kind === 'rest' ? 'waits for all four beats' : `${event.pitch} ${event.rhythm}`;
+  if (event.kind !== 'rest') return `${event.pitch} ${event.rhythm}${event.hand ? ` ${event.hand}` : ''}`;
+  return event.rhythm === 'whole-measure-rest' ? 'waits for all four beats' : 'quarter rest, one silent beat';
 }
 
 export function notationText(example) {
@@ -38,11 +39,16 @@ export function beatGridMarkup(example) {
   return `<div class="beat-grids">${example.measures.map((measure, measureIndex) => {
     const beats = [];
     for (const event of measure.events) {
-      beats.push(`<div><strong>${beats.length + 1}</strong><span>${event.pitch.replace(/[0-9]$/, '')} begins</span></div>`);
+      const label = event.kind === 'rest' ? 'rest · silent' : `${event.pitch.replace(/[0-9]$/, '')} begins`;
+      beats.push(`<div${event.kind === 'rest' ? ' class="is-rest"' : ''}><strong>${beats.length + 1}</strong><span>${label}</span></div>`);
       for (let held = 1; held < event.beats; held += 1) beats.push(`<div class="is-held"><strong>${beats.length + 1}</strong><span>hold</span></div>`);
     }
     return `<section aria-label="Measure ${measureIndex + 1} beat guide"><p>Measure ${measureIndex + 1}</p><div class="beat-grid">${beats.join('')}</div></section>`;
   }).join('')}</div>`;
+}
+
+function quarterRestMarkup(x, top = STAFF_TOP) {
+  return `<g class="quarter-rest" data-rhythm="quarter-rest" aria-label="quarter rest, one silent beat"><text x="${x}" y="${top + 38}">𝄽</text></g>`;
 }
 
 function staffLines(width, top = STAFF_TOP) {
@@ -81,6 +87,12 @@ export function scoreMarkup(example, options = {}) {
     let notes = '';
     for (const event of measure.events) {
       const x = startX + 18 + onset * ((measureWidth - 28) / example.meter.beats);
+      if (event.kind === 'rest') {
+        notes += quarterRestMarkup(x);
+        onset += event.beats;
+        flatIndex += 1;
+        continue;
+      }
       const y = clef === 'neutral'
         ? STAFF_BOTTOM - (example.notation.staffSteps[flatIndex] * STAFF_GAP / 2)
         : clef === 'bass' ? bassPitchY(event.pitch) : treblePitchY(event.pitch);
@@ -89,7 +101,7 @@ export function scoreMarkup(example, options = {}) {
       onset += event.beats;
       flatIndex += 1;
     }
-    const measureNumber = options.measureNumbers ? `<text class="measure-number" x="${startX + 5}" y="16">${measureIndex + 1}</text>` : '';
+    const measureNumber = options.measureNumbers ? `<text class="measure-number" x="${startX + 5}" y="16">${measure.displayNumber ?? measureIndex + 1}</text>` : '';
     measures += `${measureNumber}${notes}<line class="barline" x1="${startX + measureWidth}" y1="${STAFF_TOP}" x2="${startX + measureWidth}" y2="${STAFF_BOTTOM}"/>`;
   });
   const clefSymbols = clef === 'neutral' ? '' : clefMarkup(clef);
@@ -116,8 +128,12 @@ function pairedStaffEvents(events, clef, startX, measureWidth, meter, top, optio
   let onset = 0;
   return events.map((event, index) => {
     const x = startX + 18 + onset * ((measureWidth - 28) / meter.beats);
+    if (event.kind === 'rest') {
+      onset += event.beats;
+      return quarterRestMarkup(x, top);
+    }
     const y = pairedPitchY(event.pitch, clef, top + STAFF_GAP * 4);
-    const showFinger = options.showEntranceFingers && index === 0;
+    const showFinger = event.showFinger || (options.showEntranceFingers && index === 0);
     onset += event.beats;
     return noteMarkup(event, x, y, { label: options.showLabels, finger: showFinger ? event.finger : null, ledger: clef === 'treble' && event.pitch === 'C4', labelY: top + 84 });
   }).join('');
@@ -133,18 +149,26 @@ export function pairedScoreMarkup(example, options = {}) {
   const height = options.showLabels ? 230 : 214;
   const measures = example.measures.map((measure, index) => {
     const startX = lead + index * measureWidth;
-    const activeLabelY = measure.activeHand === 'RH' ? trebleTop - 8 : bassTop - 8;
-    return `<text class="measure-number" x="${startX + 5}" y="15">${index + 1}</text>
-      <text class="active-hand-label" x="${startX + 18}" y="${activeLabelY}">${measure.activeHand}</text>
+    const labels = Array.isArray(measure.handEntrances)
+      ? measure.handEntrances.map(({ hand, beat }) => {
+          const x = startX + 18 + (beat - 1) * ((measureWidth - 28) / example.meter.beats);
+          const y = hand === 'RH' ? trebleTop - 8 : bassTop - 8;
+          return `<text class="active-hand-label" x="${x}" y="${y}">${hand}</text>`;
+        }).join('')
+      : `<text class="active-hand-label" x="${startX + 18}" y="${measure.activeHand === 'RH' ? trebleTop - 8 : bassTop - 8}">${measure.activeHand}</text>`;
+    const dynamic = measure.dynamic ? `<text class="dynamic-label" x="${startX + 18}" y="${bassBottom + 24}">${measure.dynamic}</text>` : '';
+    return `<text class="measure-number" x="${startX + 5}" y="15">${measure.displayNumber ?? index + 1}</text>
+      ${labels}${dynamic}
       ${pairedStaffEvents(measure.staves.treble.events, 'treble', startX, measureWidth, example.meter, trebleTop, options)}
       ${pairedStaffEvents(measure.staves.bass.events, 'bass', startX, measureWidth, example.meter, bassTop, options)}
       <line class="barline paired-barline" x1="${startX + measureWidth}" y1="${trebleTop}" x2="${startX + measureWidth}" y2="${bassBottom}"/>`;
   }).join('');
+  const dynamicKey = example.dynamics ? '<p class="dynamic-key"><em>p</em> = soft; <em>f</em> = strong, never forced.</p>' : '';
   return `<figure class="score-figure paired-score-figure">
     <div class="score-scroll" tabindex="0" aria-label="Scrollable paired-staff music notation"><svg class="music-score paired-music-score" viewBox="0 0 ${width} ${height}" role="img" aria-label="${example.title}. ${notationText(example)}" style="--score-width:${width}px">
       <g class="staff-lines treble-staff">${staffLines(width, trebleTop)}</g><g class="staff-lines bass-staff">${staffLines(width, bassTop)}</g>
       ${clefMarkup('treble', 0)}${clefMarkup('bass', bassTop - STAFF_TOP)}${measures}
     </svg></div>
-    <figcaption>${example.title}. ${options.caption ?? notationText(example)}</figcaption>
+    <figcaption>${example.title}. ${options.caption ?? notationText(example)}</figcaption>${dynamicKey}
   </figure>`;
 }

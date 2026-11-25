@@ -49,9 +49,9 @@ test('choosing stuck does not prevent an explicit continue to the next session',
   assert.equal(continued.currentSessionId, '002');
 });
 
-test('the implemented catalog advances consecutively through Sessions 001–016', () => {
+test('the implemented catalog advances consecutively through Sessions 001–024', () => {
   const store = createSessionProgressStore(null, sessionCatalog);
-  for (const expected of ['002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013', '014', '015', '016']) {
+  for (const expected of ['002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024']) {
     const current = store.load().currentSessionId;
     const target = continueTarget(current, sessionCatalog, store.load());
     assert.deepEqual(target, { sessionId: expected, advancesCurrent: true });
@@ -59,5 +59,5 @@ test('the implemented catalog advances consecutively through Sessions 001–016'
     store.setCurrentSession(expected);
   }
   assert.deepEqual(availableSessionIds(sessionCatalog, store.load()), sessionCatalog.map(({ id }) => id));
-  assert.equal(continueTarget('016', sessionCatalog, store.load()), null);
+  assert.equal(continueTarget('024', sessionCatalog, store.load()), null);
 });
