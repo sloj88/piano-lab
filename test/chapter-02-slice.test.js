@@ -91,14 +91,48 @@ test('each Chapter 02 session renders the lesson phases, check-in and matched su
     const state = { ...progress.sessions[session.id], readiness: 'stuck' };
     const html = session.steps.map((_, index) => renderSessionStep(session, index, state, context)).join('');
     for (const required of ['explain-block', 'demonstrate-block', 'try-block', 'reflect-block', 'I understand it', 'I can play it', 'Ready', 'Practicing', 'Stuck', 'Keep Playing']) assert.ok(html.includes(required), session.id + ' ' + required);
+    assert.match(html, /class="learning-block reflect-block" aria-label="Reflect"><p class="phase"><span>04<\/span>Reflect<\/p>/, session.id);
     assert.match(html, /data-reinforcement="RF02-[A-Z]+"/);
     assert.match(html, /data-revisit-session="\d{3}"/);
     assert.doesNotMatch(html, /autoplay/);
   }
   const review = sessionCatalog[28];
   const reviewHtml = renderSessionStep(review, 2, progress.sessions['029'], context);
-  const visible = reviewHtml.split('<details class="score-reveal"')[0];
+  const visible = reviewHtml.replace(/<details\b[^>]*>[\s\S]*?<\/details>/g, '');
   assert.match(visible, /first space, quarter note/);
-  assert.doesNotMatch(visible, /F4 quarter|class="pitch-label"|class="finger-label"/);
+  assert.match(visible, /third space, quarter note/);
+  assert.doesNotMatch(visible, /[A-G][34] (?:quarter|half)|class="pitch-label"|class="finger-label"/);
   assert.match(reviewHtml, /F4 quarter/);
+});
+
+test('each first step presents a score and observable action in the approved session order', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const context = { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog };
+  const expected = [
+    ['025', 'Find Your Place on the Grand Staff', ['C02-025'], /touch middle C.*touch the next C/],
+    ['026', 'Start Without a Sound', ['C02-026'], /rest a right-hand finger.*without pressing/],
+    ['027', 'Read from Treble G', ['C02-027'], /play G and the white key immediately to its left/],
+    ['028', 'Read from Bass F', ['C02-028'], /play F with finger 2 and G with finger 1/],
+    ['029', 'Read, Glance, Return', ['C02-026'], /Glance toward your keyboard.*point to the first note of bar 2/],
+    ['030', 'Two Beats to a Bar', ['C02-030'], /Say an even.*tap your leg once for each/],
+    ['031', 'Two Beats in the Left Hand', ['C02-031'], /Point to the quarter rest.*tapping your leg only on 1/],
+    ['032', 'Three Beats to a Bar', ['C02-030', 'C02-032'], /Say “1, 2”.*“1, 2, 3”/]
+  ];
+  const sessions = sessionCatalog.slice(24);
+  assert.deepEqual(sessions.map(({ id, title }) => [id, title]), expected.map(([id, title]) => [id, title]));
+  for (const [index, [id, , refs, action]] of expected.entries()) {
+    const session = sessions[index];
+    const { blocks } = session.steps[0];
+    const scores = blocks.filter(({ type }) => type === 'notation');
+    assert.deepEqual(scores.flatMap(({ musicRefs }) => musicRefs), refs, id);
+    if (id >= '030') {
+      assert.ok(scores.every(({ options }) => options.showBeatGrid), id);
+      assert.ok(scores.every(({ options }) => options.measureIndexes.join(',') === '0'), id);
+    }
+    const html = renderSessionStep(session, 0, progress.sessions[id], context);
+    assert.match(html, /class="music-score/, id);
+    assert.ok(blocks.some(({ type, instruction }) => type === 'practice' && action.test(instruction)), id);
+    assert.match(html, action, id);
+    assert.doesNotMatch(html, /<details[^>]*\bopen\b|class="score-reveal"/, id);
+  }
 });
