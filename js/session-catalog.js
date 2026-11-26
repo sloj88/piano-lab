@@ -25,7 +25,13 @@ export const assetCatalog = {
   'p03-rhythm-count': audioAsset('p03-rhythm-count'), 'p03-sections': audioAsset('p03-sections'),
   'p03-performance': audioAsset('p03-performance'),
   'c02-030-model': audioAsset('c02-030-model'),
-  'c02-032-model': audioAsset('c02-032-model')
+  'c02-032-model': audioAsset('c02-032-model'),
+  'c02-033-model': audioAsset('c02-033-model'),
+  'c02-036-model': audioAsset('c02-036-model'),
+  'c02-037-a': audioAsset('c02-037-a'),
+  'c02-037-b': audioAsset('c02-037-b'),
+  'c02-038-model': audioAsset('c02-038-model'),
+  'c02-040-model': audioAsset('c02-040-model')
 };
 
 function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }

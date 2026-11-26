@@ -196,5 +196,23 @@ export const reinforcementCatalog = {
     repeat: 'Say and tap C02-032 separately from the two-beat card, then play C02-032 without the model.',
     prerequisite: 'Count three evenly, point to the start, and play only the first bar.',
     readiness: 'Counts to three, holds across beats 1 and 2, and starts the next bar on time.'
+  },
+  'RF02-WHOLE': {
+    id: 'RF02-WHOLE', title: 'Hold through four counts', sessions: ['033', '034'], earlierSessionId: '005',
+    repeat: 'Play the first two bars of C02-033 after a four-count. Keep one key down throughout the whole note.',
+    prerequisite: 'Recover a two-beat hold on one key.',
+    readiness: 'Holds through beat 4 and releases at the barline without an extra attack.'
+  },
+  'RF02-REST': {
+    id: 'RF02-REST', title: 'Count through two silent beats', sessions: ['036', '037'], earlierSessionId: '017',
+    repeat: 'Count all of C02-036 bar 1 aloud. Tap and then play only on 1 and 4.',
+    prerequisite: 'Return to R003 A and keep counting through its single silent beat.',
+    readiness: 'Releases on time, keeps two beats silent, and resumes on 4.'
+  },
+  'RF02-PAIR': {
+    id: 'RF02-PAIR', title: 'Fit two attacks inside one beat', sessions: ['038', '039', '040'], earlierSessionId: '038',
+    repeat: 'Tap and play C02-038 bar 1. For a pair at the end of a bar, loop it into the next beat 1. Practice in the clef that needs work.',
+    prerequisite: 'Speak “1-and, 2” and tap the pair slowly on your leg.',
+    readiness: 'Places both attacks inside one beat and lands the next beat on time.'
   }
 };

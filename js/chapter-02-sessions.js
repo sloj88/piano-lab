@@ -8,12 +8,12 @@ const firstBar = (musicRef, sectionTitle, options = {}) => score([musicRef], {
   measureIndexes: [0], sectionTitle, ...options
 });
 const tryIt = (instruction, hint) => ({ type: 'practice', phase: 'try', instruction, hint });
-const model = (id, counts, transcript) => ({
-  type: 'audio-reference', title: 'Hear the example at 56 bpm',
+const model = (id, counts, transcript, bpm = 56) => ({
+  type: 'audio-reference', title: `Hear the example at ${bpm} bpm`,
   tracks: [{ assetRef: id, label: `Play with a ${counts}-beat count-in` }], transcript
 });
 
-function session({ id, title, type, objective, prerequisites, musicRefs, assetRefs = [], card, revisit,
+function session({ id, title, type, objective, prerequisites, musicRefs, assetRefs = [], card, additionalCards = [], revisit, repeat,
   preview, demonstration, practice, outcome, understanding, playing, extension }) {
   return {
     id, title, type, chapter: 2, objective, prerequisites,
@@ -27,10 +27,10 @@ function session({ id, title, type, objective, prerequisites, musicRefs, assetRe
     outcome, reflection: { understanding, playing }, keepPlaying: [extension],
     readiness: {
       ready: { label: 'Ready', guidance: 'Continue when you choose, or play once more.' },
-      practicing: { label: 'Practicing', guidance: 'Try one short repeat and check what changed.', reinforcementRefs: [card] },
+      practicing: { label: 'Practicing', guidance: 'Try one short repeat and check what changed.', reinforcementRefs: [card], ...(repeat ? { exercise: repeat } : {}) },
       stuck: { label: 'Stuck', guidance: 'Try the simpler starting point below, or revisit the earlier session.', reinforcementRefs: [card], earlierSessionId: revisit }
     },
-    reinforcementRefs: [card],
+    reinforcementRefs: [card, ...additionalCards],
     pedagogicalReview: [`Session ${id} score, physical instructions, and beginner pacing require qualified piano-teacher review.`]
   };
 }
@@ -156,5 +156,198 @@ export const chapterTwoSessions = [
     understanding: 'I can predict the count of the next attack from the notation.',
     playing: 'I can hold through beat 2 and play beat 3 without rushing.',
     extension: 'Alternate tapping the two-beat card from Session 030 and this three-beat card, giving each a fresh count-in.'
+  }),
+  session({
+    id: '033', title: 'One Sound for Four Beats', type: 'Learn',
+    objective: 'Read a whole note in 4/4 and hold one key through four counts.',
+    prerequisites: ['016', '026', '032'], musicRefs: ['C02-033', 'C02-025'], assetRefs: ['c02-033-model'],
+    card: 'RF02-WHOLE', revisit: '005',
+    preview: [
+      explain('A whole note is an open oval without a stem. In 4/4 it fills one bar with one sound, even if the sound fades while you hold the key.'),
+      firstBar('C02-033', 'One press across four counts', { showBeatGrid: true }),
+      tryIt('Find lower C. Point to the oval, press once with your left little finger, and say “1, 2, 3, 4” before releasing.', 'Keep your hand easy as the sound fades.')
+    ],
+    demonstration: [
+      demonstrate('Compare the whole note with the stemmed half note in bar 2. The rectangle in the paired score is a whole-measure rest. Point to a note that sounds and to the sign that tells the other hand to wait.'),
+      firstBar('C02-025', 'The lower staff waits'),
+      score(['C02-033'], { showBeatGrid: true }),
+      model('c02-033-model', 'four', 'After a spoken four-count, lower C sounds across bar 1. Bar 2 is D, E, and D held for two beats. Lower C sounds across bar 3.')
+    ],
+    practice: [
+      score(['C02-033']),
+      tryIt('Give a four-count, then play all three bars with your left hand. Aim for a comfortable 52–60 bpm. Count aloud during both whole notes and release after each fourth beat.', 'Rehearse bars 1 and 2 together. Bar 2 begins on a fresh 1.')
+    ],
+    outcome: 'Did one press last through all four counts in each whole-note bar?',
+    understanding: 'I can tell a whole note, a half note, and a waiting sign apart.',
+    playing: 'I can hold one key through four beats while the sound fades.',
+    extension: 'Compare bars 1 and 2 once more, keeping the same beat.'
+  }),
+  session({
+    id: '034', title: 'Choose the Count-In', type: 'Review',
+    objective: 'Read the meter and choose the length of the count-in before playing.',
+    prerequisites: ['030', '032', '033'], musicRefs: ['C02-032', 'C02-034-T2', 'C02-034-B3', 'C02-034-T4'],
+    card: 'RF02-THREE', additionalCards: ['RF02-TWO', 'RF02-WHOLE'], revisit: '032',
+    repeat: 'Pick the count that slipped. Revisit 030 for two beats, 032 for three, or 033 for four. Then count in and play one bar of that meter.',
+    preview: [
+      explain('The top number tells you how many beats to count before entering. Recall the count for this familiar card.'),
+      firstBar('C02-032', 'Recall a familiar count-in', { readingChallenge: true }),
+      tryIt('Point to the top number and count one bar aloud before going on.', 'The top 3 asks for three even counts.')
+    ],
+    demonstration: [
+      demonstrate('On the familiar score, point to the meter, silently prepare the first key, and count one bar. Play the first note on the next 1.'),
+      firstBar('C02-032', 'Preview and prepare', { readingChallenge: true })
+    ],
+    practice: [
+      reading(['C02-034-T2', 'C02-034-B3', 'C02-034-T4']),
+      tryIt('Choose any order. Name each meter, count one matching bar, and play the card around a comfortable 52–60 bpm. Then restart one card from bar 2.', 'Say only the preparatory bar and the first bar before adding pitches.')
+    ],
+    outcome: 'Which count-in felt least familiar today?',
+    understanding: 'I can choose a two-, three-, or four-count from the meter.',
+    playing: 'I can keep that count through the first bar.',
+    extension: 'Mix the card order once and try again.'
+  }),
+  session({
+    id: '035', title: 'Keep Three in the Bass', type: 'Practice',
+    objective: 'Carry a steady three-beat pulse across bass-clef barlines.',
+    prerequisites: ['028', '032', '034'], musicRefs: ['C02-035'], card: 'RF02-THREE', revisit: '032',
+    preview: [
+      explain('The next 1 arrives on the same steady pulse after every barline.'),
+      firstBar('C02-035', 'Find the start in bass', { readingChallenge: true }),
+      tryIt('Point to the first note. Silently prepare its key, then say a three-beat count-in.', 'Find bass F on the fourth line from the bottom.')
+    ],
+    demonstration: [
+      demonstrate('Look for the longer notes. Point to the start of every bar and tap each new 1 while counting through the holds.'),
+      score(['C02-035'], { readingChallenge: true })
+    ],
+    practice: [
+      reading(['C02-035']),
+      tryIt('Read all four bars with your left hand at a comfortable 52–62 bpm. Choose one join to repeat, then reconnect all four bars. Reveal note names after trying.', 'Count “3, 1” across your chosen barline at an even pace.')
+    ],
+    outcome: 'Which barline can you now cross with a steady pulse?',
+    understanding: 'I can predict where each new 1 falls.',
+    playing: 'I can keep groups of three going in the left hand.',
+    extension: 'Start at bar 3 after a fresh three-count.'
+  }),
+  session({
+    id: '036', title: 'Two Beats of Quiet', type: 'Learn',
+    objective: 'Read a half rest and keep counting through two silent beats.',
+    prerequisites: ['017', '033', '035'], musicRefs: ['C02-036'], assetRefs: ['c02-036-model'],
+    card: 'RF02-REST', revisit: '017',
+    preview: [
+      explain('A half rest is a small rectangle that sits on the middle line. It uses two beats of silence. A half note uses the same two beats with the key held down.'),
+      firstBar('C02-036', 'Keep counting through silence', { showBeatGrid: true }),
+      tryIt('Point to the rectangle, then say “1, 2, 3, 4.” Tap on 1 and 4 only. Keep saying 2 and 3 evenly.', 'Look at the two silent beat cells.')
+    ],
+    demonstration: [
+      demonstrate('Find the half rest in bar 1 and the half note in bar 2. Listen while pointing to the counts and notice when the key is released.'),
+      score(['C02-036'], { showBeatGrid: true }),
+      model('c02-036-model', 'four', 'Four spoken counts, then lower C on 1, silence on 2 and 3, and D on 4. Bar 2 holds E through 2, then plays D and C.')
+    ],
+    practice: [
+      score(['C02-036']),
+      tryIt('Speak the counts, tap 1 and 4 in bar 1, then play both bars with your left hand around 52–60 bpm. Release the key when the rest starts.', 'Replay the first bar more slowly and let your hand stay easy during the silence.')
+    ],
+    outcome: 'Did you leave two complete silent beats and resume on 4?',
+    understanding: 'I can explain how a half rest differs from a half note.',
+    playing: 'I can release for two beats and come back in on time.',
+    extension: 'Loop bar 1 once without the count guide.'
+  }),
+  session({
+    id: '037', title: 'Hear the Missing Beats', type: 'Review',
+    objective: 'Match a heard two-beat silence to its placement in the score.',
+    prerequisites: ['017', '036'], musicRefs: ['C02-037-A', 'C02-037-B'], assetRefs: ['c02-037-a', 'c02-037-b'],
+    card: 'RF02-REST', revisit: '036',
+    preview: [
+      explain('Both scores use the same key and contain two silent beats. The rest placement changes when you hear the second attack.'),
+      score(['C02-037-A', 'C02-037-B'], { readingChallenge: true }),
+      tryIt('Point to the half rest in each card. Count four evenly and tap each card’s two attacks.', 'Look for the rectangle sitting on the middle line.')
+    ],
+    demonstration: [
+      demonstrate('Listen after the four spoken counts. Point to the matching card and say which beats were silent before opening the answer.'),
+      score(['C02-037-A', 'C02-037-B'], { readingChallenge: true }),
+      { type: 'audio-reference', title: 'Which card matches?', tracks: [{ assetRef: 'c02-037-b', label: 'Play the mystery rhythm' }], transcript: 'Four spoken beats introduce a one-bar rhythm. The answer describes its attacks and silent beats after your choice.' },
+      { type: 'audio-reference', title: 'Compare both cards at 56 bpm', collapsed: true, summary: 'Reveal the answer after choosing',
+        tracks: [{ assetRef: 'c02-037-a', label: 'Play Card A' }, { assetRef: 'c02-037-b', label: 'Play Card B' }],
+        transcript: 'The mystery recording is Card B. It sounds on 1 and 2 and is silent on 3 and 4. Card A sounds on 1 and 4 and is silent on 2 and 3.' }
+    ],
+    practice: [
+      score(['C02-037-A', 'C02-037-B'], { readingChallenge: true }),
+      tryIt('Tap both scores, then play each on middle C after a four-count. Listen for where the second attack falls.', 'Tap the attacks while speaking all four counts.')
+    ],
+    outcome: 'Could you hear where the second attack fell and make the two versions sound different?',
+    understanding: 'I can match the silent beats I heard to a written rest.',
+    playing: 'I can place the attacks and rests as written on both cards.',
+    extension: 'Read and play the two cards in reverse order.'
+  }),
+  session({
+    id: '038', title: 'Two Notes Inside One Beat', type: 'Learn',
+    objective: 'Read two beamed eighth notes as two even attacks inside one quarter beat.',
+    prerequisites: ['030', '031', '037'], musicRefs: ['C02-038'], assetRefs: ['c02-038-model'],
+    card: 'RF02-PAIR', revisit: '030',
+    preview: [
+      explain('The bar joining the stems is a beam. These two eighth notes share the first beat. Say “1-and” inside that beat, with 2 arriving at the usual time.'),
+      firstBar('C02-038', 'Two attacks on one beat', { showBeatGrid: true }),
+      tryIt('Say “1, 2” evenly. Repeat at the same pace and place “and” halfway between 1 and 2. Tap on each syllable.', 'Tap the numbered beats first, then add the middle tap.')
+    ],
+    demonstration: [
+      demonstrate('Follow the beam on beat 1. Listen for C on 1, D on “and,” and E on 2. Point to the beat cells as the first bar plays.'),
+      firstBar('C02-038', 'Hear the first beat split in two', { showBeatGrid: true }),
+      model('c02-038-model', 'two', 'After a two-count, C and D split beat 1, and E lands on beat 2. The second bar has D and C as quarters.', 52)
+    ],
+    practice: [
+      firstBar('C02-038', 'Try bar 1 first', { showBeatGrid: true }),
+      tryIt('Speak, tap, then play bar 1 with right-hand fingers 1, 2, and 3 at a comfortable 48–56 bpm. After that attempt, open the full score and add bar 2.', 'Try a slower pulse and make sure E lands on 2.'),
+      score(['C02-038'], { hiddenUntilReveal: true, revealLabel: 'Open both bars after trying bar 1' })
+    ],
+    outcome: 'Did two evenly spaced attacks fit before your next numbered beat?',
+    understanding: 'I can point to the pair and tell how much time it takes.',
+    playing: 'I can play two eighths and land the next beat on time.',
+    extension: 'Repeat the first bar once at a slower pulse.'
+  }),
+  session({
+    id: '039', title: 'Carry the Pair Through a Barline', type: 'Practice',
+    objective: 'Keep the pulse steady when a pair on beat 2 leads into a new bar.',
+    prerequisites: ['030', '031', '038'], musicRefs: ['C02-039'], card: 'RF02-PAIR', revisit: '038',
+    preview: [
+      explain('A pair can divide beat 2 just as it divided beat 1. The downbeat of the next bar follows at the usual pace.'),
+      firstBar('C02-039', 'A pair at the end of the bar', { readingChallenge: true }),
+      tryIt('Point to the pair and say “1, 2-and, 1.” Tap your leg on the four sounds you just said.', 'Fit “and” midway between 2 and the next 1.')
+    ],
+    demonstration: [
+      score(['C02-039'], { readingChallenge: true }),
+      demonstrate('Find where the same rhythm returns in bar 3. Point from each final pair to the next written downbeat.')
+    ],
+    practice: [
+      reading(['C02-039']),
+      tryIt('Tap “1, 2-and, 1.” Play bars 1–2, then bars 3–4 around 48–58 bpm. Connect the sections if comfortable.', 'Loop just beat 2 and the new downbeat slowly, keeping your fingers easy.')
+    ],
+    outcome: 'Did you arrive on the new 1 without adding a beat or rushing the pair?',
+    understanding: 'I can predict the downbeat that follows a pair on 2.',
+    playing: 'I can cross the barline at a steady pulse.',
+    extension: 'Restart at bar 3 and play to the ending.'
+  }),
+  session({
+    id: '040', title: 'Two Inside One, Left Hand', type: 'Practice',
+    objective: 'Play an even eighth-note pair in bass and land the following quarter on time.',
+    prerequisites: ['030', '031', '038', '039'], musicRefs: ['C02-038', 'C02-040'], assetRefs: ['c02-040-model'],
+    card: 'RF02-PAIR', revisit: '038',
+    preview: [
+      explain('The rhythm from Session 038 can be read in bass. Find the pair on the first beat and prepare the left hand.'),
+      firstBar('C02-040', 'Find the pair in bass', { readingChallenge: true }),
+      tryIt('Point to the pair, then find lower C and the next white key to its right. Rest your left fingers 5 and 4 on those keys and say “1-and, 2.”', 'Lower C is one octave below middle C.')
+    ],
+    demonstration: [
+      demonstrate('Trace the rise from the pair into beat 2 and the return in bar 2. Tap both bars to hear the same rhythm as the treble example.'),
+      score(['C02-040'], { showBeatGrid: true })
+    ],
+    practice: [
+      reading(['C02-040']),
+      tryIt('Tap and play both bars with your left hand at a comfortable 48–56 bpm. Listen to the model to check your pulse, then repeat from the score alone.', 'Use fingers 5, 4, and 3 on the way up. Slow down if the hand tightens or beat 2 comes early.'),
+      model('c02-040-model', 'two', 'After two spoken counts, lower C and D divide beat 1 and E lands on 2. The second bar descends through D and C as quarters.', 52)
+    ],
+    outcome: 'Could you land E on beat 2 with your left hand still relaxed?',
+    understanding: 'I can recognize the same subdivision in treble and bass.',
+    playing: 'I can play the bass pair and following quarter at an even pace.',
+    extension: 'Play the treble and bass versions with a separate count-in for each.'
   })
 ];

@@ -21,6 +21,9 @@ footer{display:flex;justify-content:space-between;gap:20px;padding:30px max(28px
 .beat-grids .beat-grid {
   grid-template-columns: repeat(var(--measure-beats, 4), minmax(0, 1fr));
 }
+.notehead.is-whole { fill: #fcfcf8; stroke-width: 2; }
+.half-rest { fill: #203a35; }
+.eighth-beam { stroke: #203a35; stroke-width: 4; }
 @media (min-width: 821px) {
   .lesson-nav .session-list { max-height: 36vh; overflow-y: auto; }
 }

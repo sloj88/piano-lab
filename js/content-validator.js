@@ -1,10 +1,11 @@
 import { BLOCK_TYPES, SESSION_TYPES } from './session-catalog.js';
 
 const PITCH_PATTERN = /^[A-G](?:#|b)?[0-8]$/;
-const RHYTHMS = new Set(['pulse', 'quarter', 'half', 'quarter-rest', 'whole-measure-rest']);
-const NOTE_RHYTHMS = new Set(['pulse', 'quarter', 'half']);
-const REST_RHYTHMS = new Set(['quarter-rest', 'whole-measure-rest']);
-const FIXED_BEATS = { quarter: 1, half: 2, 'quarter-rest': 1 };
+const NOTE_RHYTHMS = new Set(['pulse', 'eighth', 'quarter', 'half', 'whole']);
+const REST_RHYTHMS = new Set(['quarter-rest', 'half-rest', 'whole-measure-rest']);
+const RHYTHMS = new Set([...NOTE_RHYTHMS, ...REST_RHYTHMS]);
+const FIXED_BEATS = { eighth: 0.5, quarter: 1, half: 2, whole: 4, 'quarter-rest': 1, 'half-rest': 2 };
+const NEW_SINGLE_STAFF_VALUES = new Set(['eighth', 'whole', 'half-rest']);
 const STAFF_LETTERS = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
 
 export class ContentValidationError extends Error {
@@ -18,7 +19,7 @@ export class ContentValidationError extends Error {
 
 function issue(code, path, message, category = 'schema') { return { code, path, message, category }; }
 
-function validateMusicEvent(event, path, meter, errors) {
+function validateMusicEvent(event, path, meter, errors, singleStaff = false) {
   if (!event || typeof event !== 'object' || Array.isArray(event)) {
     errors.push(issue('event-shape', path, 'A music event must be an object.'));
     return;
@@ -39,6 +40,9 @@ function validateMusicEvent(event, path, meter, errors) {
     if (event.rhythm && !REST_RHYTHMS.has(event.rhythm)) errors.push(issue('event-incompatible', path, 'A rest event must use a rest rhythmic value.'));
   }
   if (meter && event.rhythm === 'pulse') errors.push(issue('rhythm-meter', `${path}.rhythm`, 'The unmetered pulse value cannot be used inside a metered measure.'));
+  if (NEW_SINGLE_STAFF_VALUES.has(event.rhythm) && (!meter || !singleStaff)) {
+    errors.push(issue('rhythm-meter', `${path}.rhythm`, 'This rhythm requires a metered single-staff score.'));
+  }
   if (!meter && event.rhythm === 'whole-measure-rest') errors.push(issue('rhythm-meter', `${path}.rhythm`, 'A whole-measure rest requires a meter.'));
   if (meter) {
     if (!Number.isFinite(event.beats) || event.beats <= 0) errors.push(issue('beats-required', `${path}.beats`, 'A metered event requires a positive beat duration.'));
@@ -236,11 +240,26 @@ function validateMusic(music, assets, errors) {
           errors.push(issue('measure-events', `${measurePath}.events`, 'A monophonic measure needs at least one event.'));
           return;
         }
-        measure.events.forEach((event, eventIndex) => validateMusicEvent(event, `${measurePath}.events.${eventIndex}`, example.meter, errors));
+        measure.events.forEach((event, eventIndex) => validateMusicEvent(event, `${measurePath}.events.${eventIndex}`, example.meter, errors, true));
         const hasDurations = measure.events.every((event) => event && Number.isFinite(event.beats) && event.beats > 0);
         if (hasDurations && example.meter?.beats > 0) {
           const total = measure.events.reduce((sum, event) => sum + event.beats, 0);
           if (total !== example.meter.beats) errors.push(issue('measure-total', measurePath, `Measure totals ${total} beats; expected ${example.meter.beats}.`));
+          let onset = 0;
+          for (let index = 0; index < measure.events.length; index += 1) {
+            const event = measure.events[index];
+            if (event.rhythm === 'eighth') {
+              const next = measure.events[index + 1];
+              if (!Number.isInteger(onset) || next?.rhythm !== 'eighth' || event.beats !== 0.5 || next.beats !== 0.5) {
+                errors.push(issue('eighth-pair', `${measurePath}.events.${index}`, 'Two eighth notes must fill one complete beat within the measure.'));
+              } else {
+                onset += 1;
+                index += 1;
+                continue;
+              }
+            }
+            onset += event.beats;
+          }
         }
       });
     }

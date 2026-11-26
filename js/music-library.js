@@ -202,19 +202,54 @@ export const musicLibrary = {
   ]),
   'C02-032': chapterTwoExample('C02-032', 'Three beats in treble', 'treble', 3, [
     ['C4h', 'D4q'], ['E4q', 'D4q', 'C4q']
-  ], 'c02-032-model')
+  ], 'c02-032-model'),
+  'C02-033': chapterTwoExample('C02-033', 'Hold for four beats', 'bass', 4, [
+    ['C3w'], ['D3q', 'E3q', 'D3h'], ['C3w']
+  ], 'c02-033-model'),
+  'C02-034-T2': chapterTwoExample('C02-034-T2', 'Treble card A', 'treble', 2, [
+    ['D4q', 'E4q'], ['D4h']
+  ]),
+  'C02-034-B3': chapterTwoExample('C02-034-B3', 'Bass card B', 'bass', 3, [
+    ['D3q', 'E3h'], ['D3q', 'C3h']
+  ]),
+  'C02-034-T4': chapterTwoExample('C02-034-T4', 'Treble card C', 'treble', 4, [
+    ['C4w'], ['D4h', 'C4h']
+  ]),
+  'C02-035': chapterTwoExample('C02-035', 'Three steady beats in bass', 'bass', 3, [
+    ['F3q', 'E3h'], ['D3q', 'C3h'], ['C3q', 'D3q', 'E3q'], ['F3h', 'E3q']
+  ], undefined, { min: 52, max: 62 }),
+  'C02-036': chapterTwoExample('C02-036', 'Two beats of silence', 'bass', 4, [
+    ['C3q', 'rh', 'D3q'], ['E3h', 'D3q', 'C3q']
+  ], 'c02-036-model'),
+  'C02-037-A': chapterTwoExample('C02-037-A', 'Card A', 'treble', 4, [
+    ['C4q', 'rh', 'C4q']
+  ], 'c02-037-a', { min: 56, max: 56, model: 56 }),
+  'C02-037-B': chapterTwoExample('C02-037-B', 'Card B', 'treble', 4, [
+    ['C4q', 'C4q', 'rh']
+  ], 'c02-037-b', { min: 56, max: 56, model: 56 }),
+  'C02-038': chapterTwoExample('C02-038', 'An eighth-note pair in treble', 'treble', 2, [
+    ['C4e', 'D4e', 'E4q'], ['D4q', 'C4q']
+  ], 'c02-038-model', { min: 48, max: 56, model: 52 }),
+  'C02-039': chapterTwoExample('C02-039', 'Pairs before a barline', 'treble', 2, [
+    ['E4q', 'D4e', 'C4e'], ['D4q', 'E4q'], ['F4q', 'E4e', 'D4e'], ['C4h']
+  ], undefined, { min: 48, max: 58 }),
+  'C02-040': chapterTwoExample('C02-040', 'An eighth-note pair in bass', 'bass', 2, [
+    ['C3e', 'D3e', 'E3q'], ['D3q', 'C3q']
+  ], 'c02-040-model', { min: 48, max: 56, model: 52 })
 };
 
-function chapterTwoExample(id, title, clef, beats, bars, audioRef) {
+function chapterTwoExample(id, title, clef, beats, bars, audioRef, tempo = { min: 52, max: 60, ...(audioRef ? { model: 56 } : {}) }) {
   const fingers = clef === 'bass' ? [5, 4, 3, 2, 1] : [1, 2, 3, 4, 5];
+  const values = { e: 'eighth', q: 'quarter', h: 'half', w: 'whole' };
   const measures = bars.map((bar) => bar.map((token) => {
     if (token === 'rq') return rest('quarter-rest');
+    if (token === 'rh') return rest('half-rest');
     const finger = fingers['CDEFG'.indexOf(token[0])];
-    return note(token.slice(0, 2), finger, token[2] === 'h' ? 'half' : 'quarter');
+    return note(token.slice(0, 2), finger, values[token[2]]);
   }));
   return meteredExample(id, title, measures, {
     meter: { beats, beatValue: 4 }, notation: { clef }, hand: clef === 'bass' ? 'LH' : 'RH',
-    tempo: { min: 52, max: 60, ...(audioRef ? { model: 56 } : {}) },
+    tempo,
     ...(audioRef ? { audioRef } : {})
   });
 }
@@ -228,11 +263,12 @@ function meteredExample(id, title, measures, extra = {}) {
 }
 
 function note(pitch, finger, rhythm = 'quarter', showFinger = false) {
-  return { kind: 'note', pitch, finger, rhythm, beats: rhythm === 'half' ? 2 : 1, ...(showFinger ? { showFinger: true } : {}) };
+  const beats = { eighth: 0.5, quarter: 1, half: 2, whole: 4 }[rhythm];
+  return { kind: 'note', pitch, finger, rhythm, beats, ...(showFinger ? { showFinger: true } : {}) };
 }
 
 function rest(rhythm) {
-  return { kind: 'rest', rhythm, beats: rhythm === 'whole-measure-rest' ? 4 : 1 };
+  return { kind: 'rest', rhythm, beats: { 'quarter-rest': 1, 'half-rest': 2, 'whole-measure-rest': 4 }[rhythm] };
 }
 
 function meteredEvents(id, title, events, extra = {}) {

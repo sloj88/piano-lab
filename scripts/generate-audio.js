@@ -67,7 +67,9 @@ function synthesizeMetered(example, bpm, countSamples, spokenDuring = false, gai
     } else addTimeline(measure.events);
     timedEvents.forEach(({ event, onset }) => {
       const startBeat = countInBeats + measureIndex * example.meter.beats + onset;
-      addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, event.beats * beatSeconds - 0.12), gains[noteIndex] ?? 0.36);
+      const duration = event.beats * beatSeconds;
+      const releaseGap = event.rhythm === 'eighth' ? 0.06 : 0.12;
+      addTone(samples, startBeat * beatSeconds, event.pitch, Math.max(0.2, duration - releaseGap), gains[noteIndex] ?? 0.36);
       noteIndex += 1;
     });
   });
@@ -174,7 +176,7 @@ export function generateListeningAudio(outputDirectory, voiceDirectory = resolve
   writeFileSync(resolve(outputDirectory, 'p03-performance.wav'), encodeWav(synthesizeMetered(musicLibrary.P03, 62, counts, false, [
     ...Array(12).fill(0.23), ...Array(12).fill(0.46)
   ])));
-  for (const id of ['C02-030', 'C02-032']) {
+  for (const id of ['C02-030', 'C02-032', 'C02-033', 'C02-036', 'C02-037-A', 'C02-037-B', 'C02-038', 'C02-040']) {
     const example = musicLibrary[id];
     writeFileSync(resolve(outputDirectory, `${example.audioRef}.wav`), encodeWav(synthesizeMetered(example, example.tempo.model, counts)));
   }
