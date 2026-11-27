@@ -248,6 +248,14 @@ export function renderSessionEnding(session, state, reinforcements, context = {}
     const option = session.readiness[value];
     return `<label><input type="radio" name="readiness" value="${value}" ${state.readiness === value ? 'checked' : ''}><span><strong>${option.label}</strong><small>${option.guidance}</small></span></label>`;
   }).join('');
+  const finish = `<button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Session completed' : 'Finish session'}</button>`;
+  const chapterLabel = String(session.chapter).padStart(2, '0');
+  const completion = context.endOfCatalog
+    ? `<div class="completion-choice"><h3 id="catalog-completion-heading" tabindex="-1">${state.completed ? `Chapter ${chapterLabel} complete` : 'Finish the milestone'}</h3>
+    <p>${state.completed ? `You’ve finished the available Chapter ${chapterLabel} sequence. Your learning history is saved. Return home to revisit any session, or repeat this milestone to keep practicing.` : 'Finish when you’re ready to save this milestone. You can record Practicing or Stuck and choose a skill to revisit.'}</p>
+    <div class="session-actions">${finish}<button class="button button-primary" type="button" data-return-home>Return home</button></div></div>`
+    : `<div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
+    <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>`;
   return `<section class="session-ending" tabindex="-1" aria-labelledby="session-ending-heading">
     <h3 id="session-ending-heading">Session check-in</h3>
     <fieldset class="session-assessments"><legend>Understanding and playing can develop at different speeds.</legend>
@@ -259,16 +267,15 @@ export function renderSessionEnding(session, state, reinforcements, context = {}
     <p class="observable-outcome"><strong>Observable outcome:</strong> ${session.outcome}</p>
     <div class="keep-playing"><p class="eyebrow">Optional extension</p><h3>Keep Playing</h3><p>Stop after the core if that is enough today. These ideas are optional and are not required by the next session.</p>
     <ul>${session.keepPlaying.map((activity) => `<li>${activity}</li>`).join('')}</ul>${(session.keepPlayingBlocks ?? []).map((block) => renderBlock(block, context)).join('')}</div>
-    <div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
-    <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>
+    ${completion}
   </section>`;
 }
 
-export function renderSessionStep(session, stepIndex, state, { music, reinforcements, assets = {} }) {
+export function renderSessionStep(session, stepIndex, state, { music, reinforcements, assets = {}, endOfCatalog = false }) {
   const step = session.steps[stepIndex];
   const stepAssessment = state.stepAssessments?.[step.id] ?? {};
   const blocks = step.blocks.map((block) => renderBlock(block, { music, assets, stepAssessment })).join('');
-  const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements, { music, assets, stepAssessment }) : '';
+  const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements, { music, assets, stepAssessment, endOfCatalog }) : '';
   return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p><button class="step-help" type="button" data-ask-chatgpt>Ask ChatGPT about this step</button></header>${blocks}${ending}`;
 }
 

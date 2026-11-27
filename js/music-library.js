@@ -264,7 +264,28 @@ export const musicLibrary = {
   'C02-P02': chapterTwoExample('C02-P02', 'Footpath', 'bass', 2, [
     ['C3q', 'D3e', 'E3e'], ['D3q', 'C3q'], ['C3q', 'rq'], ['C3h'],
     ['F3q', 'E3e', 'D3e'], ['C3q', 'D3q'], ['E3q', 'D3q'], ['C3h']
-  ], 'c02-p02-reference', { min: 48, max: 54, model: 56 }, 'f')
+  ], 'c02-p02-reference', { min: 48, max: 54, model: 56 }, 'f'),
+  'C02-049-T': chapterTwoExample('C02-049-T', 'New treble line', 'treble', 3, [
+    ['G4q', 'F4q', 'E4q'], ['E4h', 'D4q'], ['C4q', 'D4q', 'E4q'], ['D4q', 'C4h']
+  ]),
+  'C02-049-B': chapterTwoExample('C02-049-B', 'New bass line', 'bass', 2, [
+    ['F3q', 'G3q'], ['F3e', 'E3e', 'D3q'], ['C3q', 'rq'], ['C3h']
+  ], undefined, { min: 48, max: 58 }),
+  'C02-051-T': chapterTwoExample('C02-051-T', 'Treble rehearsal line', 'treble', 2, [
+    ['E4q', 'F4q'], ['G4q', 'F4q'], ['E4q', 'D4q'], ['C4h']
+  ]),
+  'C02-051-B': chapterTwoExample('C02-051-B', 'Bass rehearsal line', 'bass', 3, [
+    ['E3q', 'D3q', 'C3q'], ['D3h', 'E3q'], ['F3q', 'E3q', 'D3q'], ['C3h', 'rq']
+  ]),
+  'C02-052-R': chapterTwoExample('C02-052-R', 'Milestone rhythm', 'treble', 2, [
+    ['C4q', 'rq'], ['C4e', 'C4e', 'C4q'], ['C4h']
+  ], 'c02-052-rhythm', { min: 48, max: 56, model: 52 }),
+  'C02-052-T': chapterTwoExample('C02-052-T', 'Milestone treble line', 'treble', 3, [
+    ['F4q', 'G4q', 'F4q'], ['E4q', 'D4h'], ['D4q', 'E4q', 'D4q'], ['C4h', 'rq']
+  ]),
+  'C02-052-B': chapterTwoExample('C02-052-B', 'Milestone bass line', 'bass', 3, [
+    ['F3q', 'E3q', 'D3q'], ['E3q', 'F3h'], ['E3q', 'D3q', 'C3q'], ['D3q', 'C3h']
+  ])
 };
 
 function chapterTwoExample(id, title, clef, beats, bars, audioRef, tempo = { min: 52, max: 60, ...(audioRef ? { model: 56 } : {}) }, dynamic) {

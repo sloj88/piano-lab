@@ -38,7 +38,8 @@ export const assetCatalog = {
   'c02-042-b': audioAsset('c02-042-b'),
   'c02-043-model': audioAsset('c02-043-model'),
   'c02-p01-reference': audioAsset('c02-p01-reference'),
-  'c02-p02-reference': audioAsset('c02-p02-reference')
+  'c02-p02-reference': audioAsset('c02-p02-reference'),
+  'c02-052-rhythm': audioAsset('c02-052-rhythm')
 };
 
 function audioAsset(id) { return { id, type: 'audio', src: `assets/audio/${id}.wav` }; }

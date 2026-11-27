@@ -228,15 +228,21 @@ export const reinforcementCatalog = {
     readiness: 'Holds through the next downbeat with one attack and a timed release.'
   },
   'RF02-PIECE-T': {
-    id: 'RF02-PIECE-T', title: 'Repair one join in Window Lights', sessions: ['045', '046'], earlierSessionId: '032',
+    id: 'RF02-PIECE-T', title: 'Repair one join in Window Lights', sessions: ['045', '046', '050', '052'], earlierSessionId: '032',
     repeat: 'Choose the weaker four-bar section of Window Lights. Count three, play the section, then reconnect just its hardest join.',
     prerequisite: 'Count and play only the troublesome bar with a starting-note hint if helpful.',
     readiness: 'Starts either section from the score and resumes after one repair.'
   },
   'RF02-PIECE-B': {
-    id: 'RF02-PIECE-B', title: 'Carry the pair into the next bar', sessions: ['047', '048'], earlierSessionId: '040',
+    id: 'RF02-PIECE-B', title: 'Carry the pair into the next bar', sessions: ['047', '048', '050', '052'], earlierSessionId: '040',
     repeat: 'Loop one beat-2 pair into the next bar in Footpath. Then read the four-bar section around it.',
     prerequisite: 'Speak and tap that rhythm. Revisit C02-040 if the bass subdivision feels uncertain.',
     readiness: 'Lands the next downbeat and finishes the section without rushing.'
+  },
+  'RF02-READ': {
+    id: 'RF02-READ', title: 'Preview, read, and repair one spot', sessions: ['049', '051', '052'], earlierSessionId: '029',
+    repeat: 'Choose the less secure clef. Preview the line, read it, and repair one spot. As a revisit, use a C02-051 line or an earlier reading card.',
+    prerequisite: 'Try just one bar. Find its starting note from a landmark and use a fresh count-in. Revisit Session 027 for treble or 028 for bass.',
+    readiness: 'Finds a start from the staff and reads or recovers a line.'
   }
 };

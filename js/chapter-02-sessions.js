@@ -544,5 +544,112 @@ export const chapterTwoSessions = [
     understanding: 'I can name the repair that kept the pulse moving.',
     playing: 'I can play through the piece with a comfortably strong sound.',
     extension: 'Give bars 5–8 one quiet reading pass.'
+  }),
+  session({
+    id: '049', title: 'Read a New Line in Either Clef', type: 'Review', minutes: 13,
+    objective: 'Use the score preview routine to read a new line in each clef.',
+    prerequisites: ['029', '035', '044', '048'], musicRefs: ['C02-026', 'C02-049-T', 'C02-049-B'],
+    card: 'RF02-READ', revisit: '029',
+    preview: [
+      explain('Recall what you check on the page before your first sound. Use this familiar bar to rehearse the routine once.'),
+      firstBar('C02-026', 'Warm-up · a familiar bar', { readingChallenge: true }),
+      tryIt('Point to the clef, meter, first note, and one change in direction or rhythm. Find the first key by a landmark and touch it silently. Look back at the bar and say its count-in.', 'The top number tells you how many beats to count. Use treble G or middle C to work out the start of this familiar bar.')
+    ],
+    demonstration: [
+      demonstrate('Choose which new line to read first. Check its clef and meter, then trace from a landmark to the first note. Scan for a change, place your starting finger silently, and look back at the first bar.'),
+      score(['C02-049-T', 'C02-049-B'], { readingChallenge: true })
+    ],
+    practice: [
+      tryIt('Read both four-bar lines, one hand at a time, with a fresh count-in for each. Keep looking for your place in the score, using brief keyboard glances as needed. After trying both, pick one spot in the less secure line to repair, then reread that line once more slowly.', 'Isolate the bar where you lost the pulse or your place. Count or trace just that bar, then reconnect it from the previous bar if there is one.'),
+      score(['C02-049-T', 'C02-049-B'], { readingChallenge: true, reveal: true, showBeatGrid: true, revealLabel: 'Check notes and counts after your attempt' })
+    ],
+    outcome: 'Where did you reconnect with the score after a slip?',
+    understanding: 'I can explain how I found the first key and chose each count-in.',
+    playing: 'I can read a line in each clef and recover at a barline.',
+    extension: 'Start with the other clef on a revisit. Read from the score again.'
+  }),
+  session({
+    id: '050', title: 'Two Pieces, Two Characters', type: 'Play', minutes: 13,
+    objective: 'Change hand, meter, and musical character between two familiar pieces.',
+    prerequisites: ['019', '046', '048', '049'], musicRefs: ['C02-P01', 'C02-P02'],
+    assetRefs: ['c02-p01-reference', 'c02-p02-reference'],
+    card: 'RF02-PIECE-T', additionalCards: ['RF02-PIECE-B'], revisit: '046',
+    repeat: 'For Window Lights, count three and reconnect one join softly. For Footpath, tap one pair into the next 1, then play the join with an easy left hand.',
+    preview: [
+      explain('The two pieces have different characters. Recall the gentle p and comfortable f from Session 019.'),
+      score(['C02-P01', 'C02-P02'], { readingChallenge: true }),
+      tryIt('Point to the clef, meter, and dynamic in each score. Say which piece you want to play first and tap its count-in.', 'Window Lights has a right-hand three-count and a gentle p. Footpath has a left-hand two-count and a comfortable f.')
+    ],
+    demonstration: [
+      demonstrate('Rehearse the change before playing. Silently set your right hand and count “1, 2, 3” for Window Lights. Release, reset to the left hand, and count “1, 2” for Footpath. Try the reverse order if you chose Footpath first. Let the hand stay easy for both sounds.'),
+      firstBar('C02-P01', 'Window Lights · opening bar', { readingChallenge: true }),
+      firstBar('C02-P02', 'Footpath · opening bar', { readingChallenge: true })
+    ],
+    practice: [
+      tryIt('Play both pieces from their scores in your chosen order. Between pieces, release your hand, pause, prepare the other hand, and give a new count-in. Name one change in sound or pulse you want to make, then replay just that section.', 'For Window Lights, try a gentler finish while counting the last rest. For Footpath, check that the pair and the next downbeat keep the walking pulse.'),
+      score(['C02-P01', 'C02-P02'], { readingChallenge: true }),
+      { type: 'audio-reference', title: 'Compare the two performances', collapsed: true,
+        summary: 'Hear the references after playing both pieces',
+        tracks: [{ assetRef: 'c02-p01-reference', label: 'Hear Window Lights' }, { assetRef: 'c02-p02-reference', label: 'Hear Footpath' }],
+        transcript: 'Window Lights starts after a three-count at 60 bpm and ends with a counted rest. Footpath starts after a two-count at 56 bpm and keeps a full, steady sound.' }
+    ],
+    outcome: 'What changed in your sound or pulse after the short replay?',
+    understanding: 'I can name how the meter, hand, and character change between pieces.',
+    playing: 'I can prepare and finish both pieces from the page.',
+    extension: 'Try the reverse performance order with a fresh start for each piece.'
+  }),
+  session({
+    id: '051', title: 'Rehearse Your Reading Routine', type: 'Practice', minutes: 13,
+    objective: 'Identify one difficulty in a fresh score and choose a repair you can use again.',
+    prerequisites: ['046', '048', '049', '050'], musicRefs: ['C02-026', 'C02-051-T', 'C02-051-B'],
+    card: 'RF02-READ', revisit: '049',
+    repeat: 'Pick one bar of the line you tried. Preview and play it slowly, then reconnect it from the preceding bar.',
+    preview: [
+      explain('A short repair starts where the trouble happened. Before you read a new line, rehearse how to find a bar and start there.'),
+      score(['C02-026'], { readingChallenge: true }),
+      tryIt('Point to the second bar of this familiar score and recall your silent setup. Choose a repair to try later: count one tricky beat or trace one change of pitch.', 'If you lost the pulse in an earlier piece, choose counting. If you lost your place on the staff, choose tracing.')
+    ],
+    demonstration: [
+      demonstrate('Choose either clef. Check the meter, use a landmark to find the first note, and scan for one change. Place the first finger silently, look back at the page, and count in. Leave the reading help folded until you have tried the line.'),
+      score(['C02-051-T', 'C02-051-B'], { readingChallenge: true })
+    ],
+    practice: [
+      tryIt('Play your four-bar line once. Name one specific spot and what happened there. Isolate that beat or bar, slow down, and count or trace it. Retry the spot. Then start from the preceding bar and play through the repaired spot. If it was bar 1, continue into bar 2.', 'If you played steadily, choose one change you want to make more reliable. Check placing the first key, counting a hold, or finding a step.'),
+      score(['C02-051-T', 'C02-051-B'], { readingChallenge: true, reveal: true, revealLabel: 'Check note names after your attempt' })
+    ],
+    outcome: 'Which repair did you choose, and what sounded or felt more reliable afterward?',
+    understanding: 'I can explain why my repair matched what happened.',
+    playing: 'I can replay a trouble spot and reconnect it to the line.',
+    extension: 'Try the other clef and use the same routine on one spot.'
+  }),
+  session({
+    id: '052', title: 'Chapter 02 Milestone', type: 'Play', minutes: 14,
+    objective: 'Prepare independently, read a new rhythm and one new line, and perform both chapter pieces.',
+    prerequisites: ['046', '048', '051'],
+    musicRefs: ['C02-026', 'C02-052-R', 'C02-052-T', 'C02-052-B', 'C02-P01', 'C02-P02'],
+    assetRefs: ['c02-052-rhythm'], card: 'RF02-READ',
+    additionalCards: ['RF02-START', 'RF02-TWO', 'RF02-REST', 'RF02-PAIR', 'RF02-PIECE-T', 'RF02-PIECE-B'], revisit: '051',
+    repeat: 'Choose support for one task. For a sight start, rehearse the silent setup in Session 026 or shorten the line to one bar. For rhythm, revisit Session 030 for the count-in, 036 for silence, or 038 for pairs. For piece continuity, replay one join from Session 046 or 048.',
+    preview: [
+      explain('Use the reading routine you have built through the chapter. Give yourself one comfortable attempt at each task and choose one thing to revisit afterward.'),
+      firstBar('C02-026', 'Warm-up · a familiar bar', { readingChallenge: true }),
+      tryIt('Using this familiar bar, say your preview steps from memory. Point to the first note, prepare its key silently, then look back at the page and count in without playing.', 'Recall the clef, meter, first note, and one change. Give yourself a moment to place your hand comfortably.')
+    ],
+    demonstration: [
+      demonstrate('Read the new rhythm silently. Find its meter and choose a pulse you can keep. Give a two-beat count-in, then clap the three bars from the page. A clap marks an attack. Keep counting through held and silent beats. After your attempt, you can listen once and follow the score.'),
+      score(['C02-052-R'], { readingChallenge: true }),
+      { ...model('c02-052-rhythm', 'two', 'After “1, 2,” bar 1 sounds on beat 1 and rests on 2. Bar 2 splits beat 1 into two attacks and sounds again on 2. One sound holds through both beats of bar 3.', 52),
+        collapsed: true, summary: 'Hear the rhythm reference after clapping' }
+    ],
+    practice: [
+      tryIt('Choose one new line, treble or bass. Preview it silently, find your first key, and give its count-in. Play the four bars once at a comfortable pulse. If you lose your place, release and find a barline before starting again.', 'Scan the clef and meter, find a landmark, and trace to the start. Keep your hand easy and use brief glances as needed.'),
+      score(['C02-052-T', 'C02-052-B'], { readingChallenge: true }),
+      tryIt('After the new line, perform Window Lights and Footpath from their scores. Reset your hands and pulse between pieces. Settle into a gentle three-beat pulse for Window Lights and a comfortably strong two-beat walk for Footpath. Count through the rests.', 'Point to the meter and dynamic before each piece. Pause if your hand tightens, and stop if you feel pain, numbness, or persistent tension.'),
+      score(['C02-P01', 'C02-P02'], { readingChallenge: true })
+    ],
+    outcome: 'What did you understand from the score? What could you play at a comfortable pulse? Which one skill or session would you revisit?',
+    understanding: 'I can explain what I read in the score and how I prepared to start.',
+    playing: 'I can keep a comfortable pulse through the rhythm, a new line, and both pieces.',
+    extension: 'Try the other sight-reading line from the piano step on another pass, or keep playing Window Lights and Footpath from their scores.'
   })
 ];

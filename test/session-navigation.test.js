@@ -87,9 +87,9 @@ test('choosing stuck does not prevent an explicit continue to the next session',
   assert.equal(continued.currentSessionId, '002');
 });
 
-test('the implemented catalog advances consecutively through Sessions 001–048', () => {
+test('the implemented catalog advances consecutively through Sessions 001–052', () => {
   const store = createSessionProgressStore(null, sessionCatalog);
-  for (let number = 2; number <= 48; number += 1) {
+  for (let number = 2; number <= 52; number += 1) {
     const expected = String(number).padStart(3, '0');
     const current = store.load().currentSessionId;
     const target = continueTarget(current, sessionCatalog, store.load());
@@ -98,7 +98,7 @@ test('the implemented catalog advances consecutively through Sessions 001–048'
     store.setCurrentSession(expected);
   }
   assert.deepEqual(availableSessionIds(sessionCatalog, store.load()), sessionCatalog.map(({ id }) => id));
-  assert.equal(continueTarget('048', sessionCatalog, store.load()), null);
+  assert.equal(continueTarget('052', sessionCatalog, store.load()), null);
 });
 
 test('a Chapter 01 save continues into the real Chapter 02 catalog and revisits preserve progress', () => {

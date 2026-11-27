@@ -185,7 +185,7 @@ export function generateListeningAudio(outputDirectory, voiceDirectory = resolve
     ...Array(12).fill(0.23), ...Array(12).fill(0.46)
   ])));
   for (const id of ['C02-030', 'C02-032', 'C02-033', 'C02-036', 'C02-037-A', 'C02-037-B', 'C02-038', 'C02-040',
-    'C02-041-A', 'C02-041-B', 'C02-042-A', 'C02-042-B', 'C02-043', 'C02-P01', 'C02-P02']) {
+    'C02-041-A', 'C02-041-B', 'C02-042-A', 'C02-042-B', 'C02-043', 'C02-P01', 'C02-P02', 'C02-052-R']) {
     const example = musicLibrary[id];
     writeFileSync(resolve(outputDirectory, `${example.audioRef}.wav`), encodeWav(synthesizeMetered(example, example.tempo.model, counts)));
   }

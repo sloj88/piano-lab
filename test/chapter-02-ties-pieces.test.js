@@ -115,7 +115,7 @@ test('both pieces have eight bars, a dynamic at the first note, and two section 
 });
 
 test('each new lesson has an actionable opening, complete phases, and optional answers', () => {
-  const sessions = sessionCatalog.slice(40).map(({ id, type }) => [id, type]);
+  const sessions = sessionCatalog.slice(40, 48).map(({ id, type }) => [id, type]);
   assert.deepEqual(sessions, [['041', 'Review'], ['042', 'Learn'], ['043', 'Practice'], ['044', 'Review'], ['045', 'Practice'], ['046', 'Play'], ['047', 'Practice'], ['048', 'Play']]);
   for (const [id] of sessions) {
     const preview = visible(render(id, 0));
