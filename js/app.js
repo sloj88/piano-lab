@@ -8,7 +8,7 @@ import { continueTarget, createNavigation, revisitSession } from './session-navi
 import { nextPulseFrame, pulseIntervalMs } from './pulse-guide.js';
 import { continueSession, finishSession } from './session-actions.js';
 import { calculateAssessmentProgress, createSessionProgressStore } from './session-progress.js';
-import { renderReadinessGuidance, renderSessionNavigation, renderSessionStep, renderStepNavigation } from './session-renderer.js';
+import { audioControlLabels, renderReadinessGuidance, renderSessionNavigation, renderSessionStep, renderStepNavigation } from './session-renderer.js';
 
 const validation = assertValidCurriculum({ sessions: sessionCatalog, reinforcements: reinforcementCatalog, music: musicLibrary, assets: assetCatalog });
 for (const warning of validation.warnings) console.warn(`[${warning.category}] ${warning.message}`);
@@ -203,11 +203,13 @@ elements.step.addEventListener('click', (event) => {
     if (activeAudio && activeAudio !== audio) activeAudio.pause();
     activeAudio = audio;
     audio.currentTime = 0;
-    const label = audioControl.dataset.audioLabel;
-    status.textContent = `Playing ${label}`;
-    audioControl.textContent = `↻ Play ${label} again`;
+    const { audioAction, audioAccessibleAction, audioLabel } = audioControl.dataset;
+    const replay = audioControlLabels(audioAction, audioAccessibleAction, true);
+    status.textContent = `Playing audio: ${audioLabel}`;
+    audioControl.textContent = replay.text;
+    audioControl.setAttribute('aria-label', replay.accessible);
     audio.onended = () => {
-      status.textContent = `${label} finished. Replay whenever you need.`;
+      status.textContent = `Audio finished: ${audioLabel}. Replay whenever you need.`;
       activeAudio = null;
     };
     audio.play().catch(() => {

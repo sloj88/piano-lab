@@ -2,7 +2,7 @@
 
 Piano Lab is a free, open-source learning companion for absolute beginners practicing on a real piano or keyboard. Every exercise is played on the learner's physical instrument—the application guides learning rather than replacing the piano. It is intentionally small: plain HTML, CSS, and JavaScript, with no framework, account, backend, or virtual instrument.
 
-The learner-facing catalog contains Sessions 001–032. Chapter 01 builds from keyboard landmarks and a steady pulse to the eight-measure paired-staff piece “Across the Keys.” The first eight sessions of Chapter 02 build on that work with silent preparation, reading in both clefs, and counting in 2/4 and 3/4. The same session engine serves both chapters.
+The learner-facing catalog contains Sessions 001–040. Chapter 01 builds from keyboard landmarks and a steady pulse to the eight-measure paired-staff piece “Across the Keys.” Chapter 02 continues with silent preparation, reading in both clefs, counting in different meters, holding whole notes, counting through half rests, and playing two notes within one beat.
 
 ## Run locally
 

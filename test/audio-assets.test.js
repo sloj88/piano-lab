@@ -5,6 +5,57 @@ import { assetCatalog } from '../js/session-catalog.js';
 import { musicLibrary } from '../js/music-library.js';
 import { SAMPLE_RATE, pitchFrequency } from '../scripts/generate-audio.js';
 
+test('new rhythm WAVs preserve one spoken bar, half-beat onsets, repeated attacks and silent rests', () => {
+  for (const [id, bpm, counts, music] of [
+    ['c02-033-model', 56, 4, ['C3/4', 'D3/1', 'E3/1', 'D3/2', 'C3/4']],
+    ['c02-036-model', 56, 4, ['C3/1', 'rest/2', 'D3/1', 'E3/2', 'D3/1', 'C3/1']],
+    ['c02-037-a', 56, 4, ['C4/1', 'rest/2', 'C4/1']],
+    ['c02-037-b', 56, 4, ['C4/1', 'C4/1', 'rest/2']],
+    ['c02-038-model', 52, 2, ['C4/0.5', 'D4/0.5', 'E4/1', 'D4/1', 'C4/1']],
+    ['c02-040-model', 52, 2, ['C3/0.5', 'D3/0.5', 'E3/1', 'D3/1', 'C3/1']]
+  ]) {
+    const beat = 60 / bpm;
+    const wav = readFileSync(new URL(`../${assetCatalog[id].src}`, import.meta.url));
+    assert.equal(wav.toString('ascii', 0, 4), 'RIFF', id);
+    assert.equal(wav.readUInt32LE(24), SAMPLE_RATE, id);
+    const pcm = (index) => wav.readInt16LE(44 + index * 2);
+    const frame = (seconds) => Math.round(seconds * SAMPLE_RATE);
+    for (let index = 0; index < counts; index += 1) {
+      const voice = readFileSync(new URL(`../scripts/audio-voice/count-${index + 1}.wav`, import.meta.url));
+      const start = frame(index * beat + 0.04);
+      for (let tick = 0; tick < voice.readUInt32LE(40) / 2; tick += 31) {
+        assert.ok(Math.abs(pcm(start + tick) - 0.72 * voice.readInt16LE(44 + tick * 2)) <= 1, id);
+      }
+    }
+    let onset = counts;
+    for (const token of music) {
+      const [pitch, length] = token.split('/');
+      const beats = Number(length);
+      const start = onset * beat;
+      const end = (onset + beats) * beat;
+      if (pitch === 'rest') {
+        assert.ok(wav.subarray(44 + 2 * frame(start), 44 + 2 * frame(end)).every((byte) => byte === 0), id);
+      } else {
+        assert.equal(pcm(frame(start - 0.02)), 0, id);
+        const first = frame(start + 0.04);
+        const last = first + frame(0.25);
+        let crossings = 0;
+        for (let index = first + 1; index < last; index += 1) {
+          if (pcm(index - 1) <= 0 && pcm(index) > 0) crossings += 1;
+        }
+        assert.ok(Math.abs(crossings * 4 - pitchFrequency(pitch)) <= 5, id + ' ' + token);
+        if (beats > 1) {
+          const hold = wav.subarray(44 + 2 * frame(end - beat / 2), 44 + 2 * frame(end - beat / 3));
+          assert.ok(hold.some((byte) => byte !== 0), id + ' sustained through last beat');
+        }
+        assert.equal(pcm(frame(end - 0.02)), 0, id);
+      }
+      onset += beats;
+    }
+    assert.equal(wav.readUInt32LE(40) / 2, Math.ceil(onset * beat * SAMPLE_RATE), id);
+  }
+});
+
 function estimateFrequency(buffer, startSeconds) {
   const sample = (index) => buffer.readInt16LE(44 + index * 2);
   const start = Math.round((startSeconds + 0.1) * SAMPLE_RATE);

@@ -9,6 +9,17 @@ function phaseMarkup(phase) {
   return `<p class="phase"><span>${number}</span>${label}</p>`;
 }
 
+export function audioControlLabels(action, accessibleAction = action, replay = false) {
+  const suffix = replay ? ' again' : '';
+  return { text: `${replay ? '↻' : '▶'} ${action}${suffix}`, accessible: `${accessibleAction}${suffix}` };
+}
+
+function audioButton(ref, action, { label = action, accessibleAction = action, textButton = false } = {}) {
+  const initial = audioControlLabels(action, accessibleAction);
+  const classes = textButton ? 'text-button' : 'button button-secondary audio-button';
+  return `<button class="${classes}" type="button" data-audio-control="${ref}" data-audio-label="${label}" data-audio-action="${action}" data-audio-accessible-action="${accessibleAction}" aria-label="${initial.accessible}">${textButton ? action : initial.text}</button>`;
+}
+
 export function keyboardMarkup(config) {
   const highlighted = new Set(config.highlights ?? []);
   const whiteKeys = WHITE_NOTES.map((key) => {
@@ -50,7 +61,7 @@ function listeningMarkup(block, context) {
     return `<article class="listening-card" data-audio-card data-listening-pair="${pair.id}" data-answer="${pair.answer}">
       <p class="listening-title"><strong>Pair ${pair.id}</strong><span>Two groups of three notes</span></p>
       <audio preload="metadata" src="${asset.src}" data-audio-id="${pair.audioRef}"></audio>
-      <button class="button button-secondary audio-button" type="button" data-audio-control="${pair.audioRef}" data-audio-label="pair ${pair.id}" aria-label="Play listening pair ${pair.id}">▶ Play pair ${pair.id}</button>
+      ${audioButton(pair.audioRef, `Play pair ${pair.id}`, { label: `Pair ${pair.id}`, accessibleAction: `Play listening pair ${pair.id}` })}
       <p class="audio-status" role="status" aria-live="polite">Ready to play</p>
       <fieldset class="listening-choices"><legend>Pair ${pair.id}: choose same or different</legend>
         <button type="button" data-listening-answer="same" aria-pressed="false">Same</button>
@@ -91,7 +102,7 @@ function pitchEchoMarkup(block, context) {
   const echoes = (block.echoIds ?? example.echoes.map(({ id }) => id)).map((id) => example.echoes.find((echo) => echo.id === id));
   return `<section class="echo-set pitch-echo-set" aria-label="Left-hand pitch echoes">${echoes.map((echo) => `<article class="echo-card" data-audio-card><h4>Echo ${echo.id}</h4>
     <audio preload="metadata" src="${context.assets[echo.audioRef].src}" data-audio-id="${echo.audioRef}"></audio>
-    <button class="button button-secondary audio-button" type="button" data-audio-control="${echo.audioRef}" data-audio-label="Echo ${echo.id}">▶ Hear Echo ${echo.id}</button>
+    ${audioButton(echo.audioRef, `Hear Echo ${echo.id}`, { label: `Echo ${echo.id}` })}
     <p class="audio-status" role="status" aria-live="polite">Listen first, trace the direction, then play.</p>
     <details class="echo-reveal"><summary>Reveal contour and note names</summary><p class="echo-arrows">${echo.directions.join(' · ')}</p><p>${echo.pitches.join('–')}</p></details>
   </article>`).join('')}</section>`;
@@ -137,7 +148,7 @@ function audioTracksMarkup(block, context) {
     : '';
   const content = `<section class="audio-reference" data-audio-card aria-label="${block.title}"><h4>${block.title}</h4>${block.tracks.map((track) => {
     const asset = context.assets[track.assetRef];
-    return `<audio preload="metadata" src="${asset.src}" data-audio-id="${track.assetRef}"></audio><button class="button button-secondary audio-button" type="button" data-audio-control="${track.assetRef}" data-audio-label="${track.label}">▶ ${track.label}</button>`;
+    return `<audio preload="metadata" src="${asset.src}" data-audio-id="${track.assetRef}"></audio>${audioButton(track.assetRef, track.label)}`;
   }).join('')}<p class="audio-status" role="status" aria-live="polite">Ready to play</p>${transcript}</section>`;
   return block.collapsed ? `<details class="audio-details"><summary>${block.summary ?? 'Hear after my try'}</summary>${content}</details>` : content;
 }
@@ -148,7 +159,7 @@ function dynamicDemoMarkup(block, context) {
   return `<section class="dynamic-demo" aria-label="Soft and strong sound and movement demonstration">
     <div class="dynamic-sounds" data-audio-card><div><strong>p</strong><span>soft</span></div><div><strong>f</strong><span>strong, never forced</span></div>
       <audio preload="metadata" src="${asset.src}" data-audio-id="${example.audioRef}"></audio>
-      <button class="button button-secondary audio-button" type="button" data-audio-control="${example.audioRef}" data-audio-label="soft then strong dynamics">▶ Hear soft, reset, then strong</button>
+      ${audioButton(example.audioRef, 'Hear soft, reset, then strong', { label: 'Soft then strong dynamics' })}
       <p class="audio-status" role="status" aria-live="polite">Four soft C notes, a silent reset, then four stronger C notes.</p>
     </div>
     <div class="motion-model"><div><h4>Easy, free descent</h4><svg viewBox="0 0 260 115" role="img" aria-label="Side-view diagram of a relaxed hand moving a key down with a small free motion"><rect class="motion-key" x="42" y="78" width="176" height="19" rx="3"/><path class="motion-arm" d="M18 37 C72 39 94 48 130 53 C156 57 176 59 202 66"/><circle class="motion-joint" cx="130" cy="53" r="5"/><path class="motion-arrow" d="M206 48 v22 m-7-7 7 7 7-7"/></svg><p>Let the key move a little faster for the fuller sound while shoulder, jaw, and wrist stay easy.</p></div>
@@ -164,7 +175,7 @@ function rhythmEchoMarkup(block, context) {
     return `<article class="echo-card" data-audio-card><h4>${example.title}</h4>
       <audio preload="metadata" src="${context.assets[example.audioRef].src}" data-audio-id="${example.audioRef}"></audio>
       <audio preload="metadata" src="${context.assets[example.countedAudioRef].src}" data-audio-id="${example.countedAudioRef}"></audio>
-      <div class="echo-actions"><button class="button button-secondary audio-button" type="button" data-audio-control="${example.audioRef}" data-audio-label="${example.title} pattern">▶ Hear pattern</button><button class="text-button" type="button" data-audio-control="${example.countedAudioRef}" data-audio-label="${example.title} with spoken count">Hear with spoken count</button></div>
+      <div class="echo-actions">${audioButton(example.audioRef, 'Hear pattern', { label: `${example.title} pattern` })}${audioButton(example.countedAudioRef, 'Hear with spoken count', { label: `${example.title} with spoken count`, textButton: true })}</div>
       <p class="audio-status" role="status" aria-live="polite">Listen first, then tap and play.</p>
       <details class="score-reveal"><summary>Reveal score and count blocks</summary>${scoreMarkup(example, { showLabels: true })}${beatGridMarkup(example)}</details>
     </article>`;

@@ -118,7 +118,7 @@ test('each first step presents a score and observable action in the approved ses
     ['031', 'Two Beats in the Left Hand', ['C02-031'], /Point to the quarter rest.*tapping your leg only on 1/],
     ['032', 'Three Beats to a Bar', ['C02-030', 'C02-032'], /Say “1, 2”.*“1, 2, 3”/]
   ];
-  const sessions = sessionCatalog.slice(24);
+  const sessions = sessionCatalog.slice(24, 32);
   assert.deepEqual(sessions.map(({ id, title }) => [id, title]), expected.map(([id, title]) => [id, title]));
   for (const [index, [id, , refs, action]] of expected.entries()) {
     const session = sessions[index];

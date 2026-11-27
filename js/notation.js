@@ -25,6 +25,7 @@ export function bassPitchY(pitch) {
 
 function eventText(event) {
   if (event.kind !== 'rest') return `${event.pitch} ${event.rhythm}${event.hand ? ` ${event.hand}` : ''}`;
+  if (event.rhythm === 'half-rest') return 'half rest, two silent beats';
   return event.rhythm === 'whole-measure-rest' ? 'waits for all four beats' : 'quarter rest, one silent beat';
 }
 
@@ -38,10 +39,21 @@ export function notationText(example) {
 export function beatGridMarkup(example) {
   return `<div class="beat-grids">${example.measures.map((measure, measureIndex) => {
     const beats = [];
-    for (const event of measure.events) {
+    for (let index = 0; index < measure.events.length; index += 1) {
+      const event = measure.events[index];
+      if (event.rhythm === 'eighth') {
+        const next = measure.events[++index];
+        const count = beats.length + 1;
+        beats.push(`<div class="is-subdivided"><strong>${count} and</strong><span>${event.pitch[0]} then ${next.pitch[0]}</span></div>`);
+        continue;
+      }
       const label = event.kind === 'rest' ? 'rest · silent' : `${event.pitch.replace(/[0-9]$/, '')} begins`;
       beats.push(`<div${event.kind === 'rest' ? ' class="is-rest"' : ''}><strong>${beats.length + 1}</strong><span>${label}</span></div>`);
-      for (let held = 1; held < event.beats; held += 1) beats.push(`<div class="is-held"><strong>${beats.length + 1}</strong><span>hold</span></div>`);
+      for (let held = 1; held < event.beats; held += 1) {
+        beats.push(event.kind === 'rest'
+          ? `<div class="is-rest"><strong>${beats.length + 1}</strong><span>still silent</span></div>`
+          : `<div class="is-held"><strong>${beats.length + 1}</strong><span>hold</span></div>`);
+      }
     }
     return `<section aria-label="Measure ${measureIndex + 1} beat guide"><p>Measure ${measureIndex + 1}</p><div class="beat-grid" style="--measure-beats:${example.meter.beats}">${beats.join('')}</div></section>`;
   }).join('')}</div>`;
@@ -55,13 +67,14 @@ function staffLines(width, top = STAFF_TOP) {
   return Array.from({ length: 5 }, (_, index) => `<line x1="0" y1="${top + index * STAFF_GAP}" x2="${width}" y2="${top + index * STAFF_GAP}"/>`).join('');
 }
 
-function noteMarkup(event, x, y, { label, finger, ledger, labelY = 112 }) {
-  const half = event.rhythm === 'half';
+function noteMarkup(event, x, y, { label, finger, ledger, labelY = 112, stemTop = y - 29 }) {
+  const whole = event.rhythm === 'whole';
+  const open = whole || event.rhythm === 'half';
   const ledgerMarkup = ledger ? `<line class="ledger-line" x1="${x - 11}" y1="${y}" x2="${x + 11}" y2="${y}"/>` : '';
   return `${ledgerMarkup}<g class="score-note" data-pitch="${event.pitch}" data-rhythm="${event.rhythm}">
-    <ellipse class="notehead${half ? ' is-half' : ''}" cx="${x}" cy="${y}" rx="6.2" ry="4.3" transform="rotate(-16 ${x} ${y})"/>
-    <line class="note-stem" x1="${x + 5}" y1="${y - 1}" x2="${x + 5}" y2="${y - 29}"/>
-    ${finger ? `<text class="finger-label" x="${x}" y="${y - 34}">${finger}</text>` : ''}
+    <ellipse class="notehead${open ? whole ? ' is-whole' : ' is-half' : ''}" cx="${x}" cy="${y}" rx="${whole ? 8 : 6.2}" ry="4.3" transform="rotate(${whole ? 0 : -16} ${x} ${y})"/>
+    ${whole ? '' : `<line class="note-stem" x1="${x + 5}" y1="${y - 1}" x2="${x + 5}" y2="${stemTop}"/>`}
+    ${finger ? `<text class="finger-label" x="${x}" y="${whole ? y - 12 : stemTop - 5}">${finger}</text>` : ''}
     ${label ? `<text class="pitch-label" x="${x}" y="${labelY}">${event.pitch.replace(/[0-9]$/, '')}</text>` : ''}
   </g>`;
 }
@@ -97,10 +110,14 @@ export function scoreMarkup(example, options = {}) {
     const startX = lead + measureIndex * measureWidth;
     let onset = 0;
     let notes = '';
-    for (const event of measure.events) {
-      const x = startX + 18 + onset * ((measureWidth - 28) / example.meter.beats);
+    const beatWidth = (measureWidth - 28) / example.meter.beats;
+    let beamY;
+    for (const [eventIndex, event] of measure.events.entries()) {
+      const x = startX + 18 + onset * beatWidth;
       if (event.kind === 'rest') {
-        notes += quarterRestMarkup(x);
+        notes += event.rhythm === 'half-rest'
+          ? `<rect class="half-rest" data-rhythm="half-rest" x="${x - 7}" y="${STAFF_TOP + 2 * STAFF_GAP - 5}" width="14" height="5"/>`
+          : quarterRestMarkup(x);
         onset += event.beats;
         flatIndex += 1;
         continue;
@@ -109,7 +126,13 @@ export function scoreMarkup(example, options = {}) {
         ? STAFF_BOTTOM - (example.notation.staffSteps[flatIndex] * STAFF_GAP / 2)
         : clef === 'bass' ? bassPitchY(event.pitch) : treblePitchY(event.pitch);
       const showFinger = options.showAllFingers || (options.showStartingFinger && flatIndex === 0);
-      notes += noteMarkup(event, x, y, { label: options.showLabels, finger: showFinger ? event.finger : null, ledger: clef === 'treble' && event.pitch === 'C4' });
+      if (event.rhythm === 'eighth' && Number.isInteger(onset)) {
+        const nextPitch = measure.events[eventIndex + 1].pitch;
+        const nextY = clef === 'bass' ? bassPitchY(nextPitch) : treblePitchY(nextPitch);
+        beamY = Math.min(y, nextY) - 29;
+        notes += `<line class="eighth-beam" x1="${x + 5}" x2="${x + 5 + beatWidth / 2}" y1="${beamY}" y2="${beamY}"/>`;
+      }
+      notes += noteMarkup(event, x, y, { label: options.showLabels, finger: showFinger ? event.finger : null, ledger: clef === 'treble' && event.pitch === 'C4', stemTop: event.rhythm === 'eighth' ? beamY : undefined });
       onset += event.beats;
       flatIndex += 1;
     }
