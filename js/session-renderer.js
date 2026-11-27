@@ -297,8 +297,14 @@ export function renderSessionNavigation(sessions, progress, viewingSessionId) {
   const available = new Set(availableSessionIds(sessions, progress));
   const chapter = String(viewed.chapter).padStart(2, '0');
   const entries = sessions.filter((session) => session.chapter === viewed.chapter && available.has(session.id)).map((session) => {
-    const state = progress.sessions[session.id];
-    return `<li><button type="button" data-session="${session.id}" ${session.id === viewingSessionId ? 'aria-current="page"' : ''}><span>${state?.completed ? '✓' : session.id}</span><span><small>${session.type}</small>${session.title}</span></button></li>`;
+    const check = progress.sessions[session.id]?.completed
+      ? '<span class="session-nav-check" role="img" aria-label="Completed">✓</span>'
+      : '';
+    const current = session.id === viewingSessionId ? ' aria-current="page"' : '';
+    return `<li><button type="button" data-session="${session.id}"${current}>
+      <span class="session-nav-number">${session.id}</span>
+      <span class="session-nav-label"><small>${session.type}${check}</small><span class="session-nav-title">${session.title}</span></span>
+    </button></li>`;
   }).join('');
   return `<h3 class="nav-heading" id="session-list-heading">Chapter ${chapter} · Available Sessions</h3>
     <ol class="session-list" id="session-list" aria-labelledby="session-list-heading">${entries}</ol>`;
