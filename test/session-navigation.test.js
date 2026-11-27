@@ -37,11 +37,28 @@ test('chapter sidebar follows Continue and revisits at the 024–025 boundary', 
   const revisit = revisitSession('024', catalog, progress, next);
   const chapterOne = sidebar(progress, revisit.viewingSessionId);
   assert.match(chapterOne, /Chapter 01 · Available Sessions/);
-  assert.match(chapterOne, /data-session="024" aria-current="page"><span>✓/);
+  assert.match(chapterOne, /data-session="024" aria-current="page">\s*<span class="session-nav-number">024<\/span>/);
   assert.deepEqual(entries(chapterOne), ['023', '024']);
   assert.match(renderHome(catalog, progress), /data-continue-learning="025"/);
   assert.deepEqual(store.load(), progress);
   assert.deepEqual(progress.sessions['024'], { ...before.sessions['024'], completed: true });
+});
+
+test('chapter sidebar shows every available number and full title alongside a separate completion mark', () => {
+  const store = createSessionProgressStore(null, sessionCatalog);
+  store.setCurrentSession('052');
+  store.completeSession('027');
+  const html = renderSessionNavigation(sessionCatalog, store.load(), '027');
+  const rows = [...html.matchAll(/<button type="button" data-session="(\d+)"([^>]*)>([\s\S]*?)<\/button>/g)];
+  const chapter = sessionCatalog.filter(({ chapter }) => chapter === 2);
+  assert.deepEqual(rows.map(([, id]) => id), chapter.map(({ id }) => id));
+  for (const [, id, attributes, content] of rows) {
+    const session = chapter.find((entry) => entry.id === id);
+    assert.ok(content.includes(`<span class="session-nav-number">${id}</span>`), id);
+    assert.ok(content.includes(`<span class="session-nav-title">${session.title}</span>`), id);
+    assert.equal(attributes.includes('aria-current="page"'), id === '027', id);
+    assert.equal(content.includes('<span class="session-nav-check" role="img" aria-label="Completed">✓</span>'), id === '027', id);
+  }
 });
 
 test('revisiting an earlier session never moves the current curriculum position backward', () => {
@@ -87,9 +104,9 @@ test('choosing stuck does not prevent an explicit continue to the next session',
   assert.equal(continued.currentSessionId, '002');
 });
 
-test('the implemented catalog advances consecutively through Sessions 001–048', () => {
+test('the implemented catalog advances consecutively through Sessions 001–052', () => {
   const store = createSessionProgressStore(null, sessionCatalog);
-  for (let number = 2; number <= 48; number += 1) {
+  for (let number = 2; number <= 52; number += 1) {
     const expected = String(number).padStart(3, '0');
     const current = store.load().currentSessionId;
     const target = continueTarget(current, sessionCatalog, store.load());
@@ -98,7 +115,7 @@ test('the implemented catalog advances consecutively through Sessions 001–048'
     store.setCurrentSession(expected);
   }
   assert.deepEqual(availableSessionIds(sessionCatalog, store.load()), sessionCatalog.map(({ id }) => id));
-  assert.equal(continueTarget('048', sessionCatalog, store.load()), null);
+  assert.equal(continueTarget('052', sessionCatalog, store.load()), null);
 });
 
 test('a Chapter 01 save continues into the real Chapter 02 catalog and revisits preserve progress', () => {
@@ -128,7 +145,7 @@ test('a Chapter 01 save continues into the real Chapter 02 catalog and revisits 
   const revisit = revisitSession('024', sessionCatalog, after, createNavigation(after));
   const earlierSidebar = renderSessionNavigation(sessionCatalog, after, revisit.viewingSessionId);
   assert.match(earlierSidebar, /Chapter 01 · Available Sessions/);
-  assert.match(earlierSidebar, /data-session="024" aria-current="page"><span>✓/);
+  assert.match(earlierSidebar, /data-session="024" aria-current="page">\s*<span class="session-nav-number">024<\/span>/);
   assert.doesNotMatch(earlierSidebar, /data-session="025"/);
   assert.match(renderHome(sessionCatalog, after), /data-continue-learning="025"/);
   assert.deepEqual(store.load(), after);

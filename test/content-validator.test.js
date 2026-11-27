@@ -37,6 +37,33 @@ test('prerequisites must exist and come before their session', () => {
   assert.equal(errorCodes(result).includes('prerequisite-reference'), true);
 });
 
+test('labeled reinforcement revisit destinations must exist and precede all supported sessions', () => {
+  const fixture = catalogs();
+  const card = fixture.reinforcements['RF02-READ'];
+  card.revisitOptions = [
+    { sessionId: '999', label: 'Missing' },
+    { sessionId: '049', label: 'Same session as the first use' },
+    { sessionId: '052', label: 'Later than the first use' },
+    { sessionId: '027', label: '' },
+    { sessionId: '027', label: 'Duplicate' }
+  ];
+  const errors = validateCurriculum(fixture).errors.filter(({ path }) => path.startsWith('reinforcements.RF02-READ.revisitOptions'));
+  assert.deepEqual(errors.map(({ code, path }) => [code, path.split('.').at(-1)]), [
+    ['reinforcement-session', '0'],
+    ['reinforcement-revisit-order', '1'],
+    ['reinforcement-revisit-order', '2'],
+    ['reinforcement-revisit-options', '3'],
+    ['reinforcement-revisit-options', '4']
+  ]);
+});
+
+test('revisit order is validated when a lesson references a card outside its declared sessions', () => {
+  const fixture = catalogs();
+  fixture.sessions.find(({ id }) => id === '027').readiness.stuck.reinforcementRefs = ['RF02-READ'];
+  const result = validateCurriculum(fixture);
+  assert.equal(result.errors.filter(({ code }) => code === 'reinforcement-revisit-order').length, 3);
+});
+
 test('notation relationships, reference sets, and required audio are validated', () => {
   const fixture = catalogs();
   fixture.music['N001-A'].notation.staffSteps[3] = 7;

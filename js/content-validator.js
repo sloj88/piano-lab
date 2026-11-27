@@ -398,6 +398,32 @@ export function validateCurriculum({ sessions = [], reinforcements = {}, music =
     if (reinforcement.id !== id) errors.push(issue('reinforcement-id', `reinforcements.${id}.id`, 'Reinforcement ID must match its catalog key.'));
     for (const sessionId of reinforcement.sessions ?? []) if (!ids.includes(sessionId)) errors.push(issue('reinforcement-session', `reinforcements.${id}.sessions`, `Unknown session ${sessionId}.`));
     if (reinforcement.earlierSessionId && !ids.includes(reinforcement.earlierSessionId)) errors.push(issue('reinforcement-session', `reinforcements.${id}.earlierSessionId`, `Unknown earlier session ${reinforcement.earlierSessionId}.`));
+    if (reinforcement.revisitOptions === undefined) continue;
+    const path = `reinforcements.${id}.revisitOptions`;
+    if (!Array.isArray(reinforcement.revisitOptions) || !reinforcement.revisitOptions.length) {
+      errors.push(issue('reinforcement-revisit-options', path, 'Revisit options must be a nonempty list of labeled sessions.'));
+      continue;
+    }
+    const supportedSessions = new Set(reinforcement.sessions ?? []);
+    for (const session of sessions) {
+      if (session.reinforcementRefs?.includes(id) || session.readiness?.stuck?.reinforcementRefs?.includes(id)) supportedSessions.add(session.id);
+    }
+    const targets = new Set();
+    for (const [index, option] of reinforcement.revisitOptions.entries()) {
+      const optionPath = `${path}.${index}`;
+      const target = option?.sessionId;
+      const targetIndex = ids.indexOf(target);
+      if (typeof option?.label !== 'string' || !option.label.trim()) {
+        errors.push(issue('reinforcement-revisit-options', optionPath, 'A revisit option needs a label.'));
+      }
+      if (targetIndex < 0 || typeof target !== 'string') {
+        errors.push(issue('reinforcement-session', optionPath, `Unknown revisit session ${target}.`));
+      } else if ([...supportedSessions].some((sessionId) => ids.includes(sessionId) && ids.indexOf(sessionId) <= targetIndex)) {
+        errors.push(issue('reinforcement-revisit-order', optionPath, `Revisit session ${target} must precede every session the card supports.`));
+      }
+      if (targets.has(target)) errors.push(issue('reinforcement-revisit-options', optionPath, `Duplicate revisit session ${target}.`));
+      targets.add(target);
+    }
   }
   for (const [id, asset] of Object.entries(assets)) {
     if (asset.id !== id) errors.push(issue('asset-id', `assets.${id}.id`, 'Asset ID must match its catalog key.'));

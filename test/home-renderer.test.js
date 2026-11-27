@@ -8,7 +8,7 @@ import { createEmptySessionProgress } from '../js/session-progress.js';
 test('home shows the implemented sessions in both chapters with current and future availability', () => {
   const progress = createEmptySessionProgress(sessionCatalog);
   const html = renderHome(sessionCatalog, progress);
-  assert.equal((html.match(/class="home-session-card/g) ?? []).length, 48);
+  assert.equal((html.match(/class="home-session-card/g) ?? []).length, 52);
   assert.match(html, /Continue Learning · Session 001/);
   assert.match(html, /Current/);
   assert.match(html, /Up next/);
@@ -18,7 +18,8 @@ test('home shows the implemented sessions in both chapters with current and futu
   assert.match(html, /Session 032/);
   assert.match(html, /Session 040/);
   assert.match(html, /Session 048/);
-  assert.doesNotMatch(html, /Session 049/);
+  assert.match(html, /Session 052/);
+  assert.doesNotMatch(html, /Session 053|Chapter 03/);
   assert.deepEqual(homeSessionState(sessionCatalog[1], 1, sessionCatalog, progress), { available: false, current: false, completed: false, label: 'Up next' });
 });
 
@@ -48,7 +49,7 @@ test('chapter grouping scales from metadata and expands only the current chapter
   progress.currentSessionId = '025';
   const groups = groupSessionsByChapter(sessions);
   const html = renderHome(sessions, progress);
-  assert.deepEqual(groups.map(({ chapter, entries }) => [chapter, entries.length]), [[1, 24], [2, 24]]);
+  assert.deepEqual(groups.map(({ chapter, entries }) => [chapter, entries.length]), [[1, 24], [2, 28]]);
   assert.match(html, /id="chapter-1-toggle"[^>]*aria-expanded="false"/);
   assert.match(html, /id="chapter-2-toggle"[^>]*aria-expanded="true"/);
   assert.match(html, /id="chapter-1-sessions"[^>]*hidden/);

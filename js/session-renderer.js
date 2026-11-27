@@ -240,7 +240,11 @@ export function renderReadinessGuidance(session, state, reinforcements) {
   if (!reinforcement) return `<p class="readiness-guidance"><strong>${config.label}:</strong> ${config.guidance}</p>`;
   const instruction = config.exercise ?? (readiness === 'stuck' ? reinforcement.prerequisite : reinforcement.repeat);
   const earlierSessionId = config.earlierSessionId ?? reinforcement.earlierSessionId;
-  return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${earlierSessionId ? `<button class="text-button" type="button" data-revisit-session="${earlierSessionId}">Revisit Session ${earlierSessionId}</button>` : ''}</div>`;
+  const options = readiness === 'stuck' && !config.earlierSessionId ? reinforcement.revisitOptions : undefined;
+  const revisits = options ?? (earlierSessionId ? [{ sessionId: earlierSessionId }] : []);
+  const revisitButtons = revisits.map(({ sessionId, label }) =>
+    `<button class="text-button" type="button" data-revisit-session="${sessionId}">Revisit Session ${sessionId}${label ? ` — ${label}` : ''}</button>`).join('');
+  return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${revisitButtons}</div>`;
 }
 
 export function renderSessionEnding(session, state, reinforcements, context = {}) {
@@ -248,6 +252,14 @@ export function renderSessionEnding(session, state, reinforcements, context = {}
     const option = session.readiness[value];
     return `<label><input type="radio" name="readiness" value="${value}" ${state.readiness === value ? 'checked' : ''}><span><strong>${option.label}</strong><small>${option.guidance}</small></span></label>`;
   }).join('');
+  const finish = `<button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Session completed' : 'Finish session'}</button>`;
+  const chapterLabel = String(session.chapter).padStart(2, '0');
+  const completion = context.endOfCatalog
+    ? `<div class="completion-choice"><h3 id="catalog-completion-heading" tabindex="-1">${state.completed ? `Chapter ${chapterLabel} complete` : 'Finish the milestone'}</h3>
+    <p>${state.completed ? `You’ve finished the available Chapter ${chapterLabel} sequence. Your learning history is saved. Return home to revisit any session, or repeat this milestone to keep practicing.` : 'Finish when you’re ready to save this milestone. You can record Practicing or Stuck and choose a skill to revisit.'}</p>
+    <div class="session-actions">${finish}<button class="button button-primary" type="button" data-return-home>Return home</button></div></div>`
+    : `<div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
+    <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>`;
   return `<section class="session-ending" tabindex="-1" aria-labelledby="session-ending-heading">
     <h3 id="session-ending-heading">Session check-in</h3>
     <fieldset class="session-assessments"><legend>Understanding and playing can develop at different speeds.</legend>
@@ -259,16 +271,15 @@ export function renderSessionEnding(session, state, reinforcements, context = {}
     <p class="observable-outcome"><strong>Observable outcome:</strong> ${session.outcome}</p>
     <div class="keep-playing"><p class="eyebrow">Optional extension</p><h3>Keep Playing</h3><p>Stop after the core if that is enough today. These ideas are optional and are not required by the next session.</p>
     <ul>${session.keepPlaying.map((activity) => `<li>${activity}</li>`).join('')}</ul>${(session.keepPlayingBlocks ?? []).map((block) => renderBlock(block, context)).join('')}</div>
-    <div class="completion-choice"><h3>Choose what happens next</h3><p>Finish records completion without moving on. When another session is available, Continue records completion and opens it. Your reflections can still say Practicing or Stuck.</p>
-    <div class="session-actions"><button class="button button-secondary" type="button" data-finish-session ${state.completed ? 'disabled' : ''}>${state.completed ? 'Finished for today' : 'Finish for today'}</button><button class="button button-primary" type="button" data-continue-session>Continue to next session</button></div></div>
+    ${completion}
   </section>`;
 }
 
-export function renderSessionStep(session, stepIndex, state, { music, reinforcements, assets = {} }) {
+export function renderSessionStep(session, stepIndex, state, { music, reinforcements, assets = {}, endOfCatalog = false }) {
   const step = session.steps[stepIndex];
   const stepAssessment = state.stepAssessments?.[step.id] ?? {};
   const blocks = step.blocks.map((block) => renderBlock(block, { music, assets, stepAssessment })).join('');
-  const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements, { music, assets, stepAssessment }) : '';
+  const ending = stepIndex === session.steps.length - 1 ? renderSessionEnding(session, state, reinforcements, { music, assets, stepAssessment, endOfCatalog }) : '';
   return `<header class="step-header"><p class="eyebrow">Session ${session.id} · ${session.type} · Step ${stepIndex + 1} of ${session.steps.length} · ${step.kicker}</p><h2>${step.title}</h2><p>${step.intro}</p><button class="step-help" type="button" data-ask-chatgpt>Ask ChatGPT about this step</button></header>${blocks}${ending}`;
 }
 
@@ -286,8 +297,14 @@ export function renderSessionNavigation(sessions, progress, viewingSessionId) {
   const available = new Set(availableSessionIds(sessions, progress));
   const chapter = String(viewed.chapter).padStart(2, '0');
   const entries = sessions.filter((session) => session.chapter === viewed.chapter && available.has(session.id)).map((session) => {
-    const state = progress.sessions[session.id];
-    return `<li><button type="button" data-session="${session.id}" ${session.id === viewingSessionId ? 'aria-current="page"' : ''}><span>${state?.completed ? '✓' : session.id}</span><span><small>${session.type}</small>${session.title}</span></button></li>`;
+    const check = progress.sessions[session.id]?.completed
+      ? '<span class="session-nav-check" role="img" aria-label="Completed">✓</span>'
+      : '';
+    const current = session.id === viewingSessionId ? ' aria-current="page"' : '';
+    return `<li><button type="button" data-session="${session.id}"${current}>
+      <span class="session-nav-number">${session.id}</span>
+      <span class="session-nav-label"><small>${session.type}${check}</small><span class="session-nav-title">${session.title}</span></span>
+    </button></li>`;
   }).join('');
   return `<h3 class="nav-heading" id="session-list-heading">Chapter ${chapter} · Available Sessions</h3>
     <ol class="session-list" id="session-list" aria-labelledby="session-list-heading">${entries}</ol>`;

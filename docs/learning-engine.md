@@ -1,7 +1,7 @@
 # Shared Learning Engine
 
 Status: v0.2 Slice A reference implementation
-Implemented learner catalog: Sessions 001–048
+Implemented learner catalog: Sessions 001–052
 
 ## Purpose
 
@@ -110,9 +110,9 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 ## Navigation and reinforcement
 
-Only implemented sessions at or before `currentSessionId` are available. Sessions 001–024 complete Chapter 01 and Sessions 025–048 are the implemented portion of Chapter 02. An earlier session can be revisited, repeated, and left without changing the main position.
+Only implemented sessions at or before `currentSessionId` are available. The 52 learner-facing sessions complete Chapter 01 (001–024) and Chapter 02 (025–052). An earlier session can be revisited, repeated, and left without changing the main position.
 
-The lesson sidebar filters those available sessions by the chapter of the viewed session. Home offers cross-chapter revisits and Continue Learning opens the saved current session. Continuing from the end of a chapter follows ordinary catalog order.
+The lesson sidebar filters those available sessions by the chapter of the viewed session. Home offers cross-chapter revisits and Continue Learning opens the saved current session. Continuing from the end of a chapter follows ordinary catalog order. At the current end of the catalog, finishing Session 052 saves the milestone and offers a return home. The saved position stays on Session 052 and the learner can repeat it or revisit either chapter.
 
 Practicing shows one short repeat. Stuck shows one simpler prerequisite and may link to an earlier implemented session. Recording a reinforcement attempt only increments supportive history; it cannot complete, lock, reset, or advance a numbered session.
 
@@ -156,7 +156,7 @@ Arbitrary `voices` or unrecognized `staves` still fail with `polyphony-unsupport
 
 ## Deliberate limitations
 
-- Sessions 001–048 are learner-facing.
+- Chapter 03 has yet to be implemented. Qualified piano-educator and adult-beginner review are pending.
 - Listening and reference demonstrations use locally bundled spoken counts and compact synthesized tones, not teacher-performed piano recordings. Their pitch, timing, file format, and references are tested, but timbre, balance, and learning effectiveness still require human and teacher review.
 - Single-staff scores support 2/4, 3/4, and 4/4, with meter-aware beat grids and one spoken count-in bar in generated models. They show whole, half, and quarter notes, quarter and half rests, eighth-note pairs, and cross-bar ties between matching quarter notes. Pair onsets are checked against whole beats. A tie carries one synthesized attack through the first beat of the next bar. Tied examples use a single scrollable system, so the curve stays intact at narrow widths. Paired scores use 4/4 and retain the waiting sign.
 - The v2 migration supports the existing v1 shape; future schema versions need explicit migration functions rather than silent coercion.

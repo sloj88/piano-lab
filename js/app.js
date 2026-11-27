@@ -4,7 +4,7 @@ import { renderHome as renderHomeMarkup } from './home-renderer.js';
 import { musicLibrary } from './music-library.js';
 import { reinforcementCatalog } from './reinforcements.js';
 import { assetCatalog, sessionCatalog } from './session-catalog.js';
-import { continueTarget, createNavigation, revisitSession } from './session-navigation.js';
+import { continueTarget, createNavigation, nextSessionId, revisitSession } from './session-navigation.js';
 import { nextPulseFrame, pulseIntervalMs } from './pulse-guide.js';
 import { continueSession, finishSession } from './session-actions.js';
 import { calculateAssessmentProgress, createSessionProgressStore } from './session-progress.js';
@@ -127,7 +127,10 @@ function render({ focus = false } = {}) {
   const session = viewedSession();
   const state = progress.sessions[session.id];
   updateMetadata(session);
-  elements.step.innerHTML = renderSessionStep(session, state.stepIndex, state, { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+  elements.step.innerHTML = renderSessionStep(session, state.stepIndex, state, {
+    music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog,
+    endOfCatalog: nextSessionId(session.id, sessionCatalog) === null
+  });
   renderNavigation(session, state);
   updateProgress(session, state);
   configureEnding(session, state);
@@ -301,7 +304,9 @@ elements.step.addEventListener('click', (event) => {
     const session = viewedSession();
     progress = finishSession(store, session.id);
     render();
-    showToast(`Session ${session.id} is complete for today. You can repeat it whenever you choose.`);
+    const conclusion = $('#catalog-completion-heading');
+    if (conclusion) conclusion.focus({ preventScroll: true });
+    showToast(`Session ${session.id} is complete${conclusion ? '' : ' for today'}. You can repeat it whenever you choose.`);
     return;
   }
   const continueButton = event.target.closest('[data-continue-session]');
