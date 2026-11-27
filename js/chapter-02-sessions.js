@@ -28,7 +28,14 @@ function session({ id, title, type, objective, prerequisites, musicRefs, assetRe
     readiness: {
       ready: { label: 'Ready', guidance: 'Continue when you choose, or play once more.' },
       practicing: { label: 'Practicing', guidance: 'Try one short repeat and check what changed.', reinforcementRefs: [card], ...(repeat ? { exercise: repeat } : {}) },
-      stuck: { label: 'Stuck', guidance: 'Try the simpler starting point below, or revisit the earlier session.', reinforcementRefs: [card], earlierSessionId: revisit }
+      stuck: {
+        label: 'Stuck',
+        guidance: revisit
+          ? 'Try the simpler starting point below, or revisit the earlier session.'
+          : 'Try the simpler starting point below, or choose a session to revisit.',
+        reinforcementRefs: [card],
+        ...(revisit ? { earlierSessionId: revisit } : {})
+      }
     },
     reinforcementRefs: [card, ...additionalCards],
     pedagogicalReview: [`Session ${id} score, physical instructions, and beginner pacing require qualified piano-teacher review.`]
@@ -549,7 +556,7 @@ export const chapterTwoSessions = [
     id: '049', title: 'Read a New Line in Either Clef', type: 'Review', minutes: 13,
     objective: 'Use the score preview routine to read a new line in each clef.',
     prerequisites: ['029', '035', '044', '048'], musicRefs: ['C02-026', 'C02-049-T', 'C02-049-B'],
-    card: 'RF02-READ', revisit: '029',
+    card: 'RF02-READ',
     preview: [
       explain('Recall what you check on the page before your first sound. Use this familiar bar to rehearse the routine once.'),
       firstBar('C02-026', 'Warm-up · a familiar bar', { readingChallenge: true }),
@@ -602,7 +609,7 @@ export const chapterTwoSessions = [
     id: '051', title: 'Rehearse Your Reading Routine', type: 'Practice', minutes: 13,
     objective: 'Identify one difficulty in a fresh score and choose a repair you can use again.',
     prerequisites: ['046', '048', '049', '050'], musicRefs: ['C02-026', 'C02-051-T', 'C02-051-B'],
-    card: 'RF02-READ', revisit: '049',
+    card: 'RF02-READ',
     repeat: 'Pick one bar of the line you tried. Preview and play it slowly, then reconnect it from the preceding bar.',
     preview: [
       explain('A short repair starts where the trouble happened. Before you read a new line, rehearse how to find a bar and start there.'),
@@ -628,7 +635,7 @@ export const chapterTwoSessions = [
     prerequisites: ['046', '048', '051'],
     musicRefs: ['C02-026', 'C02-052-R', 'C02-052-T', 'C02-052-B', 'C02-P01', 'C02-P02'],
     assetRefs: ['c02-052-rhythm'], card: 'RF02-READ',
-    additionalCards: ['RF02-START', 'RF02-TWO', 'RF02-REST', 'RF02-PAIR', 'RF02-PIECE-T', 'RF02-PIECE-B'], revisit: '051',
+    additionalCards: ['RF02-START', 'RF02-TWO', 'RF02-REST', 'RF02-PAIR', 'RF02-PIECE-T', 'RF02-PIECE-B'],
     repeat: 'Choose support for one task. For a sight start, rehearse the silent setup in Session 026 or shorten the line to one bar. For rhythm, revisit Session 030 for the count-in, 036 for silence, or 038 for pairs. For piece continuity, replay one join from Session 046 or 048.',
     preview: [
       explain('Use the reading routine you have built through the chapter. Give yourself one comfortable attempt at each task and choose one thing to revisit afterward.'),

@@ -241,6 +241,11 @@ export const reinforcementCatalog = {
   },
   'RF02-READ': {
     id: 'RF02-READ', title: 'Preview, read, and repair one spot', sessions: ['049', '051', '052'], earlierSessionId: '029',
+    revisitOptions: [
+      { sessionId: '027', label: 'Treble' },
+      { sessionId: '028', label: 'Bass' },
+      { sessionId: '029', label: 'Reading routine' }
+    ],
     repeat: 'Choose the less secure clef. Preview the line, read it, and repair one spot. As a revisit, use a C02-051 line or an earlier reading card.',
     prerequisite: 'Try just one bar. Find its starting note from a landmark and use a fresh count-in. Revisit Session 027 for treble or 028 for bass.',
     readiness: 'Finds a start from the staff and reads or recovers a line.'

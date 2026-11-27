@@ -5,7 +5,7 @@ import { assetCatalog, sessionCatalog } from '../js/session-catalog.js';
 import { musicLibrary } from '../js/music-library.js';
 import { reinforcementCatalog } from '../js/reinforcements.js';
 import { renderHome } from '../js/home-renderer.js';
-import { audioControlLabels, renderSessionNavigation, renderSessionStep } from '../js/session-renderer.js';
+import { audioControlLabels, renderReadinessGuidance, renderSessionNavigation, renderSessionStep } from '../js/session-renderer.js';
 import { createSessionProgressStore } from '../js/session-progress.js';
 import { continueTarget, createNavigation, revisitSession } from '../js/session-navigation.js';
 import { continueSession, finishSession } from '../js/session-actions.js';
@@ -143,6 +143,25 @@ test('the 52 bpm milestone WAV contains two spoken beats, one silent beat, a pai
   assert.equal(sample(time(8) - 2), 0);
 });
 
+test('RF02-READ shows labeled treble, bass and routine revisits for Stuck', () => {
+  const buttons = (html) => Array.from(html.matchAll(/<button [^>]*type="button" data-revisit-session="(\d{3})">([^<]+)<\/button>/g),
+    ([, id, label]) => [id, label]);
+  for (const id of ['049', '051', '052']) {
+    const guidance = renderReadinessGuidance(session(id), { readiness: 'stuck' }, reinforcementCatalog);
+    assert.deepEqual(buttons(guidance), [
+      ['027', 'Revisit Session 027 — Treble'],
+      ['028', 'Revisit Session 028 — Bass'],
+      ['029', 'Revisit Session 029 — Reading routine']
+    ]);
+  }
+  assert.deepEqual(buttons(renderReadinessGuidance(session('052'), { readiness: 'practicing' }, reinforcementCatalog)),
+    [['029', 'Revisit Session 029']]);
+  assert.deepEqual(buttons(renderReadinessGuidance(session('031'), { readiness: 'stuck' }, reinforcementCatalog)),
+    [['030', 'Revisit Session 030']]);
+  assert.deepEqual(buttons(renderReadinessGuidance(session('031'), { readiness: 'practicing' }, reinforcementCatalog)),
+    [['003', 'Revisit Session 003']]);
+});
+
 test('a saved 48-session catalog can finish Chapter 02 and revisit without losing history', () => {
   const records = new Map();
   const storage = { getItem: (key) => records.get(key), setItem: (key, value) => records.set(key, value) };
@@ -179,5 +198,11 @@ test('a saved 48-session catalog can finish Chapter 02 and revisit without losin
   assert.match(renderHome(sessionCatalog, after), /Continue Learning · Session 052/);
   const navigation = revisitSession('024', sessionCatalog, after, createNavigation(after));
   assert.match(renderSessionNavigation(sessionCatalog, after, navigation.viewingSessionId), /Chapter 01 · Available Sessions/);
+  for (const id of ['027', '028']) {
+    assert.ok(ending.includes(`data-revisit-session="${id}"`));
+    const support = revisitSession(id, sessionCatalog, after, createNavigation(after));
+    assert.equal(support.viewingSessionId, id);
+    assert.equal(revisitSession('052', sessionCatalog, after, support).viewingSessionId, '052');
+  }
   assert.deepEqual(createSessionProgressStore(storage, sessionCatalog).load(), after);
 });

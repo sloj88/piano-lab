@@ -240,7 +240,11 @@ export function renderReadinessGuidance(session, state, reinforcements) {
   if (!reinforcement) return `<p class="readiness-guidance"><strong>${config.label}:</strong> ${config.guidance}</p>`;
   const instruction = config.exercise ?? (readiness === 'stuck' ? reinforcement.prerequisite : reinforcement.repeat);
   const earlierSessionId = config.earlierSessionId ?? reinforcement.earlierSessionId;
-  return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${earlierSessionId ? `<button class="text-button" type="button" data-revisit-session="${earlierSessionId}">Revisit Session ${earlierSessionId}</button>` : ''}</div>`;
+  const options = readiness === 'stuck' && !config.earlierSessionId ? reinforcement.revisitOptions : undefined;
+  const revisits = options ?? (earlierSessionId ? [{ sessionId: earlierSessionId }] : []);
+  const revisitButtons = revisits.map(({ sessionId, label }) =>
+    `<button class="text-button" type="button" data-revisit-session="${sessionId}">Revisit Session ${sessionId}${label ? ` — ${label}` : ''}</button>`).join('');
+  return `<div class="reinforcement-card"><p><strong>${config.label}:</strong> ${config.guidance}</p><h4>${reinforcement.title}</h4><p>${instruction}</p><button class="text-button" type="button" data-reinforcement="${reinforcement.id}" data-reinforcement-kind="${readiness}">I tried this support</button>${revisitButtons}</div>`;
 }
 
 export function renderSessionEnding(session, state, reinforcements, context = {}) {
