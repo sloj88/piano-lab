@@ -1,7 +1,7 @@
 # Shared Learning Engine
 
 Status: v0.2 Slice A reference implementation
-Implemented learner catalog: Sessions 001–040
+Implemented learner catalog: Sessions 001–048
 
 ## Purpose
 
@@ -110,7 +110,7 @@ The migration never writes, changes, or removes the v1 key. The first subsequent
 
 ## Navigation and reinforcement
 
-Only implemented sessions at or before `currentSessionId` are available. Sessions 001–024 complete Chapter 01 and Sessions 025–040 begin Chapter 02. An earlier session can be revisited, repeated, and left without changing the main position.
+Only implemented sessions at or before `currentSessionId` are available. Sessions 001–024 complete Chapter 01 and Sessions 025–048 are the implemented portion of Chapter 02. An earlier session can be revisited, repeated, and left without changing the main position.
 
 The lesson sidebar filters those available sessions by the chapter of the viewed session. Home offers cross-chapter revisits and Continue Learning opens the saved current session. Continuing from the end of a chapter follows ordinary catalog order.
 
@@ -156,9 +156,9 @@ Arbitrary `voices` or unrecognized `staves` still fail with `polyphony-unsupport
 
 ## Deliberate limitations
 
-- Sessions 001–040 are learner-facing.
+- Sessions 001–048 are learner-facing.
 - Listening and reference demonstrations use locally bundled spoken counts and compact synthesized tones, not teacher-performed piano recordings. Their pitch, timing, file format, and references are tested, but timbre, balance, and learning effectiveness still require human and teacher review.
-- Single-staff scores support 2/4, 3/4, and 4/4, with meter-aware beat grids and one spoken count-in bar in generated models. They show whole, half, and quarter notes, quarter and half rests, and eighth-note pairs. Pair onsets are checked against whole beats and each eighth lasts exactly half a beat. Paired scores use 4/4 and retain the waiting sign.
+- Single-staff scores support 2/4, 3/4, and 4/4, with meter-aware beat grids and one spoken count-in bar in generated models. They show whole, half, and quarter notes, quarter and half rests, eighth-note pairs, and cross-bar ties between matching quarter notes. Pair onsets are checked against whole beats. A tie carries one synthesized attack through the first beat of the next bar. Tied examples use a single scrollable system, so the curve stays intact at narrow widths. Paired scores use 4/4 and retain the waiting sign.
 - The v2 migration supports the existing v1 shape; future schema versions need explicit migration functions rather than silent coercion.
 - localStorage remains browser/device-local with no account or cloud synchronization.
 - The engine records self-report and completion; it does not verify playing.

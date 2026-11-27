@@ -214,5 +214,29 @@ export const reinforcementCatalog = {
     repeat: 'Tap and play C02-038 bar 1. For a pair at the end of a bar, loop it into the next beat 1. Practice in the clef that needs work.',
     prerequisite: 'Speak “1-and, 2” and tap the pair slowly on your leg.',
     readiness: 'Places both attacks inside one beat and lands the next beat on time.'
+  },
+  'RF02-EAR': {
+    id: 'RF02-EAR', title: 'Hear the extra attack', sessions: ['041'], earlierSessionId: '038',
+    repeat: 'Hear both C02-041 recordings, match each to its card, and play the version with two C attacks inside beat 1.',
+    prerequisite: 'Listen and point to the first beat. Tap just that beat.',
+    readiness: 'Hears the extra attack and locates it on the page.'
+  },
+  'RF02-TIE': {
+    id: 'RF02-TIE', title: 'Hold through the barline', sessions: ['042', '043', '044'], earlierSessionId: '005',
+    repeat: 'Play both C02-042 versions and say which has a new attack at bar 2. For bass, retry the sustained C in C02-043.',
+    prerequisite: 'Play one familiar two-beat held note.',
+    readiness: 'Holds through the next downbeat with one attack and a timed release.'
+  },
+  'RF02-PIECE-T': {
+    id: 'RF02-PIECE-T', title: 'Repair one join in Window Lights', sessions: ['045', '046'], earlierSessionId: '032',
+    repeat: 'Choose the weaker four-bar section of Window Lights. Count three, play the section, then reconnect just its hardest join.',
+    prerequisite: 'Count and play only the troublesome bar with a starting-note hint if helpful.',
+    readiness: 'Starts either section from the score and resumes after one repair.'
+  },
+  'RF02-PIECE-B': {
+    id: 'RF02-PIECE-B', title: 'Carry the pair into the next bar', sessions: ['047', '048'], earlierSessionId: '040',
+    repeat: 'Loop one beat-2 pair into the next bar in Footpath. Then read the four-bar section around it.',
+    prerequisite: 'Speak and tap that rhythm. Revisit C02-040 if the bass subdivision feels uncertain.',
+    readiness: 'Lands the next downbeat and finishes the section without rushing.'
   }
 };

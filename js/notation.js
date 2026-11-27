@@ -24,16 +24,20 @@ export function bassPitchY(pitch) {
 }
 
 function eventText(event) {
-  if (event.kind !== 'rest') return `${event.pitch} ${event.rhythm}${event.hand ? ` ${event.hand}` : ''}`;
+  if (event.kind !== 'rest') return `${event.pitch} ${event.rhythm}${event.hand ? ` ${event.hand}` : ''}${tieText(event)}`;
   if (event.rhythm === 'half-rest') return 'half rest, two silent beats';
   return event.rhythm === 'whole-measure-rest' ? 'waits for all four beats' : 'quarter rest, one silent beat';
+}
+
+function tieText(event) {
+  return event.tieToNext ? ', tied to the first note of the next bar without a new attack' : '';
 }
 
 export function notationText(example) {
   if (example.kind === 'paired-score') {
     return example.measures.map((measure, index) => `Measure ${index + 1}: RH ${measure.staves.treble.events.map(eventText).join(', ')}; LH ${measure.staves.bass.events.map(eventText).join(', ')}`).join('. ');
   }
-  return example.measures.map((measure, index) => `Measure ${index + 1}: ${measure.events.map(eventText).join(', ')}`).join('. ');
+  return example.measures.map((measure, index) => `Measure ${measure.displayNumber ?? index + 1}: ${measure.events.map(eventText).join(', ')}`).join('. ');
 }
 
 export function beatGridMarkup(example) {
@@ -41,6 +45,10 @@ export function beatGridMarkup(example) {
     const beats = [];
     for (let index = 0; index < measure.events.length; index += 1) {
       const event = measure.events[index];
+      if (index === 0 && example.measures[measureIndex - 1]?.events.at(-1)?.tieToNext) {
+        beats.push('<div class="is-held"><strong>1</strong><span>keep holding</span></div>');
+        continue;
+      }
       if (event.rhythm === 'eighth') {
         const next = measure.events[++index];
         const count = beats.length + 1;
@@ -55,7 +63,8 @@ export function beatGridMarkup(example) {
           : `<div class="is-held"><strong>${beats.length + 1}</strong><span>hold</span></div>`);
       }
     }
-    return `<section aria-label="Measure ${measureIndex + 1} beat guide"><p>Measure ${measureIndex + 1}</p><div class="beat-grid" style="--measure-beats:${example.meter.beats}">${beats.join('')}</div></section>`;
+    const number = measure.displayNumber ?? measureIndex + 1;
+    return `<section aria-label="Measure ${number} beat guide"><p>Measure ${number}</p><div class="beat-grid" style="--measure-beats:${example.meter.beats}">${beats.join('')}</div></section>`;
   }).join('')}</div>`;
 }
 
@@ -89,11 +98,11 @@ function readingDescription(example, clef) {
   const treble = ['ledger line below the staff', 'space below the staff', 'bottom line', 'first space', 'second line'];
   const bass = ['second space', 'middle line', 'third space', 'fourth line', 'fourth space'];
   const positions = clef === 'bass' ? bass : treble;
-  return example.measures.map(({ events }, index) => {
+  return example.measures.map(({ events, displayNumber }, index) => {
     const notes = events.map((event) => event.kind === 'rest'
       ? eventText(event)
-      : `${positions['CDEFG'.indexOf(event.pitch[0])]}, ${event.rhythm} note`);
-    return `Measure ${index + 1}: ${notes.join('; ')}`;
+      : `${positions['CDEFG'.indexOf(event.pitch[0])]}, ${event.rhythm} note${tieText(event)}`);
+    return `Measure ${displayNumber ?? index + 1}: ${notes.join('; ')}`;
   }).join('. ');
 }
 
@@ -102,15 +111,22 @@ export function scoreMarkup(example, options = {}) {
   const lead = clef === 'treble' ? TREBLE_LEAD : clef === 'bass' ? BASS_LEAD : NEUTRAL_LEAD;
   const measureWidth = options.enlarged ? 180 : MEASURE_WIDTH;
   const width = lead + example.measures.length * measureWidth + 12;
-  const height = options.showLabels ? 126 : 108;
+  const hasDynamic = example.measures.some((measure) => measure.dynamic);
+  const dynamicY = options.showLabels ? 135 : 114;
+  const height = hasDynamic ? dynamicY + 6 : options.showLabels ? 126 : 108;
   const flatEvents = example.measures.flatMap((measure) => measure.events);
   let flatIndex = 0;
+  let tieStart;
   let measures = '';
   example.measures.forEach((measure, measureIndex) => {
     const startX = lead + measureIndex * measureWidth;
     let onset = 0;
     let notes = '';
     const beatWidth = (measureWidth - 28) / example.meter.beats;
+    if (measure.dynamic) notes += `<text class="dynamic-label" x="${startX + 18}" y="${dynamicY}">${measure.dynamic}</text>`;
+    if (measureIndex > 0 && measure.sectionStart) {
+      notes += `<line class="barline section-barline" x1="${startX + 4}" y1="${STAFF_TOP}" x2="${startX + 4}" y2="${STAFF_BOTTOM}"/>`;
+    }
     let beamY;
     for (const [eventIndex, event] of measure.events.entries()) {
       const x = startX + 18 + onset * beatWidth;
@@ -126,6 +142,14 @@ export function scoreMarkup(example, options = {}) {
         ? STAFF_BOTTOM - (example.notation.staffSteps[flatIndex] * STAFF_GAP / 2)
         : clef === 'bass' ? bassPitchY(event.pitch) : treblePitchY(event.pitch);
       const showFinger = options.showAllFingers || (options.showStartingFinger && flatIndex === 0);
+      if (tieStart && eventIndex === 0) {
+        const left = tieStart.x + 6;
+        const right = x - 6;
+        const depth = y >= 80 ? 9 : 12;
+        notes += `<path class="score-tie" d="M ${left} ${y + 5} Q ${(left + right) / 2} ${y + 5 + depth} ${right} ${y + 5}"/>`;
+        tieStart = undefined;
+      }
+      if (event.tieToNext) tieStart = { x };
       if (event.rhythm === 'eighth' && Number.isInteger(onset)) {
         const nextPitch = measure.events[eventIndex + 1].pitch;
         const nextY = clef === 'bass' ? bassPitchY(nextPitch) : treblePitchY(nextPitch);
@@ -141,7 +165,9 @@ export function scoreMarkup(example, options = {}) {
   });
   const clefSymbols = clef === 'neutral' ? '' : clefMarkup(clef, 0, example.meter);
   const context = example.hand ? `${clef} clef, ${example.hand === 'LH' ? 'left' : 'right'} hand, ${example.meter.beats}/${example.meter.beatValue}. ` : '';
-  const description = options.readingChallenge ? readingDescription(example, clef) : notationText(example);
+  const dynamic = example.measures.find((measure) => measure.dynamic)?.dynamic;
+  const dynamicText = dynamic === 'p' ? 'p, soft. ' : dynamic === 'f' ? 'f, comfortably strong. ' : '';
+  const description = dynamicText + (options.readingChallenge ? readingDescription(example, clef) : notationText(example));
   const direction = options.showDirections ? `<p class="score-directions">Shape: ${flatEvents.slice(1).map((event, index) => {
     const change = pitchIndex(event.pitch) - pitchIndex(flatEvents[index].pitch);
     return change === 0 ? 'repeat' : change > 0 ? 'up' : 'down';

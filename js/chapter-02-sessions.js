@@ -13,11 +13,11 @@ const model = (id, counts, transcript, bpm = 56) => ({
   tracks: [{ assetRef: id, label: `Play with a ${counts}-beat count-in` }], transcript
 });
 
-function session({ id, title, type, objective, prerequisites, musicRefs, assetRefs = [], card, additionalCards = [], revisit, repeat,
+function session({ id, title, type, objective, prerequisites, musicRefs, assetRefs = [], card, additionalCards = [], revisit, repeat, minutes = 12,
   preview, demonstration, practice, outcome, understanding, playing, extension }) {
   return {
     id, title, type, chapter: 2, objective, prerequisites,
-    duration: { min: 12, max: 12 }, musicRefs, assetRefs,
+    duration: { min: minutes, max: minutes }, musicRefs, assetRefs,
     steps: [
       { id: 'preview', title: 'Preview the score', kicker: 'Find your starting point', intro: objective, blocks: preview },
       { id: 'model', title: 'Follow the example', kicker: 'Connect the marks to the keys', intro: 'Trace the score before playing.', blocks: demonstration },
@@ -349,5 +349,200 @@ export const chapterTwoSessions = [
     understanding: 'I can recognize the same subdivision in treble and bass.',
     playing: 'I can play the bass pair and following quarter at an even pace.',
     extension: 'Play the treble and bass versions with a separate count-in for each.'
+  }),
+  session({
+    id: '041', title: 'Hear One Attack or Two', type: 'Review',
+    objective: 'Hear a subdivided beat and match it to the score while the pulse stays steady.',
+    prerequisites: ['030', '031', '038', '040'], musicRefs: ['C02-041-A', 'C02-041-B'],
+    assetRefs: ['c02-041-a', 'c02-041-mystery'], card: 'RF02-EAR', revisit: '038',
+    preview: [
+      explain('The first beat can have one quarter-note attack or two eighth-note attacks. Both take the same amount of time.'),
+      score(['C02-041-A', 'C02-041-B'], { readingChallenge: true }),
+      tryIt('Point to beat 1 in each card. Tap it once for the quarter and twice for the pair, then land on beat 2 at the same pace.', 'Say “1, 2” for the first card and “1-and, 2” for the second.')
+    ],
+    demonstration: [
+      demonstrate('Listen after the two spoken counts. Choose the matching card and say how many attacks you heard on beat 1. Then open the answer to check.'),
+      score(['C02-041-A', 'C02-041-B'], { readingChallenge: true }),
+      { type: 'audio-reference', title: 'Which card matches?', tracks: [{ assetRef: 'c02-041-mystery', label: 'Play the mystery rhythm' }],
+        transcript: 'Two spoken counts, then two bars. The answer describes the first beat after your choice.' },
+      { type: 'audio-reference', title: 'Compare both cards at 52 bpm', collapsed: true, summary: 'Reveal the answer after choosing',
+        tracks: [{ assetRef: 'c02-041-a', label: 'Play Card A' }, { assetRef: 'c02-041-mystery', label: 'Play Card B' }],
+        transcript: 'The mystery recording is Card B. Its first beat has two C3 attacks. Card A uses one C3 quarter note there. Both then play D3 on beat 2 and hold E3 for two beats in bar 2.' }
+    ],
+    practice: [
+      reading(['C02-041-A', 'C02-041-B']),
+      tryIt('Speak and tap each rhythm, then play both cards with your left hand. Let the C key rise easily between the two attacks in the pair.', 'Try the two attacks slowly on lower C before adding the other notes.')
+    ],
+    outcome: 'Could you hear the extra attack and place it inside one beat?',
+    understanding: 'I can hear the difference between the two first beats.',
+    playing: 'I can play both versions while keeping the same pulse.',
+    extension: 'Play the two scores in reverse order.'
+  }),
+  session({
+    id: '042', title: 'Hold Across the Barline', type: 'Learn',
+    objective: 'Read a tie between identical pitches and carry one key press across the barline.',
+    prerequisites: ['030', '033', '039', '041'], musicRefs: ['C02-042-A', 'C02-042-B'],
+    assetRefs: ['c02-042-a', 'c02-042-b'], card: 'RF02-TIE', revisit: '005',
+    preview: [
+      explain('A tie is a curve between two notes of the same pitch. Press once and hold for both written durations. The next bar still begins on time.'),
+      score(['C02-042-A'], { showBeatGrid: true }),
+      tryIt('Trace the curve from middle C at the end of bar 1 to the same note at the start of bar 2. Tap on 2 and keep your finger down through the next 1.', 'Say “2, 1” evenly while the finger stays down.')
+    ],
+    demonstration: [
+      demonstrate('Compare the two scores. Listen at the barline. The tied C carries through the next 1. The same notes without the curve call for a new attack on 1.'),
+      score(['C02-042-A', 'C02-042-B']),
+      { type: 'audio-reference', title: 'Compare holding and repeating at 56 bpm', tracks: [{ assetRef: 'c02-042-a', label: 'Hear the tied C' }, { assetRef: 'c02-042-b', label: 'Hear the repeated C' }],
+        transcript: 'Both start after a spoken two-count. The first holds middle C through the barline for two beats. The second plays C again on the new 1.' }
+    ],
+    practice: [
+      score(['C02-042-A', 'C02-042-B']),
+      tryIt('Count through both versions and play them separately. In the tied score, hold C through bar 2 beat 1 and play D on beat 2.', 'Trace both C noteheads before you play. Think “press, hold” on 2 and the next 1.')
+    ],
+    outcome: 'Did you hear one C attack in the tied version and two in the repeat?',
+    understanding: 'I can explain why the tie has two noteheads and one attack.',
+    playing: 'I can keep C down across the barline and change notes on time.',
+    extension: 'Repeat just the tied bars at a steady count.'
+  }),
+  session({
+    id: '043', title: 'Follow a Bass Tie', type: 'Practice',
+    objective: 'Hold lower C from beat 3 through the next beat 1 in bass-clef 3/4.',
+    prerequisites: ['035', '042'], musicRefs: ['C02-043', 'C02-042-A', 'C02-042-B'],
+    assetRefs: ['c02-043-model'], card: 'RF02-TIE', revisit: '042',
+    preview: [
+      explain('The same curved tie works in bass and in a three-beat bar. Keep counting through the new 1.'),
+      score(['C02-043'], { readingChallenge: true }),
+      tryIt('Point to the tie on beat 3 and follow it to the next 1. Say “3, 1, 2” and tap only 3 and 2.', 'Keep your tapping finger down across the middle count.')
+    ],
+    demonstration: [
+      demonstrate('Follow both count guides. The tied C3 continues as the second bar begins. The next attack is D3 on beat 2.'),
+      score(['C02-043'], { showBeatGrid: true })
+    ],
+    practice: [
+      reading(['C02-043']),
+      tryIt('Count in for three beats, speak both bars, and tap only the attacks. Play both bars with your left hand. Release C as beat 2 arrives and play D.', 'If you replay C by habit, practice just the three counts around the join.'),
+      { ...model('c02-043-model', 'three', 'Three spoken counts, then D3 for two beats, one C3 across 3 and the next 1, then D3 for two beats.'),
+        collapsed: true, summary: 'Hear the model after trying both bars' }
+    ],
+    outcome: 'Did C continue through the new 1, with D arriving on 2?',
+    understanding: 'I can find the two tied counts in a 3/4 score.',
+    playing: 'I can hold across the barline without pressing again.',
+    extension: 'Recall and compare the two treble versions from Session 042.'
+  }),
+  session({
+    id: '044', title: 'Rest, Repeat, or Hold', type: 'Review',
+    objective: 'Choose whether to release, press again, or keep holding while reading a mixed rhythm.',
+    prerequisites: ['036', '039', '040', '043'], musicRefs: ['C02-044-T', 'C02-044-B'],
+    card: 'RF02-TIE', additionalCards: ['RF02-REST', 'RF02-PAIR'], revisit: '043',
+    repeat: 'Choose one beat to repair. For silence, revisit 036. For the pair, revisit 039 or 040. For a hold, revisit 042 or 043. Then retry the beat in its bar.',
+    preview: [
+      explain('The score can ask for a release, a fresh attack on the same key, or a continuing hold. Look for the mark that tells you which action to use.'),
+      score(['C02-044-T', 'C02-044-B'], { readingChallenge: true }),
+      tryIt('Find a rest, an untied repeat, and a tie. Say what your hand does at each one before you try the pitches.', 'Look for a rest sign, equal note heights without a curve, or equal note heights joined by a curve.')
+    ],
+    demonstration: [
+      demonstrate('Point to a beat where the hand must change what it does. Speak the action, then tap only the written attacks. Count through the silent and held beats.'),
+      score(['C02-044-T', 'C02-044-B'], { readingChallenge: true })
+    ],
+    practice: [
+      reading(['C02-044-T', 'C02-044-B']),
+      tryIt('Preview and play the treble and bass cards separately around 48–58 bpm. Try each before revealing note names. Choose one beat to repair, then play its bar in context.', 'If the count slips, speak the bar without playing, then tap and try it again.')
+    ],
+    outcome: 'Which action is clearer after your one-beat repair?',
+    understanding: 'I can distinguish written repeats, rests, and ties.',
+    playing: 'I can make all three actions sound different at a steady pulse.',
+    extension: 'Try the cards again in the opposite order.'
+  }),
+  session({
+    id: '045', title: 'Build Window Lights', type: 'Practice', minutes: 13,
+    objective: 'Read and prepare the right-hand piece in two four-bar sections.',
+    prerequisites: ['019', '027', '032', '044'], musicRefs: ['C02-P01'],
+    card: 'RF02-PIECE-T', revisit: '032',
+    preview: [
+      explain('Window Lights has three beats per bar and begins softly. The p asks for a gentle sound.'),
+      firstBar('C02-P01', 'Window Lights · opening bar', { showStartingFinger: true, readingChallenge: true }),
+      tryIt('Point to 3/4 and p. Find E4 with right-hand finger 3 and tap a three-count before sounding the first bar gently.', 'E4 is on the bottom line of the treble staff.')
+    ],
+    demonstration: [
+      score(['C02-P01'], { measureIndexes: [0, 1, 2, 3], sectionTitle: 'Window Lights · bars 1–4', readingChallenge: true }),
+      demonstrate('Tap the first four bars and notice which notes last two beats. Then count in and read those four bars by themselves.')
+    ],
+    practice: [
+      score(['C02-P01'], { measureIndexes: [4, 5, 6, 7], sectionTitle: 'Window Lights · bars 5–8', readingChallenge: true }),
+      tryIt('Find the start of bar 5. Give a new three-count and read bars 5–8. Practice both sections separately around 52–56 bpm before joining them. Repair the join or the last rest.', 'For bar 5, start on middle C with right-hand finger 1. Count the last silent beat before ending.')
+    ],
+    outcome: 'Can you start both sections from the score and finish each with a steady pulse?',
+    understanding: 'I can find the section starts and anticipate the longer notes.',
+    playing: 'I can read each section and keep groups of three.',
+    extension: 'Start at bar 5 with the finger hint closed.'
+  }),
+  session({
+    id: '046', title: 'Play Window Lights', type: 'Play',
+    objective: 'Play all eight bars with a steady three-beat pulse and a gentle ending.',
+    prerequisites: ['045'], musicRefs: ['C02-P01'], assetRefs: ['c02-p01-reference'], card: 'RF02-PIECE-T', revisit: '045',
+    preview: [
+      explain('Use the complete score to plan your start and finish. A double barline separates the two sections.'),
+      score(['C02-P01'], { readingChallenge: true }),
+      tryIt('Find the first note, point to the start of bar 5, and scroll to the last rest. Say the three-count and decide how softly you want to begin.', 'Follow the measure numbers to bar 8. The rest lasts through the final beat.')
+    ],
+    demonstration: [
+      score(['C02-P01'], { readingChallenge: true }),
+      demonstrate('Preview your starting position and the last bar. Count three, then give the whole score a first trial without stopping for small slips.'),
+      { ...model('c02-p01-reference', 'three', 'A spoken three-count precedes eight soft bars. The final C holds for two beats, followed by one silent beat.', 60),
+        collapsed: true, summary: 'Hear the reference after previewing the score or trying it' }
+    ],
+    practice: [
+      score(['C02-P01'], { readingChallenge: true }),
+      tryIt('Play all eight bars at a comfortable pace. Pick one bar or join to repair slowly. Play again from the beginning and keep counting through the last silent beat.', 'For the ending, practice bar 8 alone and breathe out as the final beat passes.')
+    ],
+    outcome: 'Where did your repair help, and did the ending stay gentle?',
+    understanding: 'I can name one useful repair and the sound I wanted at the end.',
+    playing: 'I can play through all eight bars and count the final rest.',
+    extension: 'Perform once at a comfortable tempo for an imagined listener.'
+  }),
+  session({
+    id: '047', title: 'Build Footpath', type: 'Practice', minutes: 13,
+    objective: 'Prepare both left-hand sections and carry each eighth pair into the next bar.',
+    prerequisites: ['019', '028', '031', '039', '040', '046'], musicRefs: ['C02-P02'], card: 'RF02-PIECE-B', revisit: '040',
+    preview: [
+      explain('Footpath has two beats per bar. The f calls for a full, comfortable sound. Keep the hand easy and the pulse like a walk.'),
+      firstBar('C02-P02', 'Footpath · opening bar', { showStartingFinger: true, readingChallenge: true }),
+      tryIt('Point to 2/4, f, and the beam on beat 2. Find lower C with finger 5 and tap “1, 2-and, 1” without speeding up.', 'Keep the two numbered beats evenly spaced.')
+    ],
+    demonstration: [
+      score(['C02-P02'], { measureIndexes: [0, 1, 2, 3], sectionTitle: 'Footpath · bars 1–4', readingChallenge: true }),
+      demonstrate('Tap from the pair in bar 1 into the first beat of bar 2. Then count the silence in bar 3 and read the whole section after a two-count.')
+    ],
+    practice: [
+      score(['C02-P02'], { measureIndexes: [4, 5, 6, 7], sectionTitle: 'Footpath · bars 5–8', readingChallenge: true }),
+      tryIt('Give a fresh two-count and read bars 5–8 at 48–54 bpm. Loop the pair in bar 5 into the next bar, then try joining the two sections after each feels comfortable.', 'For bar 5, start on F3 with left-hand finger 2. Let the fingers stay close to the keys.')
+    ],
+    outcome: 'Could you land the next 1 after each pair and keep the rest silent?',
+    understanding: 'I can find the two pairs and the rest before playing.',
+    playing: 'I can read both sections and keep the walking pulse.',
+    extension: 'Start at bar 5 with the finger hint closed.'
+  }),
+  session({
+    id: '048', title: 'Play Footpath', type: 'Play',
+    objective: 'Play all eight bars with a steady walking pulse and a comfortable strong sound.',
+    prerequisites: ['047'], musicRefs: ['C02-P02'], assetRefs: ['c02-p02-reference'], card: 'RF02-PIECE-B', revisit: '047',
+    preview: [
+      explain('Use the complete score to plan the two places where a pair leads into a new bar. Keep the strong sound comfortable and the pulse even.'),
+      score(['C02-P02'], { readingChallenge: true }),
+      tryIt('Find the pairs in bars 1 and 5 and the rest in bar 3. Tap each pair into the following downbeat before you play.', 'Slow your count until the next 1 arrives without a rush.')
+    ],
+    demonstration: [
+      score(['C02-P02'], { readingChallenge: true }),
+      demonstrate('Give a two-count and make a first trial from start to finish. Notice one place that needs a steadier pulse.'),
+      { ...model('c02-p02-reference', 'two', 'A spoken two-count precedes eight bars with a full sound. Pairs divide beat 2 in bars 1 and 5. Bar 3 ends with one silent beat.', 56),
+        collapsed: true, summary: 'Hear the reference after previewing the score or trying it' }
+    ],
+    practice: [
+      score(['C02-P02'], { readingChallenge: true }),
+      tryIt('Choose one pair, rest, or join to repair. Say the count and play just that spot slowly, then give a fresh two-count and replay the complete piece.', 'Use a tempo where your left hand stays relaxed. Count through the rest even when there is no sound.')
+    ],
+    outcome: 'Did your repair help you finish with a steady pulse and easy left hand?',
+    understanding: 'I can name the repair that kept the pulse moving.',
+    playing: 'I can play through the piece with a comfortably strong sound.',
+    extension: 'Give bars 5–8 one quiet reading pass.'
   })
 ];
