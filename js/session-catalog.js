@@ -606,7 +606,7 @@ const session010Steps = [
     intro: 'One named repair is more useful than judging the whole performance.',
     blocks: [
       { type: 'practice', phase: 'try', instruction: 'Choose the least secure measure. Speak its count, play it twice, connect it once to the following measure when possible, then replay the complete piece.', hint: 'If the whole piece feels too large, prepare and play only Measures 1–2 today.' },
-      { type: 'audio-reference', title: 'Reference performances', collapsed: true, summary: 'Hear after my try', tracks: [{ assetRef: 'p01-practice', label: 'Practice version at 56 bpm' }, { assetRef: 'p01-musical', label: 'Musical version at 64 bpm' }], transcript: 'Spoken four-count, then the four written measures of Three-Step Walk.' },
+      { type: 'audio-reference', title: 'Reference performances', collapsed: true, summary: 'Hear after my try', tracks: [{ assetRef: 'p01-practice', label: 'Play the practice version at 56 bpm' }, { assetRef: 'p01-musical', label: 'Play the musical version at 64 bpm' }], transcript: 'Spoken four-count, then the four written measures of Three-Step Walk.' },
       { type: 'reflection', phase: 'reflect', prompt: 'Can you show your preview method and complete the phrase with a recognizable ending?', legacySelfCheck: true }
     ]
   }
@@ -843,7 +843,7 @@ const session016Steps = [
     intro: 'Practice each hand change, then keep the musical thread through all four measures.',
     blocks: [
       { type: 'practice', phase: 'try', instruction: 'Practice the Measure 1→2 and Measure 3→4 changes. Then count four and play all of Hello, Down There at a comfortable 52–60 bpm. Repair one transition and replay.', hint: 'If needed, play Measure 1, count one full silent four-beat measure with both hands prepared, then play Measure 2.' },
-      { type: 'audio-reference', title: 'Reference performances', collapsed: true, summary: 'Hear after my try', tracks: [{ assetRef: 'p02-practice', label: 'Practice version at 52 bpm' }, { assetRef: 'p02-musical', label: 'Reference version at 60 bpm' }], transcript: 'Four-count, then RH Measure 1, LH Measure 2, RH Measure 3, and LH Measure 4. No notes sound simultaneously.' },
+      { type: 'audio-reference', title: 'Reference performances', collapsed: true, summary: 'Hear after my try', tracks: [{ assetRef: 'p02-practice', label: 'Play the practice version at 52 bpm' }, { assetRef: 'p02-musical', label: 'Play the reference version at 60 bpm' }], transcript: 'Four-count, then RH Measure 1, LH Measure 2, RH Measure 3, and LH Measure 4. No notes sound simultaneously.' },
       { type: 'reflection', phase: 'reflect', prompt: 'Can you follow top/right and bottom/left staves and change hands while the count continues?', legacySelfCheck: true }
     ]
   }

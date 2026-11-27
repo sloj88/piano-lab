@@ -5,10 +5,32 @@ import { musicLibrary } from '../js/music-library.js';
 import { reinforcementCatalog } from '../js/reinforcements.js';
 import { assetCatalog, sessionCatalog } from '../js/session-catalog.js';
 import { createEmptySessionProgress } from '../js/session-progress.js';
-import { renderBlock, renderSessionStep, renderStepNavigation } from '../js/session-renderer.js';
+import { audioControlLabels, renderBlock, renderSessionStep, renderStepNavigation } from '../js/session-renderer.js';
 
 const session = sessionCatalog[0];
 const state = () => createEmptySessionProgress(sessionCatalog).sessions['001'];
+
+test('initial and replay audio labels preserve natural actions and specific accessible names', () => {
+  const progress = createEmptySessionProgress(sessionCatalog);
+  const cases = [
+    ['036', 1, 'c02-036-model', 'Play with a four-beat count-in'],
+    ['037', 1, 'c02-037-b', 'Play the mystery rhythm'],
+    ['007', 3, 'n001-a-shape', 'Hear the contour'],
+    ['002', 2, 'e001-pair-a', 'Play pair A', 'Play listening pair A'],
+    ['010', 3, 'p01-practice', 'Play the practice version at 56 bpm']
+  ];
+  for (const [id, stepIndex, ref, action, accessibleAction = action] of cases) {
+    const lesson = sessionCatalog.find((entry) => entry.id === id);
+    const html = renderSessionStep(lesson, stepIndex, progress.sessions[id], { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog });
+    const match = html.match(new RegExp(`data-audio-control="${ref}"[^>]*data-audio-action="([^"]+)" data-audio-accessible-action="([^"]+)" aria-label="([^"]+)">([^<]+)</button>`));
+    assert.ok(match, id);
+    assert.deepEqual(match.slice(1), [action, accessibleAction, accessibleAction, `▶ ${action}`]);
+    assert.deepEqual(audioControlLabels(match[1], match[2], true), {
+      text: `↻ ${action} again`,
+      accessible: `${accessibleAction} again`
+    });
+  }
+});
 
 test('Session 001 renders the published Explain, Demonstrate, Try, and Reflect experience', () => {
   const html = renderSessionStep(session, 0, state(), { music: musicLibrary, reinforcements: reinforcementCatalog });
