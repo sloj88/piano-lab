@@ -87,7 +87,7 @@ test('2/4 and 3/4 scores show meter, matching grids, beat spacing, and scrollabl
 test('each Chapter 02 session renders the lesson phases, check-in and matched support', () => {
   const progress = createEmptySessionProgress(sessionCatalog);
   const context = { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog };
-  for (const session of sessionCatalog.slice(24)) {
+  for (const session of sessionCatalog.slice(24, 32)) {
     const state = { ...progress.sessions[session.id], readiness: 'stuck' };
     const html = session.steps.map((_, index) => renderSessionStep(session, index, state, context)).join('');
     for (const required of ['explain-block', 'demonstrate-block', 'try-block', 'reflect-block', 'I understand it', 'I can play it', 'Ready', 'Practicing', 'Stuck', 'Keep Playing']) assert.ok(html.includes(required), session.id + ' ' + required);

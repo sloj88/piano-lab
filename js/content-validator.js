@@ -25,6 +25,9 @@ function validateMusicEvent(event, path, meter, errors, singleStaff = false) {
     return;
   }
   if (!['note', 'rest'].includes(event.kind)) errors.push(issue('event-kind', `${path}.kind`, 'Event kind must be note or rest.'));
+  if (Object.hasOwn(event, 'tieToNext') && (!singleStaff || !meter || event.tieToNext !== true)) {
+    errors.push(issue('tie-endpoint', path, 'A tie marker must be true and belong to a metered single-staff note.'));
+  }
   if (typeof event.rhythm !== 'string' || event.rhythm.length === 0) errors.push(issue('rhythm-required', `${path}.rhythm`, 'Every event requires a rhythmic value.'));
   else if (!RHYTHMS.has(event.rhythm)) errors.push(issue('rhythm', `${path}.rhythm`, `Unrecognized rhythmic value: ${event.rhythm}.`));
 
@@ -241,6 +244,19 @@ function validateMusic(music, assets, errors) {
           return;
         }
         measure.events.forEach((event, eventIndex) => validateMusicEvent(event, `${measurePath}.events.${eventIndex}`, example.meter, errors, true));
+        for (const [eventIndex, event] of measure.events.entries()) {
+          if (event?.tieToNext !== true) continue;
+          const next = example.measures[measureIndex + 1]?.events?.[0];
+          if (!['treble', 'bass'].includes(example.notation?.clef)
+            || eventIndex !== measure.events.length - 1
+            || event.kind !== 'note' || event.rhythm !== 'quarter' || event.beats !== 1
+            || next?.kind !== 'note' || next.rhythm !== 'quarter' || next.beats !== 1
+            || event.pitch !== next.pitch || event.finger !== next.finger || event.hand !== next.hand
+            || (event.hand !== undefined && event.hand !== (example.notation.clef === 'bass' ? 'LH' : 'RH'))
+            || next.tieToNext !== undefined) {
+            errors.push(issue('tie-endpoint', `${measurePath}.events.${eventIndex}`, 'A tie joins matching quarter notes and fingering from the last note of one bar to the first note of the next.'));
+          }
+        }
         const hasDurations = measure.events.every((event) => event && Number.isFinite(event.beats) && event.beats > 0);
         if (hasDurations && example.meter?.beats > 0) {
           const total = measure.events.reduce((sum, event) => sum + event.beats, 0);

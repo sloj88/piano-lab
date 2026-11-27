@@ -235,23 +235,58 @@ export const musicLibrary = {
   ], undefined, { min: 48, max: 58 }),
   'C02-040': chapterTwoExample('C02-040', 'An eighth-note pair in bass', 'bass', 2, [
     ['C3e', 'D3e', 'E3q'], ['D3q', 'C3q']
-  ], 'c02-040-model', { min: 48, max: 56, model: 52 })
+  ], 'c02-040-model', { min: 48, max: 56, model: 52 }),
+  'C02-041-A': chapterTwoExample('C02-041-A', 'Card A', 'bass', 2, [
+    ['C3q', 'D3q'], ['E3h']
+  ], 'c02-041-a', { min: 52, max: 52, model: 52 }),
+  'C02-041-B': chapterTwoExample('C02-041-B', 'Card B', 'bass', 2, [
+    ['C3e', 'C3e', 'D3q'], ['E3h']
+  ], 'c02-041-mystery', { min: 52, max: 52, model: 52 }),
+  'C02-042-A': chapterTwoExample('C02-042-A', 'Tie across the barline', 'treble', 2, [
+    ['D4q', 'C4q~'], ['C4q', 'D4q']
+  ], 'c02-042-a'),
+  'C02-042-B': chapterTwoExample('C02-042-B', 'Repeat across the barline', 'treble', 2, [
+    ['D4q', 'C4q'], ['C4q', 'D4q']
+  ], 'c02-042-b'),
+  'C02-043': chapterTwoExample('C02-043', 'A tie in bass', 'bass', 3, [
+    ['D3h', 'C3q~'], ['C3q', 'D3h']
+  ], 'c02-043-model'),
+  'C02-044-T': chapterTwoExample('C02-044-T', 'Treble review card', 'treble', 2, [
+    ['E4q', 'E4q~'], ['E4q', 'rq'], ['D4e', 'C4e', 'D4q'], ['C4h']
+  ], undefined, { min: 48, max: 58 }),
+  'C02-044-B': chapterTwoExample('C02-044-B', 'Bass review card', 'bass', 3, [
+    ['D3q', 'D3q', 'E3q~'], ['E3q', 'rh'], ['D3q', 'C3h']
+  ], undefined, { min: 48, max: 58 }),
+  'C02-P01': chapterTwoExample('C02-P01', 'Window Lights', 'treble', 3, [
+    ['E4q', 'F4q', 'G4q'], ['F4q', 'E4h'], ['D4q', 'E4q', 'F4q'], ['E4q', 'D4h'],
+    ['C4q', 'D4q', 'E4q'], ['F4q', 'E4h'], ['D4q', 'E4q', 'D4q'], ['C4h', 'rq']
+  ], 'c02-p01-reference', { min: 52, max: 56, model: 60 }, 'p'),
+  'C02-P02': chapterTwoExample('C02-P02', 'Footpath', 'bass', 2, [
+    ['C3q', 'D3e', 'E3e'], ['D3q', 'C3q'], ['C3q', 'rq'], ['C3h'],
+    ['F3q', 'E3e', 'D3e'], ['C3q', 'D3q'], ['E3q', 'D3q'], ['C3h']
+  ], 'c02-p02-reference', { min: 48, max: 54, model: 56 }, 'f')
 };
 
-function chapterTwoExample(id, title, clef, beats, bars, audioRef, tempo = { min: 52, max: 60, ...(audioRef ? { model: 56 } : {}) }) {
+function chapterTwoExample(id, title, clef, beats, bars, audioRef, tempo = { min: 52, max: 60, ...(audioRef ? { model: 56 } : {}) }, dynamic) {
   const fingers = clef === 'bass' ? [5, 4, 3, 2, 1] : [1, 2, 3, 4, 5];
   const values = { e: 'eighth', q: 'quarter', h: 'half', w: 'whole' };
   const measures = bars.map((bar) => bar.map((token) => {
     if (token === 'rq') return rest('quarter-rest');
     if (token === 'rh') return rest('half-rest');
     const finger = fingers['CDEFG'.indexOf(token[0])];
-    return note(token.slice(0, 2), finger, values[token[2]]);
+    const event = note(token.slice(0, 2), finger, values[token[2]]);
+    return token.endsWith('~') ? { ...event, tieToNext: true } : event;
   }));
-  return meteredExample(id, title, measures, {
+  const example = meteredExample(id, title, measures, {
     meter: { beats, beatValue: 4 }, notation: { clef }, hand: clef === 'bass' ? 'LH' : 'RH',
     tempo,
     ...(audioRef ? { audioRef } : {})
   });
+  if (dynamic) {
+    example.measures[0].dynamic = dynamic;
+    example.measures[4].sectionStart = true;
+  }
+  return example;
 }
 
 function meteredExample(id, title, measures, extra = {}) {

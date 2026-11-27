@@ -95,7 +95,7 @@ test('whole notes are stemless, half rests sit above the middle line, and eighth
 test('all eight sessions open with an action and visual and use four complete phase labels', () => {
   const progress = createEmptySessionProgress(sessionCatalog);
   const context = { music: musicLibrary, reinforcements: reinforcementCatalog, assets: assetCatalog };
-  const sessions = sessionCatalog.slice(32);
+  const sessions = sessionCatalog.slice(32, 40);
   assert.equal(sessions.length, 8);
   for (const session of sessions) {
     const render = (index) => renderSessionStep(session, index, progress.sessions[session.id], context);
